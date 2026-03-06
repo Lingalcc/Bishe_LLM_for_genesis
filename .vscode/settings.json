@@ -1,0 +1,8 @@
+{
+    "python.defaultInterpreterPath": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "python.analysis.extraPaths": [
+        "/home/lin/Bishe_LLM_for_genesis/Genesis"
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
+}

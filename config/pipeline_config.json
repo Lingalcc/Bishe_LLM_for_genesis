@@ -1,0 +1,86 @@
+{
+  "dataset_prepare": {
+    "generate": {
+      "num_samples": 4000,
+      "seed": 42,
+      "state_context_ratio": 0.7,
+      "out_dir": "data_prepare",
+      "alpaca_file": "genesis_franka_toolcall_alpaca.json",
+      "sharegpt_file": "genesis_franka_toolcall_sharegpt.json",
+      "stats_file": "genesis_franka_toolcall_stats.json"
+    },
+    "augment": {
+      "input_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+      "output_file": "data_prepare/genesis_franka_toolcall_alpaca_augmented.json",
+      "stats_file": "data_prepare/genesis_franka_toolcall_augment_stats.json",
+      "output_sharegpt_file": "data_prepare/genesis_franka_toolcall_sharegpt_augmented.json",
+      "seed": 42,
+      "num_source": 800,
+      "aug_per_sample": 2,
+      "api_base": "https://api.openai.com/v1",
+      "model": "gpt-5",
+      "api_key": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "temperature": 0.9,
+      "max_tokens": 1200,
+      "timeout": 120,
+      "max_retries": 5,
+      "sleep_seconds": 0.2
+    },
+    "calibration": {
+      "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+      "max_print_errors": 10,
+      "strict": false
+    }
+  },
+  "finetune": {
+    "train": {
+      "llamafactory_dir": "LLaMA-Factory",
+      "config": "LLaMA-Factory/examples/train_lora/qwen3_lora_sft_genesis_toolcall.yaml",
+      "gpus": "0",
+      "dry_run": false
+    }
+  },
+  "test": {
+    "accuracy_eval": {
+      "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+      "predictions_file": null,
+      "report_file": "pipeline/accuracy_test/accuracy_report.json",
+      "num_samples": 200,
+      "seed": 42,
+      "api_base": "https://api.openai.com/v1",
+      "model": "gpt-5",
+      "api_key": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "temperature": 0.0,
+      "max_tokens": 1200,
+      "timeout": 120,
+      "max_retries": 3,
+      "sleep_seconds": 0.0
+    },
+    "regression": {
+      "target": "all"
+    }
+  },
+  "app": {
+    "interactive": {
+      "enabled": true,
+      "show_viewer": true
+    },
+    "state_injection": {
+      "enable_instruction_to_action": true,
+      "enable_instruction_to_motion": true
+    },
+    "model": {
+      "api_base": "https://api.openai.com/v1",
+      "model": "gpt-5",
+      "api_key": "",
+      "temperature": 0.0,
+      "max_tokens": 1200,
+      "timeout": 120,
+      "max_retries": 3,
+      "sleep_seconds": 0.0,
+      "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。"
+    }
+  }
+}
