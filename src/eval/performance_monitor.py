@@ -507,7 +507,3 @@ def demo() -> None:
     output2, metrics2 = infer_once("请给出移动到 home 位姿的 action JSON。")
     print("输出:", output2)
     print("指标:", json.dumps(metrics2, ensure_ascii=False, indent=2))
-
-
-if __name__ == "__main__":
-    demo()

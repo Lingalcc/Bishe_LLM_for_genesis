@@ -1,0 +1,5 @@
+test:
+  accuracy_eval:
+    dataset_file: data_prepare/exp_01/genesis_franka_toolcall_alpaca.json
+    report_file: experiments/03_eval_exp/accuracy_report.json
+    num_samples: 50

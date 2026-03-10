@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse
 import json
 import random
 from collections import Counter
@@ -947,103 +946,54 @@ def generate_dataset(
     return alpaca, sharegpt, stats
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Generate high-quality Franka natural-language -> JSON SFT datasets."
-    )
-    parser.add_argument("--num-samples", type=int, default=4000, help="Number of samples to generate.")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
-    parser.add_argument(
-        "--state-context-ratio",
-        type=float,
-        default=0.7,
-        help="Ratio of samples that include [STATE_CONTEXT] state injection.",
-    )
-    parser.add_argument(
-        "--out-dir",
-        type=Path,
-        default=Path("data_prepare"),
-        help="Output directory.",
-    )
-    parser.add_argument(
-        "--alpaca-file",
-        type=str,
-        default="genesis_franka_toolcall_alpaca.json",
-        help="Output alpaca-format filename.",
-    )
-    parser.add_argument(
-        "--sharegpt-file",
-        type=str,
-        default="genesis_franka_toolcall_sharegpt.json",
-        help="Output sharegpt-format filename.",
-    )
-    parser.add_argument(
-        "--stats-file",
-        type=str,
-        default="genesis_franka_toolcall_stats.json",
-        help="Output stats filename.",
-    )
-    parser.add_argument(
-        "--action-map-file",
-        type=Path,
-        default=None,
-        help="JSON file for action sampling weights. Format: {'action_weights': {...}} or flat object.",
-    )
-    parser.add_argument(
-        "--action-map-json",
-        type=str,
-        default=None,
-        help="JSON string for action sampling weights. Format: {'action_weights': {...}} or flat object.",
-    )
-    return parser.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
-    if args.num_samples <= 0:
+def generate_and_save_dataset(
+    *,
+    num_samples: int = 4000,
+    seed: int = 42,
+    state_context_ratio: float = 0.7,
+    out_dir: Path = Path("data_prepare"),
+    alpaca_file: str = "genesis_franka_toolcall_alpaca.json",
+    sharegpt_file: str = "genesis_franka_toolcall_sharegpt.json",
+    stats_file: str = "genesis_franka_toolcall_stats.json",
+    action_map_file: Path | None = None,
+    action_map_json: str | None = None,
+) -> dict[str, Any]:
+    if num_samples <= 0:
         raise ValueError("--num-samples must be > 0")
 
-    out_dir: Path = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    if not 0.0 <= args.state_context_ratio <= 1.0:
+    if not 0.0 <= state_context_ratio <= 1.0:
         raise ValueError("--state-context-ratio must be within [0.0, 1.0]")
 
     action_weights: dict[str, int] | None = None
-    if args.action_map_file is not None and args.action_map_json is not None:
+    if action_map_file is not None and action_map_json is not None:
         raise ValueError("use only one of --action-map-file or --action-map-json")
 
-    if args.action_map_file is not None:
-        action_weights = load_action_weights_from_file(args.action_map_file)
-    elif args.action_map_json is not None:
-        action_weights = parse_action_weights_obj(json.loads(args.action_map_json))
+    if action_map_file is not None:
+        action_weights = load_action_weights_from_file(action_map_file)
+    elif action_map_json is not None:
+        action_weights = parse_action_weights_obj(json.loads(action_map_json))
 
     alpaca, sharegpt, stats = generate_dataset(
-        args.num_samples,
-        args.seed,
-        state_context_ratio=args.state_context_ratio,
+        num_samples,
+        seed,
+        state_context_ratio=state_context_ratio,
         action_weights=action_weights,
     )
 
-    alpaca_path = out_dir / args.alpaca_file
-    sharegpt_path = out_dir / args.sharegpt_file
-    stats_path = out_dir / args.stats_file
+    alpaca_path = out_dir / alpaca_file
+    sharegpt_path = out_dir / sharegpt_file
+    stats_path = out_dir / stats_file
 
     alpaca_path.write_text(json.dumps(alpaca, ensure_ascii=False, indent=2), encoding="utf-8")
     sharegpt_path.write_text(json.dumps(sharegpt, ensure_ascii=False, indent=2), encoding="utf-8")
     stats_path.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    print(f"[ok] alpaca  : {alpaca_path} ({len(alpaca)} samples)")
-    print(f"[ok] sharegpt: {sharegpt_path} ({len(sharegpt)} samples)")
-    print(f"[ok] stats   : {stats_path}")
-    if args.action_map_file is not None:
-        print(f"[ok] action_map: {args.action_map_file}")
-    if args.action_map_json is not None:
-        print("[ok] action_map: inline_json")
-    print("[stats] action coverage:")
-    for action, cnt in sorted(stats["action_counter"].items(), key=lambda kv: kv[0]):
-        print(f"  - {action}: {cnt}")
-
-
-if __name__ == "__main__":
-    main()
+    return {
+        "alpaca_path": str(alpaca_path),
+        "sharegpt_path": str(sharegpt_path),
+        "stats_path": str(stats_path),
+        "num_samples": len(alpaca),
+        "num_sharegpt": len(sharegpt),
+        "stats": stats,
+    }

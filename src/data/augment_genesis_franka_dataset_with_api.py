@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse
 import json
 import os
 import random
@@ -23,84 +22,6 @@ AUG_SYSTEM_PROMPT = (
     "你的任务是：在保持目标 JSON 控制指令语义完全不变的前提下，"
     "生成高质量、多样化、可执行导向的中文用户指令。"
 )
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Augment Franka NL->JSON SFT dataset using advanced model API."
-    )
-    parser.add_argument(
-        "--input-file",
-        type=Path,
-        default=Path("data_prepare/genesis_franka_toolcall_alpaca.json"),
-        help="Input alpaca dataset path.",
-    )
-    parser.add_argument(
-        "--output-file",
-        type=Path,
-        default=Path("data_prepare/genesis_franka_toolcall_alpaca_augmented.json"),
-        help="Output augmented alpaca dataset path.",
-    )
-    parser.add_argument(
-        "--stats-file",
-        type=Path,
-        default=Path("data_prepare/genesis_franka_toolcall_augment_stats.json"),
-        help="Augmentation stats path.",
-    )
-    parser.add_argument(
-        "--output-sharegpt-file",
-        type=Path,
-        default=Path("data_prepare/genesis_franka_toolcall_sharegpt_augmented.json"),
-        help="Output augmented sharegpt dataset path.",
-    )
-    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
-    parser.add_argument(
-        "--num-source",
-        type=int,
-        default=800,
-        help="Number of source samples selected for augmentation.",
-    )
-    parser.add_argument(
-        "--aug-per-sample",
-        type=int,
-        default=2,
-        help="How many augmented instructions to generate per source sample.",
-    )
-    parser.add_argument(
-        "--api-base",
-        type=str,
-        default=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-        help="OpenAI-compatible API base URL.",
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        default=os.environ.get("OPENAI_MODEL", "gpt-5"),
-        help="Model name for augmentation.",
-    )
-    parser.add_argument(
-        "--api-key-env",
-        type=str,
-        default="OPENAI_API_KEY",
-        help="Environment variable name that stores API key.",
-    )
-    parser.add_argument(
-        "--api-key",
-        type=str,
-        default="",
-        help="API key string. If set, it overrides --api-key-env.",
-    )
-    parser.add_argument("--temperature", type=float, default=0.9, help="Sampling temperature.")
-    parser.add_argument("--max-tokens", type=int, default=1200, help="Max completion tokens.")
-    parser.add_argument("--timeout", type=int, default=120, help="HTTP timeout seconds.")
-    parser.add_argument("--max-retries", type=int, default=5, help="Max retries per API call.")
-    parser.add_argument(
-        "--sleep-seconds",
-        type=float,
-        default=0.2,
-        help="Sleep between successful calls to avoid rate bursts.",
-    )
-    return parser.parse_args()
 
 
 def normalize_text(text: str) -> str:
@@ -270,22 +191,39 @@ def augment_once(
     raise RuntimeError(f"augmentation failed after retries: {last_err}")
 
 
-def main() -> None:
-    args = parse_args()
-    rng = random.Random(args.seed)
+def augment_dataset_with_api(
+    *,
+    input_file: Path = Path("data_prepare/genesis_franka_toolcall_alpaca.json"),
+    output_file: Path = Path("data_prepare/genesis_franka_toolcall_alpaca_augmented.json"),
+    stats_file: Path = Path("data_prepare/genesis_franka_toolcall_augment_stats.json"),
+    output_sharegpt_file: Path = Path("data_prepare/genesis_franka_toolcall_sharegpt_augmented.json"),
+    seed: int = 42,
+    num_source: int = 800,
+    aug_per_sample: int = 2,
+    api_base: str = "https://api.openai.com/v1",
+    model: str = "gpt-5",
+    api_key_env: str = "OPENAI_API_KEY",
+    api_key: str = "",
+    temperature: float = 0.9,
+    max_tokens: int = 1200,
+    timeout: int = 120,
+    max_retries: int = 5,
+    sleep_seconds: float = 0.2,
+) -> dict[str, Any]:
+    rng = random.Random(seed)
 
-    api_key = args.api_key.strip()
+    api_key = api_key.strip()
     if not api_key:
-        api_key = os.environ.get(args.api_key_env, "").strip()
+        api_key = os.environ.get(api_key_env, "").strip()
     if not api_key:
         raise RuntimeError(
-            f"Missing API key. Provide --api-key or set env var: {args.api_key_env}"
+            f"Missing API key. Provide api_key or set env var: {api_key_env}"
         )
 
-    if not args.input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {args.input_file}")
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
 
-    data = json.loads(args.input_file.read_text(encoding="utf-8"))
+    data = json.loads(input_file.read_text(encoding="utf-8"))
     if not isinstance(data, list) or not data:
         raise ValueError("input dataset must be a non-empty JSON list")
 
@@ -309,7 +247,7 @@ def main() -> None:
     if not valid_indices:
         raise RuntimeError("No valid source samples found.")
 
-    num_source = min(args.num_source, len(valid_indices))
+    num_source = min(num_source, len(valid_indices))
     selected = rng.sample(valid_indices, k=num_source)
 
     dedup: set[tuple[str, str]] = set()
@@ -326,15 +264,15 @@ def main() -> None:
         "input_count": len(data),
         "valid_source_count": len(valid_indices),
         "selected_source_count": num_source,
-        "aug_per_sample": args.aug_per_sample,
-        "api_model": args.model,
-        "api_base": args.api_base,
+        "aug_per_sample": aug_per_sample,
+        "api_model": model,
+        "api_base": api_base,
         "api_success_calls": 0,
         "api_failed_calls": 0,
         "new_rows": 0,
         "dedup_skipped": 0,
         "skipped_source_errors": 0,
-        "seed": args.seed,
+        "seed": seed,
     }
 
     for idx in selected:
@@ -347,16 +285,16 @@ def main() -> None:
         payload = payload_cache[idx]
         try:
             new_instructions = augment_once(
-                api_base=args.api_base,
+                api_base=api_base,
                 api_key=api_key,
-                model=args.model,
-                temperature=args.temperature,
-                max_tokens=args.max_tokens,
-                timeout=args.timeout,
-                max_retries=args.max_retries,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                timeout=timeout,
+                max_retries=max_retries,
                 source_instruction=source_instruction,
                 payload=payload,
-                aug_per_sample=args.aug_per_sample,
+                aug_per_sample=aug_per_sample,
             )
             stats["api_success_calls"] += 1
         except Exception:
@@ -378,7 +316,7 @@ def main() -> None:
                     "system": system_text if isinstance(system_text, str) else "",
                 }
             )
-        time.sleep(max(0.0, args.sleep_seconds))
+        time.sleep(max(0.0, sleep_seconds))
 
     merged = data + augmented_rows
 
@@ -404,29 +342,21 @@ def main() -> None:
     stats["new_rows"] = len(augmented_rows)
     stats["output_count"] = len(merged)
 
-    args.output_file.parent.mkdir(parents=True, exist_ok=True)
-    args.output_sharegpt_file.parent.mkdir(parents=True, exist_ok=True)
-    args.stats_file.parent.mkdir(parents=True, exist_ok=True)
-    args.output_file.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
-    args.output_sharegpt_file.write_text(json.dumps(merged_sharegpt, ensure_ascii=False, indent=2), encoding="utf-8")
-    args.stats_file.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_sharegpt_file.parent.mkdir(parents=True, exist_ok=True)
+    stats_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_sharegpt_file.write_text(json.dumps(merged_sharegpt, ensure_ascii=False, indent=2), encoding="utf-8")
+    stats_file.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print(f"[ok] input     : {args.input_file} ({len(data)} rows)")
-    print(f"[ok] augmented : +{len(augmented_rows)} rows")
-    print(f"[ok] output    : {args.output_file} ({len(merged)} rows)")
-    print(f"[ok] sharegpt  : {args.output_sharegpt_file} ({len(merged_sharegpt)} rows)")
-    print(f"[ok] stats     : {args.stats_file}")
-    print("[stats]")
-    for k in (
-        "selected_source_count",
-        "api_success_calls",
-        "api_failed_calls",
-        "dedup_skipped",
-        "new_rows",
-        "output_count",
-    ):
-        print(f"  - {k}: {stats[k]}")
-
-
-if __name__ == "__main__":
-    main()
+    return {
+        "input_file": str(input_file),
+        "output_file": str(output_file),
+        "output_sharegpt_file": str(output_sharegpt_file),
+        "stats_file": str(stats_file),
+        "input_count": len(data),
+        "augmented_count": len(augmented_rows),
+        "output_count": len(merged),
+        "sharegpt_count": len(merged_sharegpt),
+        "stats": stats,
+    }

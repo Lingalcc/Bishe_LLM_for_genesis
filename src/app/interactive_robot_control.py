@@ -161,7 +161,3 @@ def main() -> None:
     finally:
         if manager is not None:
             manager.release(destroy_runtime=True)
-
-
-if __name__ == "__main__":
-    main()

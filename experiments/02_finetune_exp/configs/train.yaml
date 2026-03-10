@@ -1,0 +1,4 @@
+finetune:
+  train:
+    dry_run: true
+    finetune_method: lora

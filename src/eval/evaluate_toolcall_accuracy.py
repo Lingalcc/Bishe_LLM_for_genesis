@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse
 import json
 import os
 import random
@@ -13,77 +12,6 @@ from pathlib import Path
 from typing import Any
 
 from src.eval.toolcall_validator import validate_payload
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Evaluate NL->JSON tool-call accuracy on Genesis dataset."
-    )
-    parser.add_argument(
-        "--dataset-file",
-        type=Path,
-        default=Path("data_prepare/genesis_franka_toolcall_alpaca.json"),
-        help="Alpaca-format dataset with instruction/output/system fields.",
-    )
-    parser.add_argument(
-        "--predictions-file",
-        type=Path,
-        default=None,
-        help=(
-            "Optional predictions JSON file. Supported formats: "
-            "1) list[str] aligned with sampled rows; "
-            "2) dict[int,str] keyed by original dataset index."
-        ),
-    )
-    parser.add_argument(
-        "--report-file",
-        type=Path,
-        default=Path("src/eval/accuracy_report.json"),
-        help="Output report JSON path.",
-    )
-    parser.add_argument(
-        "--num-samples",
-        type=int,
-        default=200,
-        help="Number of samples to evaluate.",
-    )
-    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
-
-    parser.add_argument(
-        "--api-base",
-        type=str,
-        default=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-        help="OpenAI-compatible API base URL.",
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        default=os.environ.get("OPENAI_MODEL", "gpt-5"),
-        help="Model name used for online evaluation.",
-    )
-    parser.add_argument(
-        "--api-key-env",
-        type=str,
-        default="OPENAI_API_KEY",
-        help="Environment variable name for API key.",
-    )
-    parser.add_argument(
-        "--api-key",
-        type=str,
-        default="",
-        help="API key string. If set, it overrides --api-key-env.",
-    )
-    parser.add_argument("--temperature", type=float, default=0.0, help="Sampling temperature.")
-    parser.add_argument("--max-tokens", type=int, default=1200, help="Max completion tokens.")
-    parser.add_argument("--timeout", type=int, default=120, help="HTTP timeout seconds.")
-    parser.add_argument("--max-retries", type=int, default=3, help="Max retries per API call.")
-    parser.add_argument(
-        "--sleep-seconds",
-        type=float,
-        default=0.0,
-        help="Sleep between online calls to avoid bursts.",
-    )
-    return parser.parse_args()
 
 
 def normalize_text(text: str) -> str:
@@ -239,15 +167,30 @@ def load_predictions_file(predictions_path: Path) -> Any:
     return json.loads(predictions_path.read_text(encoding="utf-8"))
 
 
-def main() -> None:
-    args = parse_args()
-    if args.num_samples <= 0:
+def evaluate_toolcall_accuracy(
+    *,
+    dataset_file: Path = Path("data_prepare/genesis_franka_toolcall_alpaca.json"),
+    predictions_file: Path | None = None,
+    report_file: Path = Path("src/eval/accuracy_report.json"),
+    num_samples: int = 200,
+    seed: int = 42,
+    api_base: str = "https://api.openai.com/v1",
+    model: str = "gpt-5",
+    api_key_env: str = "OPENAI_API_KEY",
+    api_key: str = "",
+    temperature: float = 0.0,
+    max_tokens: int = 1200,
+    timeout: int = 120,
+    max_retries: int = 3,
+    sleep_seconds: float = 0.0,
+) -> dict[str, Any]:
+    if num_samples <= 0:
         raise ValueError("--num-samples must be > 0")
 
-    if not args.dataset_file.exists():
-        raise FileNotFoundError(f"dataset file not found: {args.dataset_file}")
+    if not dataset_file.exists():
+        raise FileNotFoundError(f"dataset file not found: {dataset_file}")
 
-    rows = json.loads(args.dataset_file.read_text(encoding="utf-8"))
+    rows = json.loads(dataset_file.read_text(encoding="utf-8"))
     if not isinstance(rows, list) or not rows:
         raise ValueError("dataset must be a non-empty list")
 
@@ -278,22 +221,22 @@ def main() -> None:
     if not valid_rows:
         raise RuntimeError("no valid rows found in dataset")
 
-    rng = random.Random(args.seed)
-    selected_count = min(args.num_samples, len(valid_rows))
+    rng = random.Random(seed)
+    selected_count = min(num_samples, len(valid_rows))
     selected_rows = rng.sample(valid_rows, k=selected_count)
 
     predictions_blob: Any = None
-    if args.predictions_file is not None:
-        predictions_blob = load_predictions_file(args.predictions_file)
+    if predictions_file is not None:
+        predictions_blob = load_predictions_file(predictions_file)
 
     api_key = ""
-    if args.predictions_file is None:
-        api_key = args.api_key.strip()
+    if predictions_file is None:
+        api_key = api_key.strip()
         if not api_key:
-            api_key = os.environ.get(args.api_key_env, "").strip()
+            api_key = os.environ.get(api_key_env, "").strip()
         if not api_key:
             raise RuntimeError(
-                f"missing API key. provide --api-key, set env var '{args.api_key_env}', or provide --predictions-file"
+                f"missing API key. provide api_key, set env var '{api_key_env}', or provide predictions_file"
             )
 
     total = len(selected_rows)
@@ -327,21 +270,21 @@ def main() -> None:
         else:
             try:
                 prediction_text = predict_once(
-                    api_base=args.api_base,
+                    api_base=api_base,
                     api_key=api_key,
-                    model=args.model,
+                    model=model,
                     instruction=sample["instruction"],
                     system_prompt=sample["system"],
-                    temperature=args.temperature,
-                    max_tokens=args.max_tokens,
-                    timeout=args.timeout,
-                    max_retries=args.max_retries,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    timeout=timeout,
+                    max_retries=max_retries,
                 )
             except Exception as err:
                 online_error = str(err)
                 online_call_fail += 1
-            if args.sleep_seconds > 0:
-                time.sleep(args.sleep_seconds)
+            if sleep_seconds > 0:
+                time.sleep(sleep_seconds)
 
         result: dict[str, Any] = {
             "dataset_index": sample["dataset_index"],
@@ -380,12 +323,12 @@ def main() -> None:
         details.append(result)
 
     report = {
-        "dataset_file": str(args.dataset_file),
-        "predictions_file": str(args.predictions_file) if args.predictions_file is not None else None,
-        "model": args.model if args.predictions_file is None else None,
-        "api_base": args.api_base if args.predictions_file is None else None,
-        "seed": args.seed,
-        "num_samples_requested": args.num_samples,
+        "dataset_file": str(dataset_file),
+        "predictions_file": str(predictions_file) if predictions_file is not None else None,
+        "model": model if predictions_file is None else None,
+        "api_base": api_base if predictions_file is None else None,
+        "seed": seed,
+        "num_samples_requested": num_samples,
         "num_samples_evaluated": total,
         "num_valid_rows_in_dataset": len(valid_rows),
         "online_call_failures": online_call_fail,
@@ -399,17 +342,6 @@ def main() -> None:
         "details": details,
     }
 
-    args.report_file.parent.mkdir(parents=True, exist_ok=True)
-    args.report_file.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    print(f"[ok] evaluated samples : {total}")
-    print(f"[ok] parse ok          : {parse_ok} ({report['parse_ok_rate']:.4f})")
-    print(f"[ok] exact match       : {exact_match} ({report['exact_match_rate']:.4f})")
-    print(f"[ok] action match      : {action_match} ({report['action_match_rate']:.4f})")
-    if args.predictions_file is None:
-        print(f"[ok] online failures   : {online_call_fail}")
-    print(f"[ok] report            : {args.report_file}")
-
-
-if __name__ == "__main__":
-    main()
+    report_file.parent.mkdir(parents=True, exist_ok=True)
+    report_file.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    return report

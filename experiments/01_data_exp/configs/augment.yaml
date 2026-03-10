@@ -1,0 +1,8 @@
+dataset_prepare:
+  augment:
+    input_file: data_prepare/exp_01/genesis_franka_toolcall_alpaca.json
+    output_file: data_prepare/exp_01/genesis_franka_toolcall_alpaca_augmented.json
+    stats_file: data_prepare/exp_01/genesis_franka_toolcall_augment_stats.json
+    output_sharegpt_file: data_prepare/exp_01/genesis_franka_toolcall_sharegpt_augmented.json
+    num_source: 100
+    aug_per_sample: 1

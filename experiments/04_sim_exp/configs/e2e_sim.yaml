@@ -1,0 +1,6 @@
+app:
+  interactive:
+    enabled: true
+    show_viewer: true
+  state_injection:
+    enable_instruction_to_motion: true
