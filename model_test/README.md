@@ -28,16 +28,16 @@
 在线评测（默认走 API）：
 
 ```bash
-python 测试/run_accuracy_eval.py \
+python model_test/run_accuracy_eval.py \
   --dataset-file data_prepare/genesis_franka_toolcall_alpaca.json \
   --num-samples 200 \
-  --report-file pipeline/accuracy_test/accuracy_report.json
+  --report-file model_test/accuracy_report.json
 ```
 
 离线评测（使用已有预测文件）：
 
 ```bash
-python 测试/run_accuracy_eval.py \
+python model_test/run_accuracy_eval.py \
   --dataset-file data_prepare/genesis_franka_toolcall_alpaca.json \
   --predictions-file your_predictions.json \
   --num-samples 200
@@ -48,15 +48,15 @@ python 测试/run_accuracy_eval.py \
 运行全部：
 
 ```bash
-python 测试/run_regression_tests.py --target all
+python model_test/run_regression_tests.py --target all
 ```
 
 单项运行：
 
 ```bash
-python 测试/run_regression_tests.py --target manager
-python 测试/run_regression_tests.py --target controller
-python 测试/run_regression_tests.py --target basic
+python model_test/run_regression_tests.py --target manager
+python model_test/run_regression_tests.py --target controller
+python model_test/run_regression_tests.py --target basic
 ```
 
 ## 输出说明

@@ -6,12 +6,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-if str(Path(__file__).resolve().parents[1]) not in sys.path:
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from pipeline.unified_config import DEFAULT_CONFIG_PATH, get_section, load_config
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
+CUR_DIR = Path(__file__).resolve().parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from model_test.unified_config import DEFAULT_CONFIG_PATH, get_section, load_config
 
 
 def parse_args() -> argparse.Namespace:
@@ -32,7 +32,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_file(file_name: str) -> None:
-    script_path = REPO_ROOT / file_name
+    script_path = CUR_DIR / file_name
     if not script_path.exists():
         raise FileNotFoundError(f"script not found: {script_path}")
     cmd = [sys.executable, str(script_path)]

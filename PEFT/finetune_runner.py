@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PIPELINE_CONFIG = REPO_ROOT / "config" / "pipeline_config.json"
 DEFAULT_LLAMAFACTORY_DIR = REPO_ROOT / "LLaMA-Factory"
 DEFAULT_CONFIG = DEFAULT_LLAMAFACTORY_DIR / "examples" / "train_lora" / "qwen3_lora_sft_genesis_toolcall.yaml"

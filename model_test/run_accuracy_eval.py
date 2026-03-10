@@ -9,7 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline.unified_config import DEFAULT_CONFIG_PATH, build_cli_args, get_section, load_config
+from model_test.unified_config import DEFAULT_CONFIG_PATH, build_cli_args, get_section, load_config
 
 
 def parse_args() -> tuple[argparse.Namespace, list[str]]:
@@ -55,7 +55,7 @@ def main() -> None:
         passthrough = passthrough[1:]
 
     sys.argv = [sys.argv[0], *defaults, *passthrough]
-    from pipeline.accuracy_test.evaluate_toolcall_accuracy import main as impl_main
+    from model_test.evaluate_toolcall_accuracy import main as impl_main
 
     impl_main()
 

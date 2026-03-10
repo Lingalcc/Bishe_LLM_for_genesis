@@ -9,7 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline.unified_config import DEFAULT_CONFIG_PATH, build_cli_args, get_section, load_config
+from PEFT.unified_config import DEFAULT_CONFIG_PATH, build_cli_args, get_section, load_config
 
 
 def parse_args() -> tuple[argparse.Namespace, list[str]]:
@@ -33,15 +33,15 @@ def main() -> None:
 
     defaults = build_cli_args(
         section,
-        option_keys=["llamafactory_dir", "config", "gpus", "dry_run"],
+        option_keys=["llamafactory_dir", "config", "gpus", "dry_run", "finetune_method"],
         bool_keys=["dry_run"],
     )
 
     if passthrough and passthrough[0] == "--":
         passthrough = passthrough[1:]
 
-    sys.argv = [sys.argv[0], *defaults, *passthrough]
-    from pipeline.finetune.run_finetune import main as impl_main
+    sys.argv = [sys.argv[0], "--pipeline-config", str(args.config), *defaults, *passthrough]
+    from PEFT.finetune_runner import main as impl_main
 
     impl_main()
 

@@ -11,14 +11,14 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline.app.app_common import (
+from application.app_common import (
     DEFAULT_APP_EXAMPLE_JSON,
     build_interactive_env,
     collect_scene_state,
     predict_actions_from_instruction,
     print_state,
 )
-from pipeline.unified_config import DEFAULT_CONFIG_PATH, get_section, load_config
+from application.unified_config import DEFAULT_CONFIG_PATH, get_section, load_config
 
 
 HELP_TEXT = """

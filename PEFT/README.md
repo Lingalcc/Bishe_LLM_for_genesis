@@ -12,7 +12,7 @@
 训练 YAML 请在统一配置里设置 `finetune.train.config`，或用透传方式覆盖：
 
 ```bash
-python 微调/run_finetune.py -- --config LLaMA-Factory/examples/train_lora/qwen3_lora_sft_genesis_toolcall.yaml
+python PEFT/run_finetune.py -- --config LLaMA-Factory/examples/train_lora/qwen3_lora_sft_genesis_toolcall.yaml
 ```
 
 ## 前置依赖
@@ -30,13 +30,13 @@ python 微调/run_finetune.py -- --config LLaMA-Factory/examples/train_lora/qwen
 先做 dry-run 检查命令和环境：
 
 ```bash
-python 微调/run_finetune.py --dry-run --gpus 0
+python PEFT/run_finetune.py --dry-run --gpus 0
 ```
 
 正式启动：
 
 ```bash
-python 微调/run_finetune.py --gpus 0
+python PEFT/run_finetune.py --gpus 0
 ```
 
 ## 常用参数
@@ -49,7 +49,7 @@ python 微调/run_finetune.py --gpus 0
 示例（透传参数）：
 
 ```bash
-python 微调/run_finetune.py --gpus 0 -- --output_dir saves/genesis_sft --num_train_epochs 3
+python PEFT/run_finetune.py --gpus 0 -- --output_dir saves/genesis_sft --num_train_epochs 3
 ```
 
 ## 产物与检查

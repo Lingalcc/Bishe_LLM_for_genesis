@@ -39,13 +39,13 @@
 ## 1) 指令 -> Action
 
 ```bash
-python 仿真应用/run_instruction_to_action.py
+python application/run_instruction_to_action.py
 ```
 
 单次调用示例：
 
 ```bash
-python 仿真应用/run_instruction_to_action.py \
+python application/run_instruction_to_action.py \
   --instruction "打开夹爪，移动到[0.65,0,0.2]，然后闭合夹爪"
 ```
 
@@ -55,26 +55,26 @@ python 仿真应用/run_instruction_to_action.py \
 ## 2) Action -> Franka运动
 
 ```bash
-python 仿真应用/run_action_to_motion.py
+python application/run_action_to_motion.py
 ```
 
 单次调用示例：
 
 ```bash
-python 仿真应用/run_action_to_motion.py \
+python application/run_action_to_motion.py \
   --action '{"commands":[{"action":"open_gripper"},{"action":"move_ee","pos":[0.65,0,0.2],"quat":[0,1,0,0]}]}'
 ```
 
 ## 3) 指令 -> Action -> Franka运动（端到端）
 
 ```bash
-python 仿真应用/run_instruction_to_motion.py
+python application/run_instruction_to_motion.py
 ```
 
 单次调用示例：
 
 ```bash
-python 仿真应用/run_instruction_to_motion.py \
+python application/run_instruction_to_motion.py \
   --instruction "先张开夹爪，再移动到盒子上方然后夹住"
 ```
 

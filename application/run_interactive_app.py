@@ -9,7 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline.unified_config import DEFAULT_CONFIG_PATH, get_section, load_config
+from application.unified_config import DEFAULT_CONFIG_PATH, get_section, load_config
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,6 +34,6 @@ if __name__ == "__main__":
         print("[app] disabled by config. Set app.interactive.enabled=true to run.")
         raise SystemExit(0)
 
-    from pipeline.app.interactive_robot_control import main
+    from application.interactive_robot_control import main
 
     main()
