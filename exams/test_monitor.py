@@ -8,8 +8,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from application.local_llm_engine import LocalLLMEngine
-from model_test.performance_monitor import monitor_inference_performance
+from src.app.local_llm_engine import LocalLLMEngine
+from src.eval.performance_monitor import monitor_inference_performance
 prompt = "把夹爪打开，移动到 [0.65, 0.0, 0.20]，然后闭合夹爪。只输出 JSON"
 model = LocalLLMEngine(
         model_path=str(REPO_ROOT / "model" / "Qwen_Qwen2.5-7B-Instruct"),

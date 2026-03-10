@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "Bishe_LLM_for_genesis"
 version = "0.1.0"
 description = "LLM fine-tuning, evaluation, and simulation control pipeline for Genesis."
-readme = "PROJECT_STRUCTURE.md"
+readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
