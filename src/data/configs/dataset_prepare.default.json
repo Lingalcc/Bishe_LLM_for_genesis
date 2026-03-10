@@ -1,0 +1,37 @@
+{
+  "dataset_prepare": {
+    "generate": {
+      "num_samples": 4000,
+      "seed": 42,
+      "state_context_ratio": 0.7,
+      "out_dir": "data_prepare",
+      "alpaca_file": "genesis_franka_toolcall_alpaca.json",
+      "sharegpt_file": "genesis_franka_toolcall_sharegpt.json",
+      "stats_file": "genesis_franka_toolcall_stats.json",
+      "action_map_file": "dataset_prepare/configs/action_map.default.json"
+    },
+    "augment": {
+      "input_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+      "output_file": "data_prepare/genesis_franka_toolcall_alpaca_augmented.json",
+      "stats_file": "data_prepare/genesis_franka_toolcall_augment_stats.json",
+      "output_sharegpt_file": "data_prepare/genesis_franka_toolcall_sharegpt_augmented.json",
+      "seed": 42,
+      "num_source": 800,
+      "aug_per_sample": 2,
+      "api_base": "https://api.openai.com/v1",
+      "model": "gpt-5",
+      "api_key": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "temperature": 0.9,
+      "max_tokens": 1200,
+      "timeout": 120,
+      "max_retries": 5,
+      "sleep_seconds": 0.2
+    },
+    "calibration": {
+      "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+      "max_print_errors": 10,
+      "strict": false
+    }
+  }
+}
