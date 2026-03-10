@@ -56,13 +56,13 @@ configs/default.yaml
 1. `dataset_prepare`：数据生成、增强、校准参数
 2. `finetune.train`：LLaMA-Factory 训练参数
 3. `test.accuracy_eval`：评测参数
-4. `app.interactive` / `app.model`：应用运行与模型推理参数
+4. `app.interactive` / `app.inference`：应用运行与模型推理参数（支持 API / 本地模型切换）
 
 如需在线调用 OpenAI 兼容接口，建议设置：
 
 1. `dataset_prepare.augment.api_key` 或 `api_key_env`
 2. `test.accuracy_eval.api_key` 或 `api_key_env`
-3. `app.model.api_key`
+3. `app.inference.api.api_key` 或 `app.inference.api.api_key_env`
 
 ## 统一 CLI 用法
 

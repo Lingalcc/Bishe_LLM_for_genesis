@@ -49,6 +49,8 @@ class Sample:
     instruction: str
     commands: list[dict[str, Any]]
     category: str
+    scene_state: dict[str, Any] | None = None
+    force_state_context: bool = False
 
 
 def r3(x: float) -> float:
@@ -76,6 +78,108 @@ def sample_quat(rng: random.Random) -> list[float]:
         [0.271, 0.653, 0.653, 0.271],
     ]
     return choose(rng, quats)
+
+
+def clamp(x: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, x))
+
+
+def clamp_workspace_pos(pos: list[float]) -> list[float]:
+    return [
+        r3(clamp(pos[0], 0.45, 0.78)),
+        r3(clamp(pos[1], -0.26, 0.26)),
+        r3(clamp(pos[2], 0.08, 0.42)),
+    ]
+
+
+def sample_cube_pos(rng: random.Random) -> list[float]:
+    return [
+        r3(rng.uniform(0.56, 0.72)),
+        r3(rng.uniform(-0.16, 0.16)),
+        0.02,
+    ]
+
+
+def sample_cube_color(rng: random.Random) -> str:
+    return choose(rng, ["红色", "蓝色", "绿色", "黄色", "橙色", "白色"])
+
+
+def offset_pos_from_target(
+    target_pos: list[float],
+    rng: random.Random,
+    *,
+    xy_delta: float = 0.05,
+    z_delta: float = 0.05,
+) -> list[float]:
+    """
+    基于“目标位置”构造“动作发生前的当前位置”，避免状态穿越。
+    """
+    start = clamp_workspace_pos(
+        [
+            target_pos[0] + rng.uniform(-xy_delta, xy_delta),
+            target_pos[1] + rng.uniform(-xy_delta, xy_delta),
+            target_pos[2] + rng.uniform(-z_delta, z_delta),
+        ]
+    )
+    # 避免恰好等于目标（状态穿越）
+    if all(abs(start[i] - target_pos[i]) < 1e-6 for i in range(3)):
+        start = clamp_workspace_pos([target_pos[0] + 0.02, target_pos[1] - 0.015, target_pos[2] + 0.02])
+    return start
+
+
+def offset_qpos_from_target(target_qpos: list[float], rng: random.Random) -> list[float]:
+    """
+    基于目标 qpos 采样一个动作前 qpos，确保不与目标完全一致。
+    """
+    start: list[float] = []
+    for i, v in enumerate(target_qpos[:9]):
+        if i < 7:
+            nv = r3(clamp(v + rng.uniform(-0.20, 0.20), -2.75, 2.75))
+        else:
+            nv = r3(clamp(v + rng.uniform(-0.012, 0.012), 0.0, 0.04))
+        start.append(nv)
+    if all(abs(start[i] - target_qpos[i]) < 1e-6 for i in range(min(9, len(target_qpos)))):
+        start[0] = r3(clamp(start[0] + 0.08, -2.75, 2.75))
+    return start
+
+
+def build_scene_state(
+    *,
+    cube_pos: list[float],
+    cube_color: str,
+    ee_pos: list[float],
+    ee_quat: list[float],
+    franka_qpos: list[float],
+) -> dict[str, Any]:
+    return {
+        "entities": [
+            {
+                "name": "franka",
+                "category": "robot",
+                "state": {
+                    "qpos": franka_qpos,
+                    "ee_pos": ee_pos,
+                    "ee_quat": ee_quat,
+                },
+            },
+            {
+                "name": "cube",
+                "category": "object",
+                "state": {
+                    "pos": cube_pos,
+                    "quat": [0.0, 0.0, 0.0, 1.0],
+                    "color": cube_color,
+                },
+            },
+            {
+                "name": "ground",
+                "category": "object",
+                "state": {
+                    "plane": True,
+                },
+            },
+        ]
+    }
 
 
 def sample_home_like_qpos(rng: random.Random) -> list[float]:
@@ -107,6 +211,12 @@ def gen_open_gripper(rng: random.Random) -> Sample:
         f"请张开机械爪，目标开度 {pos}。",
         "先把夹爪打开，保持可抓取状态。",
         "将末端夹爪打开。",
+        "打开夹爪。",
+        "夹爪先松开一点。",
+        "把手爪张开，准备后续动作。",
+        "先开爪，别夹住东西。",
+        "打开 gripper 到可抓取状态。",
+        "机械爪打开，准备执行下一步。",
     ]
     return Sample(choose(rng, templates), [cmd], "open_gripper")
 
@@ -123,6 +233,12 @@ def gen_close_gripper(rng: random.Random) -> Sample:
         f"请闭合机械爪，目标开度 {pos}。",
         "将夹爪夹紧。",
         "关闭夹爪。",
+        "把手爪收紧。",
+        "夹爪闭合，执行抓取。",
+        "现在合拢夹爪。",
+        "收爪，保持抓取。",
+        "把 gripper 关上。",
+        "请把末端夹爪夹住目标。",
     ]
     return Sample(choose(rng, templates), [cmd], "close_gripper")
 
@@ -134,6 +250,13 @@ def gen_wait(rng: random.Random) -> Sample:
         f"保持当前状态等待 {steps} 步。",
         f"暂停一下，仿真推进 {steps} 个 step。",
         f"先别动，等待 {steps} 步。",
+        f"原地等待 {steps} 个仿真步。",
+        f"保持姿态不变，持续 {steps} 步。",
+        f"停一下，推进 {steps} 步再继续。",
+        f"等待 {steps} steps。",
+        f"不要执行新动作，等 {steps} 步。",
+        f"hold 住，仿真走 {steps} 步。",
+        f"静止 {steps} 步。",
     ]
     return Sample(choose(rng, templates), [cmd], "wait")
 
@@ -145,6 +268,13 @@ def gen_step(rng: random.Random) -> Sample:
         f"推进仿真 {steps} 步。",
         f"执行 {steps} 个 step。",
         f"向前走 {steps} 个仿真步。",
+        f"仅推进模拟器 {steps} 步，不做其它动作。",
+        f"把环境 step {steps} 次。",
+        f"跑 {steps} 步仿真。",
+        f"前进 {steps} step。",
+        f"模拟器向前推进 {steps} 帧。",
+        f"执行 step={steps}。",
+        f"只做 step，次数 {steps}。",
     ]
     return Sample(choose(rng, templates), [cmd], "step")
 
@@ -155,6 +285,13 @@ def gen_get_state(rng: random.Random) -> Sample:
         "读取当前 franka 状态。",
         "给我机器人当前状态。",
         "查询机械臂最新状态。",
+        "拉取当前状态。",
+        "返回当前关节和末端状态。",
+        "现在读取一次 state。",
+        "把机器人状态发出来。",
+        "获取当前位姿信息。",
+        "读一下当前状态快照。",
+        "执行 get_state。",
     ]
     return Sample(choose(rng, templates), [cmd], "get_state")
 
@@ -165,38 +302,69 @@ def gen_reset_scene(rng: random.Random) -> Sample:
         "重置整个场景。",
         "把仿真场景恢复到初始状态。",
         "执行场景重置。",
+        "场景回到初始配置。",
+        "重开这一局场景。",
+        "请 reset scene。",
+        "把环境清回初始。",
+        "恢复默认场景。",
+        "重新初始化仿真场景。",
+        "先执行 reset_scene。",
     ]
     return Sample(choose(rng, templates), [cmd], "reset_scene")
 
 
 def gen_move_ee(rng: random.Random) -> Sample:
-    pos = sample_pos(rng)
-    cmd: dict[str, Any] = {"action": "move_ee", "pos": pos}
-    use_quat = rng.random() < 0.8
-    if use_quat:
-        quat = sample_quat(rng)
-        cmd["quat"] = quat
-    maybe_add_steps(cmd, rng, prob=0.45, lo=40, hi=180)
+    cube_pos = sample_cube_pos(rng)
+    cube_color = sample_cube_color(rng)
+    relation = choose(rng, ["上方", "前方", "后方", "左侧", "右侧"])
 
-    if use_quat:
-        text = choose(
-            rng,
-            [
-                f"把末端移动到 {pos}，四元数姿态设为 {cmd['quat']}。",
-                f"请将手爪移动到坐标 {pos}，并使用 quat={cmd['quat']}。",
-                f"移动 ee 到 {pos}，姿态 {cmd['quat']}。",
-            ],
-        )
+    if relation == "上方":
+        dx, dy, dz = rng.uniform(-0.02, 0.02), rng.uniform(-0.02, 0.02), rng.uniform(0.13, 0.22)
+    elif relation == "前方":
+        dx, dy, dz = rng.uniform(0.06, 0.12), rng.uniform(-0.03, 0.03), rng.uniform(0.11, 0.18)
+    elif relation == "后方":
+        dx, dy, dz = rng.uniform(-0.12, -0.06), rng.uniform(-0.03, 0.03), rng.uniform(0.11, 0.18)
+    elif relation == "左侧":
+        dx, dy, dz = rng.uniform(-0.03, 0.03), rng.uniform(0.07, 0.13), rng.uniform(0.11, 0.18)
     else:
-        text = choose(
-            rng,
-            [
-                f"把末端执行器移动到 {pos}。",
-                f"移动机械臂 ee 到位置 {pos}。",
-                f"将手爪平移到 {pos}。",
-            ],
-        )
-    return Sample(text, [cmd], "move_ee")
+        dx, dy, dz = rng.uniform(-0.03, 0.03), rng.uniform(-0.13, -0.07), rng.uniform(0.11, 0.18)
+
+    pos = clamp_workspace_pos([cube_pos[0] + dx, cube_pos[1] + dy, cube_pos[2] + dz])
+    quat = choose(rng, [[0.0, 1.0, 0.0, 0.0], [0.0, 0.924, 0.383, 0.0]])
+    cmd: dict[str, Any] = {"action": "move_ee", "pos": pos, "quat": quat}
+    maybe_add_steps(cmd, rng, prob=0.55, lo=40, hi=180)
+
+    obj_ref = choose(rng, [f"{cube_color}方块", f"{cube_color}积木", "方块", "小块", "那个块"])
+    templates = [
+        f"把末端移到{obj_ref}{relation}。",
+        f"移动到{obj_ref}{relation}位置。",
+        f"手爪去到{obj_ref}{relation}，准备下一步。",
+        f"把 ee 放到{obj_ref}{relation}。",
+        f"靠近{obj_ref}，停在它{relation}。",
+        f"到{obj_ref}{relation}待命。",
+        f"把机械臂末端对准{obj_ref}{relation}区域。",
+        f"移过去，位置在{obj_ref}{relation}就行。",
+        f"把手爪挪到{obj_ref}{relation}。",
+        f"就位到{obj_ref}{relation}。",
+    ]
+
+    ee_pos = offset_pos_from_target(pos, rng, xy_delta=0.08, z_delta=0.08)
+    ee_quat = sample_quat(rng)
+    franka_qpos = sample_home_like_qpos(rng)
+    scene_state = build_scene_state(
+        cube_pos=cube_pos,
+        cube_color=cube_color,
+        ee_pos=ee_pos,
+        ee_quat=ee_quat,
+        franka_qpos=franka_qpos,
+    )
+    return Sample(
+        choose(rng, templates),
+        [cmd],
+        "move_ee",
+        scene_state=scene_state,
+        force_state_context=True,
+    )
 
 
 def gen_set_qpos(rng: random.Random) -> Sample:
@@ -208,6 +376,13 @@ def gen_set_qpos(rng: random.Random) -> Sample:
         f"将 Franka 的 9 维 qpos 设置为 {qpos}。",
         f"直接设定关节位置 qpos={qpos}。",
         f"把机器人关节状态切换到 {qpos}。",
+        f"把机械臂 qpos 改成 {qpos}。",
+        f"执行 set_qpos，目标是 {qpos}。",
+        f"更新关节配置到 {qpos}。",
+        f"设置机器人到该关节状态：{qpos}。",
+        f"关节重定位到 {qpos}。",
+        f"将当前关节置为 {qpos}。",
+        f"把整机 qpos 设为 {qpos}。",
     ]
     return Sample(choose(rng, templates), [cmd], "set_qpos")
 
@@ -232,6 +407,13 @@ def gen_set_dofs_position(rng: random.Random) -> Sample:
         f"把局部自由度 {dofs} 的位置直接设为 {values}。",
         f"请执行 set_dofs_position，dofs={dofs}，values={values}。",
         f"直接改写 dof 位置：索引 {dofs} -> {values}。",
+        f"将 dof {dofs} 位置更新为 {values}。",
+        f"按索引 {dofs} 写入位置 {values}。",
+        f"把这些关节直接拨到 {values}（idx={dofs}）。",
+        f"执行关节位置覆盖：{dofs} -> {values}。",
+        f"set_dofs_position 一下，目标 {values}。",
+        f"局部关节位置重设为 {values}，索引 {dofs}。",
+        f"直接设置 dofs={dofs} 的位置为 {values}。",
     ]
     return Sample(choose(rng, templates), [cmd], "set_dofs_position")
 
@@ -245,6 +427,13 @@ def gen_control_dofs_position(rng: random.Random) -> Sample:
         f"用位置控制让 dof {dofs} 追踪到 {values}。",
         f"控制局部关节 {dofs} 到目标位置 {values}。",
         f"执行 position 控制：idx={dofs}, target={values}。",
+        f"关节位置控制到 {values}（索引 {dofs}）。",
+        f"让这些 dof 做位置闭环到 {values}。",
+        f"把位置控制目标设成 {values}，作用在 {dofs}。",
+        f"执行 dof 位置控制，idx={dofs}。",
+        f"控制关节位置：{dofs}->{values}。",
+        f"对局部关节做 position tracking：{values}。",
+        f"位置控制指令，下发到 {dofs}，目标 {values}。",
     ]
     return Sample(choose(rng, templates), [cmd], "control_dofs_position")
 
@@ -259,6 +448,13 @@ def gen_control_dofs_velocity(rng: random.Random) -> Sample:
         f"对关节 {dofs} 施加速度控制，目标速度 {values}。",
         f"执行速度控制：dofs={dofs}, values={values}。",
         f"把这些关节速度设为 {values}（索引 {dofs}）。",
+        f"对 {dofs} 下发速度目标 {values}。",
+        f"做速度闭环，目标是 {values}。",
+        f"关节速度控制：idx={dofs}，v={values}。",
+        f"执行 velocity control 到 {values}。",
+        f"把 dof {dofs} 的速度控制到 {values}。",
+        f"对指定关节施加速度命令 {values}。",
+        f"给关节 {dofs} 设置速度目标 {values}。",
     ]
     return Sample(choose(rng, templates), [cmd], "control_dofs_velocity")
 
@@ -273,49 +469,136 @@ def gen_control_dofs_force(rng: random.Random) -> Sample:
         f"对关节 {dofs} 施加力控，目标力 {values}。",
         f"请发送 force 控制命令：idx={dofs}, force={values}。",
         f"设置 dof {dofs} 的控制力为 {values}。",
+        f"对 {dofs} 下发力控制 {values}。",
+        f"做力控，作用关节 {dofs}，目标 {values}。",
+        f"施加关节控制力 {values}（idx={dofs}）。",
+        f"force control 到 {values}，关节索引 {dofs}。",
+        f"将关节 {dofs} 的力设定为 {values}。",
+        f"对这些 dof 输出力命令 {values}。",
+        f"执行关节力控制：{dofs}->{values}。",
     ]
     return Sample(choose(rng, templates), [cmd], "control_dofs_force")
 
 
 def gen_seq_grasp_lift(rng: random.Random) -> Sample:
-    x = r3(rng.uniform(0.60, 0.70))
-    y = r3(rng.uniform(-0.08, 0.08))
-    z_top = r3(rng.uniform(0.20, 0.28))
-    z_down = r3(max(0.10, z_top - rng.uniform(0.06, 0.1)))
-    z_up = r3(z_top + rng.uniform(0.08, 0.14))
+    cube_pos = sample_cube_pos(rng)
+    cube_color = sample_cube_color(rng)
+    hover_pos = clamp_workspace_pos(
+        [
+            cube_pos[0] + rng.uniform(-0.02, 0.02),
+            cube_pos[1] + rng.uniform(-0.02, 0.02),
+            cube_pos[2] + rng.uniform(0.16, 0.22),
+        ]
+    )
+    approach_pos = clamp_workspace_pos(
+        [
+            cube_pos[0] + rng.uniform(-0.015, 0.015),
+            cube_pos[1] + rng.uniform(-0.015, 0.015),
+            cube_pos[2] + rng.uniform(0.07, 0.10),
+        ]
+    )
+    grasp_pos = clamp_workspace_pos(
+        [
+            cube_pos[0] + rng.uniform(-0.01, 0.01),
+            cube_pos[1] + rng.uniform(-0.01, 0.01),
+            cube_pos[2] + rng.uniform(0.035, 0.055),
+        ]
+    )
+    lift_pos = clamp_workspace_pos([grasp_pos[0], grasp_pos[1], grasp_pos[2] + rng.uniform(0.10, 0.16)])
+    quat = [0.0, 1.0, 0.0, 0.0]
 
     cmds = [
         {"action": "open_gripper", "position": 0.04},
-        {"action": "move_ee", "pos": [x, y, z_top], "quat": [0.0, 1.0, 0.0, 0.0]},
-        {"action": "move_ee", "pos": [x, y, z_down], "quat": [0.0, 1.0, 0.0, 0.0]},
+        {"action": "move_ee", "pos": hover_pos, "quat": quat},
+        {"action": "move_ee", "pos": approach_pos, "quat": quat},
+        {"action": "move_ee", "pos": grasp_pos, "quat": quat},
         {"action": "close_gripper", "position": 0.0},
         {"action": "wait", "steps": rng.randint(10, 30)},
-        {"action": "move_ee", "pos": [x, y, z_up], "quat": [0.0, 1.0, 0.0, 0.0]},
+        {"action": "move_ee", "pos": lift_pos, "quat": quat},
     ]
-    text = (
-        f"执行抓取并抬升：先张开夹爪，移动到 [{x}, {y}, {z_top}]，"
-        f"下探到 [{x}, {y}, {z_down}] 后闭合夹爪，再抬升到 [{x}, {y}, {z_up}]。"
+
+    obj_ref = choose(rng, [f"桌上的{cube_color}方块", f"那个{cube_color}块", "桌上的方块", "那个小方块"])
+    templates = [
+        f"抓住{obj_ref}并抬起来。",
+        f"把{obj_ref}抓起来再举高一点。",
+        f"执行抓取抬升，把{obj_ref}拿起。",
+        f"去夹住{obj_ref}，然后向上提。",
+        f"把{obj_ref}拿起来。",
+        f"对{obj_ref}做一次抓取并上提。",
+        f"先抓住{obj_ref}，再抬升末端。",
+        f"抓取{obj_ref}后上提。",
+        f"把{obj_ref}捏住并提离桌面。",
+        f"完成{obj_ref}的抓取抬升动作。",
+    ]
+
+    scene_state = build_scene_state(
+        cube_pos=cube_pos,
+        cube_color=cube_color,
+        ee_pos=offset_pos_from_target(hover_pos, rng, xy_delta=0.07, z_delta=0.06),
+        ee_quat=sample_quat(rng),
+        franka_qpos=sample_home_like_qpos(rng),
     )
-    return Sample(text, cmds, "seq_grasp_lift")
+    return Sample(
+        choose(rng, templates),
+        cmds,
+        "seq_grasp_lift",
+        scene_state=scene_state,
+        force_state_context=True,
+    )
 
 
 def gen_seq_place(rng: random.Random) -> Sample:
-    x = r3(rng.uniform(0.55, 0.72))
-    y = r3(rng.uniform(-0.16, 0.16))
-    z_place = r3(rng.uniform(0.11, 0.2))
-    z_retreat = r3(z_place + rng.uniform(0.08, 0.15))
+    cube_pos = sample_cube_pos(rng)
+    cube_color = sample_cube_color(rng)
+    place_dx, place_dy = choose(
+        rng,
+        [
+            (rng.uniform(0.08, 0.14), rng.uniform(-0.03, 0.03)),
+            (rng.uniform(-0.14, -0.08), rng.uniform(-0.03, 0.03)),
+            (rng.uniform(-0.03, 0.03), rng.uniform(0.08, 0.14)),
+            (rng.uniform(-0.03, 0.03), rng.uniform(-0.14, -0.08)),
+        ],
+    )
+    place_down = clamp_workspace_pos([cube_pos[0] + place_dx, cube_pos[1] + place_dy, cube_pos[2] + 0.06])
+    place_up = clamp_workspace_pos([place_down[0], place_down[1], place_down[2] + rng.uniform(0.09, 0.15)])
+    quat = [0.0, 1.0, 0.0, 0.0]
 
     cmds = [
-        {"action": "move_ee", "pos": [x, y, z_place], "quat": [0.0, 1.0, 0.0, 0.0]},
+        {"action": "move_ee", "pos": place_up, "quat": quat},
+        {"action": "move_ee", "pos": place_down, "quat": quat},
         {"action": "open_gripper", "position": 0.04},
         {"action": "wait", "steps": rng.randint(10, 25)},
-        {"action": "move_ee", "pos": [x, y, z_retreat], "quat": [0.0, 1.0, 0.0, 0.0]},
+        {"action": "move_ee", "pos": place_up, "quat": quat},
     ]
-    text = (
-        f"执行放置动作：移动到 [{x}, {y}, {z_place}]，打开夹爪释放物体，"
-        f"等待后撤离到 [{x}, {y}, {z_retreat}]。"
+
+    obj_ref = choose(rng, [f"{cube_color}方块", f"{cube_color}块", "方块", "这个块"])
+    templates = [
+        f"把手里的{obj_ref}放到旁边位置。",
+        f"执行放置，把{obj_ref}放下后撤离。",
+        f"把{obj_ref}放到桌面另一侧。",
+        f"放置当前抓取物，然后抬手离开。",
+        f"把{obj_ref}轻放到目标区域。",
+        f"完成一次放置动作：放下并退开。",
+        f"将{obj_ref}放好，松爪后撤。",
+        f"把这个物体放到新位置。",
+        f"执行 place：落下、开爪、撤离。",
+        f"把{obj_ref}放下并抬起末端。",
+    ]
+
+    scene_state = build_scene_state(
+        cube_pos=cube_pos,
+        cube_color=cube_color,
+        ee_pos=offset_pos_from_target(place_up, rng, xy_delta=0.07, z_delta=0.06),
+        ee_quat=sample_quat(rng),
+        franka_qpos=sample_home_like_qpos(rng),
     )
-    return Sample(text, cmds, "seq_place")
+    return Sample(
+        choose(rng, templates),
+        cmds,
+        "seq_place",
+        scene_state=scene_state,
+        force_state_context=True,
+    )
 
 
 def gen_seq_reset_and_check(rng: random.Random) -> Sample:
@@ -326,8 +609,19 @@ def gen_seq_reset_and_check(rng: random.Random) -> Sample:
         {"action": "wait", "steps": rng.randint(15, 40)},
         {"action": "get_state"},
     ]
-    text = f"先重置场景，再把末端移动到 {pos}，稍等后返回当前状态。"
-    return Sample(text, cmds, "seq_reset_check")
+    templates = [
+        f"先重置场景，再把末端移动到 {pos}，稍等后返回当前状态。",
+        f"reset 场景后移动到 {pos}，等待一下并读取状态。",
+        f"执行 reset_scene，然后到 {pos}，最后 get_state。",
+        f"先清场，再把 ee 挪到 {pos}，接着查状态。",
+        f"重置后移动到 {pos}，等待稳定并输出状态。",
+        f"场景恢复初始，末端到 {pos}，然后读取一次状态。",
+        f"先 reset，再 move_ee 到 {pos}，最后看 state。",
+        f"重置环境后就位到 {pos}，随后查询当前状态。",
+        f"把场景重置并移动到 {pos}，等待后获取状态。",
+        f"执行 reset->move->wait->get_state，目标点 {pos}。",
+    ]
+    return Sample(choose(rng, templates), cmds, "seq_reset_check")
 
 
 def gen_seq_joint_then_state(rng: random.Random) -> Sample:
@@ -337,8 +631,19 @@ def gen_seq_joint_then_state(rng: random.Random) -> Sample:
         {"action": "wait", "steps": rng.randint(20, 80)},
         {"action": "get_state"},
     ]
-    text = f"把 qpos 设为 {qpos}，等待稳定后读取状态。"
-    return Sample(text, cmds, "seq_joint_state")
+    templates = [
+        f"把 qpos 设为 {qpos}，等待稳定后读取状态。",
+        f"设置关节到 {qpos}，稍等后 get_state。",
+        f"先 set_qpos={qpos}，再等一会儿查看状态。",
+        f"把机械臂调到 qpos {qpos} 并回传状态。",
+        f"执行关节设定 {qpos}，等待后输出当前状态。",
+        f"关节重配置到 {qpos}，随后读取机器人状态。",
+        f"把姿态切到 {qpos}，稳定后查 state。",
+        f"设置 qpos 后等待，再返回状态。",
+        f"按 qpos={qpos} 就位，然后 get_state。",
+        f"先设关节目标 {qpos}，再查询当前状态。",
+    ]
+    return Sample(choose(rng, templates), cmds, "seq_joint_state")
 
 
 def with_json_hint(text: str, rng: random.Random) -> str:
@@ -444,76 +749,53 @@ def normalize_text(text: str) -> str:
 
 
 def sample_scene_state_for_commands(commands: list[dict[str, Any]], rng: random.Random) -> dict[str, Any]:
-    cube_pos = [r3(rng.uniform(0.56, 0.72)), r3(rng.uniform(-0.16, 0.16)), 0.02]
+    """
+    构造动作执行前场景状态。
+
+    关键修复：
+    - 不能把当前 ee_pos / qpos 直接设成指令目标。
+    - 需要在目标附近随机偏移，模拟“动作发生前”的真实状态。
+    """
+    cube_pos = sample_cube_pos(rng)
+    cube_color = sample_cube_color(rng)
     ee_pos = [r3(rng.uniform(0.50, 0.76)), r3(rng.uniform(-0.24, 0.24)), r3(rng.uniform(0.12, 0.36))]
     ee_quat = sample_quat(rng)
     franka_qpos = sample_home_like_qpos(rng)
 
+    move_target: list[float] | None = None
+    move_quat: list[float] | None = None
+    qpos_target: list[float] | None = None
+
     for cmd in commands:
         action = str(cmd.get("action", "")).strip().lower()
-        if action == "move_ee" and isinstance(cmd.get("pos"), list) and len(cmd["pos"]) == 3:
-            ee_pos = [r3(v) for v in cmd["pos"]]
+        if move_target is None and action == "move_ee" and isinstance(cmd.get("pos"), list) and len(cmd["pos"]) == 3:
+            move_target = [r3(v) for v in cmd["pos"]]
             if isinstance(cmd.get("quat"), list) and len(cmd["quat"]) == 4:
-                ee_quat = [r3(v) for v in cmd["quat"]]
-        elif action == "set_qpos" and isinstance(cmd.get("qpos"), list) and len(cmd["qpos"]) >= 9:
-            franka_qpos = [r3(v) for v in cmd["qpos"][:9]]
-        elif action in {"seq_grasp_lift", "seq_place"}:
-            pass
+                move_quat = [r3(v) for v in cmd["quat"]]
+        if qpos_target is None and action == "set_qpos" and isinstance(cmd.get("qpos"), list) and len(cmd["qpos"]) >= 9:
+            qpos_target = [r3(v) for v in cmd["qpos"][:9]]
+        if move_target is not None and qpos_target is not None:
+            break
 
-    return {
-        "entities": [
-            {
-                "name": "franka",
-                "category": "robot",
-                "state": {
-                    "qpos": franka_qpos,
-                    "ee_pos": ee_pos,
-                    "ee_quat": ee_quat,
-                },
-            },
-            {
-                "name": "cube",
-                "category": "object",
-                "state": {
-                    "pos": cube_pos,
-                    "quat": [0.0, 0.0, 0.0, 1.0],
-                },
-            },
-            {
-                "name": "ground",
-                "category": "object",
-                "state": {
-                    "plane": True,
-                },
-            },
-        ]
-    }
+    if move_target is not None:
+        ee_pos = offset_pos_from_target(move_target, rng, xy_delta=0.07, z_delta=0.08)
+        if move_quat is not None:
+            ee_quat = move_quat
+    if qpos_target is not None:
+        franka_qpos = offset_qpos_from_target(qpos_target, rng)
+
+    return build_scene_state(
+        cube_pos=cube_pos,
+        cube_color=cube_color,
+        ee_pos=ee_pos,
+        ee_quat=ee_quat,
+        franka_qpos=franka_qpos,
+    )
 
 
 def build_instruction_with_state_context(instruction: str, scene_state: dict[str, Any]) -> str:
     state_text = json.dumps(scene_state, ensure_ascii=False, separators=(",", ":"))
     return f"[STATE_CONTEXT]{state_text}[/STATE_CONTEXT]\n用户指令: {instruction}"
-
-
-def build_tools_json() -> str:
-    tools = [
-        {
-            "name": "execute_robot_json",
-            "description": "执行 Franka 机械臂 JSON 指令。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "commands": {
-                        "type": "array",
-                        "description": "动作列表，每个元素至少包含 action 字段。",
-                        "items": {"type": "object"},
-                    }
-                },
-                "required": ["commands"],
-            },
-        }
-    ]
-    return json.dumps(tools, ensure_ascii=False)
 
 
 def _build_action_generator_map() -> dict[str, Callable[[random.Random], Sample]]:
@@ -605,8 +887,6 @@ def generate_dataset(
     category_counter: Counter[str] = Counter()
     state_context_count = 0
 
-    tools_json = build_tools_json()
-
     max_trials = num_samples * 30
     trials = 0
     while len(alpaca) < num_samples and trials < max_trials:
@@ -615,8 +895,9 @@ def generate_dataset(
         instruction = with_json_hint(sample.instruction, rng)
         payload = build_payload(sample.commands, rng)
         commands = validate_payload(payload)
-        if rng.random() < state_context_ratio:
-            scene_state = sample_scene_state_for_commands(commands, rng)
+        use_state_context = sample.force_state_context or (rng.random() < state_context_ratio)
+        if use_state_context:
+            scene_state = sample.scene_state if sample.scene_state is not None else sample_scene_state_for_commands(commands, rng)
             instruction = build_instruction_with_state_context(instruction, scene_state)
             state_context_count += 1
         response = payload_to_text(payload, rng)
@@ -641,7 +922,6 @@ def generate_dataset(
                     {"from": "gpt", "value": response},
                 ],
                 "system": SYSTEM_PROMPT,
-                "tools": tools_json,
             }
         )
 

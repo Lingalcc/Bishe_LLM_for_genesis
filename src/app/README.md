@@ -10,15 +10,16 @@
 
 ## 统一配置
 
-默认读取统一配置文件：`config/pipeline_config.json`  
+默认读取统一配置文件：`configs/default.yaml`  
 对应配置段：
 
 - `app.interactive`
 - `app.state_injection`
-- `app.model`
+- `app.inference`
 
 可通过 `app.interactive.enabled` 控制是否允许启动应用。
-模型 API Key 直接配置在 `app.model.api_key`。
+`app.inference.mode` 支持 `api` / `local` 切换。
+API Key 建议配置在 `app.inference.api.api_key` 或环境变量 `app.inference.api.api_key_env`。
 状态注入开关：
 
 - `app.state_injection.enable_instruction_to_action`
@@ -39,13 +40,13 @@
 ## 1) 指令 -> Action
 
 ```bash
-python application/run_instruction_to_action.py
+python src/app/run_instruction_to_action.py
 ```
 
 单次调用示例：
 
 ```bash
-python application/run_instruction_to_action.py \
+python src/app/run_instruction_to_action.py \
   --instruction "打开夹爪，移动到[0.65,0,0.2]，然后闭合夹爪"
 ```
 
@@ -55,27 +56,62 @@ python application/run_instruction_to_action.py \
 ## 2) Action -> Franka运动
 
 ```bash
-python application/run_action_to_motion.py
+python src/app/run_action_to_motion.py
 ```
 
 单次调用示例：
 
 ```bash
-python application/run_action_to_motion.py \
+python src/app/run_action_to_motion.py \
   --action '{"commands":[{"action":"open_gripper"},{"action":"move_ee","pos":[0.65,0,0.2],"quat":[0,1,0,0]}]}'
 ```
 
 ## 3) 指令 -> Action -> Franka运动（端到端）
 
 ```bash
-python application/run_instruction_to_motion.py
+python src/app/run_instruction_to_motion.py
 ```
 
 单次调用示例：
 
 ```bash
-python application/run_instruction_to_motion.py \
+python src/app/run_instruction_to_motion.py \
   --instruction "先张开夹爪，再移动到盒子上方然后夹住"
+```
+
+## 推理配置示例
+
+API 模式（OpenAI 兼容）：
+
+```yaml
+app:
+  inference:
+    mode: api
+    api:
+      api_base: https://api.openai.com/v1
+      model: gpt-5
+      api_key: ""
+      api_key_env: OPENAI_API_KEY
+      generation:
+        temperature: 0.0
+        max_tokens: 1200
+        top_p: 1.0
+```
+
+本地模式（可切换推理后端）：
+
+```yaml
+app:
+  inference:
+    mode: local
+    local:
+      model_path: model/my_lora_merged_model
+      backend: auto # auto | vllm | transformers
+      quantization: null # null | awq | 4bit | 8bit
+      generation:
+        temperature: 0.0
+        top_p: 1.0
+        max_new_tokens: 512
 ```
 
 每次推理前都会采集场景中各物体状态（名字、类别、坐标/姿态等）并注入模型。
