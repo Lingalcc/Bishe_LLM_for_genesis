@@ -154,6 +154,25 @@ def _read_top_level_yaml_scalar(config_path: Path, key: str) -> str | None:
     return None
 
 
+def _resolve_yaml_paths_for_subprocess(config_path: Path) -> list[str]:
+    """Resolve project-root-relative paths in LlamaFactory config to absolute, returning CLI overrides."""
+    overrides: list[str] = []
+    try:
+        data = _load_yaml_file(config_path)
+    except Exception:
+        return overrides
+    for key in ("model_name_or_path", "output_dir", "dataset_dir"):
+        value = data.get(key, "")
+        if not value or not isinstance(value, str):
+            continue
+        p = Path(value)
+        if p.is_absolute():
+            continue
+        resolved = (REPO_ROOT / p).resolve()
+        overrides.extend([f"--{key}", str(resolved)])
+    return overrides
+
+
 def _ensure_finetune_model_exists(config_path: Path) -> None:
     cfg: dict[str, Any] = {}
     try:
@@ -248,7 +267,8 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
         command_extra_args = command_extra_args[1:]
 
     method_args = _build_method_overrides(finetune_method)
-    command = _resolve_train_prefix() + ["train", str(config_path)] + method_args + command_extra_args
+    path_overrides = _resolve_yaml_paths_for_subprocess(config_path)
+    command = _resolve_train_prefix() + ["train", str(config_path)] + method_args + path_overrides + command_extra_args
 
     env = os.environ.copy()
     src_dir = str((llamafactory_dir / "src").resolve())
@@ -325,7 +345,10 @@ def _extract_output_dir(config_path: Path) -> Path | None:
     try:
         data = _load_yaml_file(config_path)
         if isinstance(data, dict) and "output_dir" in data:
-            return Path(data["output_dir"])
+            p = Path(data["output_dir"])
+            if not p.is_absolute():
+                p = (REPO_ROOT / p).resolve()
+            return p
     except Exception:
         pass
     return None

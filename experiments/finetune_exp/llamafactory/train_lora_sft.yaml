@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct
+model_name_or_path: model/Qwen_Qwen2.5-3B-Instruct
 trust_remote_code: true
 
 ### method
@@ -20,7 +20,7 @@ preprocessing_num_workers: 4
 dataloader_num_workers: 2
 
 ### output
-output_dir: /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-lora
+output_dir: output/qwen2.5-3b-genesis-lora
 logging_steps: 5
 save_steps: 100
 plot_loss: true
