@@ -1,0 +1,113 @@
+dataset_prepare:
+  generate:
+    num_samples: 4000
+    seed: 42
+    batch_size: 20
+    state_context_ratio: 0.7
+    simple_ratio: 0.3
+    medium_ratio: 0.4
+    complex_ratio: 0.3
+    max_workers: 4
+    out_dir: data_prepare
+    alpaca_file: genesis_franka_toolcall_alpaca.json
+    sharegpt_file: genesis_franka_toolcall_sharegpt.json
+    stats_file: genesis_franka_toolcall_stats.json
+    api_base: https://api.deepseek.com/v1
+    model: deepseek-chat
+    api_key: ""
+    api_key_env: DEEPSEEK_API_KEY
+    temperature: 0.9
+    max_tokens: 4096
+    timeout: 120
+    max_retries: 5
+    sleep_seconds: 0.5
+  calibration:
+    dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    max_print_errors: 10
+    strict: false
+
+finetune:
+  train:
+    llamafactory_dir: LlamaFactory
+    config: LlamaFactory/examples/train_lora/qwen3_lora_sft_genesis_toolcall.yaml
+    gpus: "0"
+    dry_run: false
+    finetune_method: lora
+
+test:
+  accuracy_eval:
+    dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    predictions_file: null
+    report_file: experiments/03_eval_exp/reports/accuracy_report.json
+    num_samples: 200
+    seed: 42
+    mode: api  # api | local
+    # API settings (mode=api)
+    api_base: https://api.openai.com/v1
+    model: gpt-5
+    api_key: ""
+    api_key_env: OPENAI_API_KEY
+    temperature: 0.0
+    max_tokens: 1200
+    timeout: 120
+    max_retries: 3
+    sleep_seconds: 0.0
+    # Local model settings (mode=local)
+    model_path: ""
+    backend: transformers  # transformers | vllm
+    quantization: null     # null | 4bit | 8bit
+    max_new_tokens: 512
+    max_model_len: 4096
+    gpu_memory_utilization: 0.9
+    trust_remote_code: true
+    system_prompt: 你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。
+  regression:
+    target: all
+
+benchmark:
+  dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
+  base_model_path: model/Qwen_Qwen2.5-3B-Instruct
+  finetuned_model_path: model/my_lora_merged_model
+  report_dir: experiments/02_finetune_exp/reports
+  num_samples: 100
+  seed: 42
+  backend: transformers
+  quantization: null
+  max_new_tokens: 512
+  system_prompt: 你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。只输出 JSON，不要输出解释。
+
+app:
+  interactive:
+    enabled: true
+    show_viewer: true
+  state_injection:
+    enable_instruction_to_action: true
+    enable_instruction_to_motion: true
+  inference:
+    mode: api # api | local
+    max_retries: 3
+    sleep_seconds: 0.0
+    system_prompt: 你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。
+    api:
+      api_base: https://api.openai.com/v1
+      model: gpt-5
+      api_key: ""
+      api_key_env: OPENAI_API_KEY
+      timeout: 120
+      generation:
+        temperature: 0.0
+        max_tokens: 1200
+        top_p: 1.0
+        frequency_penalty: 0.0
+        presence_penalty: 0.0
+    local:
+      model_path: model/my_lora_merged_model
+      backend: auto # auto | vllm | transformers
+      quantization: null # null | awq | 4bit | 8bit
+      max_model_len: 4096
+      gpu_memory_utilization: 0.9
+      trust_remote_code: true
+      generation:
+        temperature: 0.0
+        top_p: 1.0
+        max_new_tokens: 512
