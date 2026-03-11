@@ -29,7 +29,7 @@ dataset_prepare:
 finetune:
   train:
     llamafactory_dir: LlamaFactory
-    config: LlamaFactory/examples/train_lora/qwen3_lora_sft_genesis_toolcall.yaml
+    config: experiments/02_finetune_exp/configs/llamafactory_train_lora_sft.yaml
     gpus: "0"
     dry_run: false
     finetune_method: lora
