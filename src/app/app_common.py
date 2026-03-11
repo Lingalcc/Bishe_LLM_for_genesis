@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from src.app.local_llm_engine import LocalLLMEngine
-from src.app.unified_config import get_section
+from src.utils.config import get_section
 
 
 DEFAULT_APP_SYSTEM_PROMPT = (
@@ -26,7 +26,7 @@ DEFAULT_APP_EXAMPLE_JSON = """{
     {"action": "open_gripper", "position": 0.04},
     {"action": "move_ee", "pos": [0.65, 0.0, 0.18], "quat": [0, 1, 0, 0]},
     {"action": "close_gripper", "position": 0.0},
-    {"action": "wait", "steps": 20},
+    {"action": "wait"},
     {"action": "move_ee", "pos": [0.65, 0.0, 0.30], "quat": [0, 1, 0, 0]}
   ]
 }"""
@@ -352,7 +352,7 @@ def build_interactive_env(show_viewer: bool = True):
         sys.path.insert(0, str(local_genesis_path))
 
     import genesis as gs
-    from genesis_example.genesis_tools import GenesisManager, GenesisRobot
+    from src.genesis.genesis_tools import GenesisManager, GenesisRobot
 
     manager = GenesisManager(
         backend="gpu",

@@ -1,0 +1,39 @@
+# experiments/01_data_exp/configs/api_generate.yaml
+# API-based dataset generation configuration
+# Override fields in this file to customize generation behavior.
+# Usage:
+#   python experiments/01_data_exp/run_api_generate.py --config experiments/01_data_exp/configs/api_generate.yaml
+
+dataset_prepare:
+  generate:
+    # --- Output ---
+    out_dir: data_prepare
+    alpaca_file: genesis_franka_toolcall_alpaca.json
+    sharegpt_file: genesis_franka_toolcall_sharegpt.json
+    stats_file: genesis_franka_toolcall_stats.json
+
+    # --- Generation parameters ---
+    num_samples: 1000          # Total number of samples to generate
+    seed: 42
+    batch_size: 20             # Number of samples per API call
+    state_context_ratio: 0.7   # Proportion of samples with scene state context
+
+    # --- Difficulty distribution (must sum to 1.0) ---
+    simple_ratio: 0.3          # Single action instructions
+    medium_ratio: 0.4          # 2-3 action sequences
+    complex_ratio: 0.3         # 4-7 action sequences
+
+    # --- Parallelism ---
+    max_workers: 4               # Concurrent API requests (1 = sequential)
+
+    # --- API configuration ---
+    # Supports any OpenAI-compatible API (OpenAI, DeepSeek, SiliconFlow, etc.)
+    api_base: "https://api.siliconflow.cn/v1"
+    model: "deepseek-ai/DeepSeek-V3"
+    api_key: "sk-rhodxvjeyskjunernolimgmxldpenkmsnlqcmoyvnovuddza"                # Leave empty to use env variable
+    api_key_env: "DEEPSEEK_API_KEY"   # Environment variable name for API key
+    temperature: 0.9
+    max_tokens: 4096
+    timeout: 120
+    max_retries: 5
+    sleep_seconds: 0.5

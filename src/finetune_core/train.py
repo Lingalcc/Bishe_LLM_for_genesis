@@ -1,26 +1,28 @@
 from __future__ import annotations
 
+import logging
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from src.utils.config import get_section, load_config
 
+logger = logging.getLogger(__name__)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PIPELINE_CONFIG = REPO_ROOT / "configs" / "base.yaml"
-DEFAULT_LLAMAFACTORY_DIR = REPO_ROOT / "LLaMA-Factory"
-DEFAULT_CONFIG = (
-    DEFAULT_LLAMAFACTORY_DIR
-    / "examples"
-    / "train_lora"
-    / "qwen3_lora_sft_genesis_toolcall.yaml"
+DEFAULT_LLAMAFACTORY_DIR = (
+    REPO_ROOT / "LlamaFactory" if (REPO_ROOT / "LlamaFactory").exists() else REPO_ROOT / "LLaMA-Factory"
 )
+DEFAULT_CONFIG = REPO_ROOT / "experiments" / "02_finetune_exp" / "configs" / "llamafactory_train_lora_sft.yaml"
 SUPPORTED_FINETUNE_METHODS = {"lora", "qlora", "dora", "galore"}
 
 
@@ -101,7 +103,136 @@ def _build_method_overrides(finetune_method: str) -> list[str]:
     raise ValueError(f"Unsupported finetune method: {finetune_method}")
 
 
+def _load_yaml_file(path: Path) -> dict[str, Any]:
+    try:
+        import yaml
+    except ModuleNotFoundError as exc:
+        raise RuntimeError("PyYAML is required to parse training config. Install dependency `pyyaml`.") from exc
+
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if data is None:
+        return {}
+    if not isinstance(data, dict):
+        raise ValueError(f"Config root must be a mapping object: {path}")
+    return data
+
+
+def _is_repo_model_managed_path(raw_model_path: str) -> bool:
+    normalized = raw_model_path.strip().replace("\\", "/")
+    return (
+        normalized.startswith("model/")
+        or normalized.startswith("./model/")
+        or normalized.startswith("../model/")
+        or normalized == "model"
+    )
+
+
+def _infer_hf_model_id(model_dir: Path) -> str | None:
+    dirname = model_dir.name
+    if "_" not in dirname:
+        return None
+    org, repo = dirname.split("_", 1)
+    if not org or not repo:
+        return None
+    return f"{org}/{repo}"
+
+
+def _read_top_level_yaml_scalar(config_path: Path, key: str) -> str | None:
+    pattern = re.compile(rf"^\s*{re.escape(key)}\s*:\s*(.*?)\s*$")
+    for line in config_path.read_text(encoding="utf-8").splitlines():
+        if line.lstrip().startswith("#"):
+            continue
+        matched = pattern.match(line)
+        if not matched:
+            continue
+        value = matched.group(1).split("#", 1)[0].strip()
+        if not value:
+            return None
+        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+            value = value[1:-1]
+        return value.strip()
+    return None
+
+
+def _ensure_finetune_model_exists(config_path: Path) -> None:
+    cfg: dict[str, Any] = {}
+    try:
+        cfg = _load_yaml_file(config_path)
+    except Exception:
+        cfg = {}
+
+    model_name_or_path = str(cfg.get("model_name_or_path", "")).strip() if cfg else ""
+    if not model_name_or_path:
+        model_name_or_path = _read_top_level_yaml_scalar(config_path, "model_name_or_path") or ""
+    if not model_name_or_path:
+        return
+
+    model_path_input = Path(model_name_or_path).expanduser()
+    is_local_model_ref = model_path_input.is_absolute() or _is_repo_model_managed_path(model_name_or_path)
+    if not is_local_model_ref:
+        return
+
+    target_model_path = (
+        model_path_input.resolve()
+        if model_path_input.is_absolute()
+        else (REPO_ROOT / model_path_input).resolve()
+    )
+    model_root = (REPO_ROOT / "model").resolve()
+
+    if target_model_path.exists():
+        return
+
+    if not model_root.exists():
+        print(f"[finetune] 检测到模型目录不存在，自动创建: {model_root}")
+        model_root.mkdir(parents=True, exist_ok=True)
+
+    explicit_model_id = (
+        (str(cfg.get("hf_model_id", "")).strip() if cfg else "")
+        or (str(cfg.get("model_id", "")).strip() if cfg else "")
+        or (_read_top_level_yaml_scalar(config_path, "hf_model_id") or "")
+        or (_read_top_level_yaml_scalar(config_path, "model_id") or "")
+    )
+    inferred_model_id = _infer_hf_model_id(target_model_path)
+    model_id = explicit_model_id or inferred_model_id
+    if not model_id:
+        raise FileNotFoundError(
+            f"Model path does not exist: {target_model_path}. "
+            "Cannot infer Hugging Face repo id. Set `hf_model_id` in training YAML."
+        )
+
+    revision = (str(cfg.get("model_revision", "")).strip() if cfg else "") or (
+        _read_top_level_yaml_scalar(config_path, "model_revision") or ""
+    )
+    token = (str(cfg.get("hf_token", "")).strip() if cfg else "") or (
+        _read_top_level_yaml_scalar(config_path, "hf_token") or ""
+    )
+    revision = revision or None
+    token = token or None
+
+    print(f"[finetune] 检测到模型不存在: {target_model_path}")
+    print(f"[finetune] 自动下载 Hugging Face 模型: {model_id}")
+    print(f"[finetune] 下载目录: {target_model_path}")
+
+    try:
+        from huggingface_hub import snapshot_download
+    except ImportError as exc:
+        raise RuntimeError(
+            "Missing dependency: huggingface_hub. Install it with `pip install huggingface_hub`."
+        ) from exc
+
+    snapshot_download(
+        repo_id=model_id,
+        revision=revision,
+        local_dir=str(target_model_path),
+        local_dir_use_symlinks=False,
+        token=token,
+    )
+    print(f"[finetune] 模型下载完成: {target_model_path}")
+
+
 def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
+    from src.finetune_core.metrics import GPUMonitor, TrainingMetrics, find_trainer_state, parse_trainer_state
+
     llamafactory_dir_raw, config_raw, gpus, dry_run, finetune_method = _resolve_effective_settings(cfg)
 
     llamafactory_dir = llamafactory_dir_raw.resolve()
@@ -126,7 +257,7 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
     if gpus is not None:
         env["CUDA_VISIBLE_DEVICES"] = gpus
 
-    result = {
+    result: dict[str, Any] = {
         "working_dir": str(llamafactory_dir),
         "pipeline_config": str(cfg.pipeline_config),
         "method": finetune_method,
@@ -141,9 +272,63 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
         result["executed"] = False
         return result
 
-    subprocess.run(command, cwd=str(llamafactory_dir), env=env, check=True)
+    _ensure_finetune_model_exists(config_path)
+
+    # Parse GPU indices for monitoring
+    gpu_indices = [int(g) for g in gpus.split(",") if g.strip()] if gpus else [0]
+    gpu_monitor = GPUMonitor(gpu_indices=gpu_indices, interval_sec=2.0)
+
+    logger.info("Starting training: method=%s gpus=%s", finetune_method, gpus)
+    gpu_monitor.start()
+    t_start = time.time()
+
+    try:
+        subprocess.run(command, cwd=str(llamafactory_dir), env=env, check=True)
+    finally:
+        gpu_monitor.stop()
+
+    elapsed = time.time() - t_start
+    vram_summary = gpu_monitor.summary()
+
+    # Try to extract loss curve from trainer_state.json
+    # Look for output_dir in the LLaMA Factory train config
+    output_dir = _extract_output_dir(config_path)
+    loss_data: dict[str, Any] = {}
+    if output_dir:
+        state_path = find_trainer_state(output_dir)
+        if state_path:
+            loss_data = parse_trainer_state(state_path)
+            logger.info("Parsed loss curve: %d steps from %s", len(loss_data.get("train_loss", {}).get("steps", [])), state_path)
+
+    metrics = TrainingMetrics(
+        method=finetune_method,
+        total_time_sec=elapsed,
+        total_steps=loss_data.get("total_steps", 0),
+        total_epochs=loss_data.get("total_epochs", 0.0),
+        final_loss=loss_data.get("final_loss", 0.0),
+        min_loss=loss_data.get("min_loss", 0.0),
+        min_loss_step=loss_data.get("min_loss_step", 0),
+        loss_curve=loss_data.get("train_loss", {}),
+        peak_vram_mb=vram_summary.get("peak_vram_mb", 0.0),
+        avg_vram_mb=vram_summary.get("avg_vram_mb", 0.0),
+        vram_detail=vram_summary,
+    )
+
     result["executed"] = True
+    result["training_time_sec"] = elapsed
+    result["training_metrics"] = metrics.to_dict()
     return result
+
+
+def _extract_output_dir(config_path: Path) -> Path | None:
+    """Try to read output_dir from a LLaMA Factory YAML config."""
+    try:
+        data = _load_yaml_file(config_path)
+        if isinstance(data, dict) and "output_dir" in data:
+            return Path(data["output_dir"])
+    except Exception:
+        pass
+    return None
 
 
 def run_finetune_from_merged_config(

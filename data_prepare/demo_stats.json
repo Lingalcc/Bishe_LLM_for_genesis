@@ -1,0 +1,14 @@
+{
+  "total_samples": 10,
+  "target_samples": 10,
+  "api_calls": 2,
+  "invalid_discarded": 0,
+  "difficulty_distribution": {
+    "simple": 2,
+    "medium": 8,
+    "complex": 0
+  },
+  "state_context_ratio": 0.5,
+  "model": "deepseek-ai/DeepSeek-V3",
+  "seed": 42
+}

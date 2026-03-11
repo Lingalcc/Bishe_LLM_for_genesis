@@ -5,7 +5,7 @@ import argparse
 import json
 from pathlib import Path
 
-from src.data_core.augment import run_augment_from_merged_config
+from src.data_core.calibration import calibrate_from_merged_config
 from src.data_core.generate import run_generate_from_merged_config
 from src.eval_core.accuracy import run_accuracy_from_merged_config
 from src.finetune_core.train import SUPPORTED_FINETUNE_METHODS, run_finetune_from_merged_config
@@ -28,14 +28,14 @@ def _run_data_generate(args: argparse.Namespace) -> None:
     print(f"[ok] stats   : {outputs['stats_path']}")
 
 
-def _run_data_augment(args: argparse.Namespace) -> None:
+def _run_data_calibrate(args: argparse.Namespace) -> None:
     cfg = _load_cfg(args.base_config, args.config)
-    result = run_augment_from_merged_config(cfg)
-    print(f"[ok] input     : {result['input_file']} ({result['input_count']} rows)")
-    print(f"[ok] augmented : +{result['augmented_count']} rows")
-    print(f"[ok] output    : {result['output_file']} ({result['output_count']} rows)")
-    print(f"[ok] sharegpt  : {result['output_sharegpt_file']} ({result['sharegpt_count']} rows)")
-    print(f"[ok] stats     : {result['stats_file']}")
+    report = calibrate_from_merged_config(cfg)
+    print(f"[ok] dataset     : {report['dataset_file']}")
+    print(f"[ok] total rows  : {report['total_rows']}")
+    print(f"[ok] valid rows  : {report['valid_rows']}")
+    print(f"[ok] invalid rows: {report['invalid_rows']}")
+    print(f"[ok] valid ratio : {report['valid_ratio']:.2%}")
 
 
 def _run_finetune_start(args: argparse.Namespace) -> None:
@@ -53,6 +53,12 @@ def _run_finetune_start(args: argparse.Namespace) -> None:
     if result.get("gpus") is not None:
         print(f"[finetune] GPUs       : {result['gpus']}")
     print(f"[finetune] executed   : {result['executed']}")
+    if "training_metrics" in result:
+        tm = result["training_metrics"]
+        print(f"[finetune] time (sec) : {tm.get('total_time_sec', 0):.0f}")
+        print(f"[finetune] final loss  : {tm.get('final_loss', 0):.4f}")
+        print(f"[finetune] min loss    : {tm.get('min_loss', 0):.4f} (step {tm.get('min_loss_step', 0)})")
+        print(f"[finetune] peak VRAM   : {tm.get('peak_vram_mb', 0):.0f} MB")
 
 
 def _run_eval_accuracy(args: argparse.Namespace) -> None:
@@ -62,6 +68,28 @@ def _run_eval_accuracy(args: argparse.Namespace) -> None:
     print(f"[ok] parse ok          : {report['parse_ok']} ({report['parse_ok_rate']:.4f})")
     print(f"[ok] exact match       : {report['exact_match']} ({report['exact_match_rate']:.4f})")
     print(f"[ok] action match      : {report['action_match']} ({report['action_match_rate']:.4f})")
+    if report.get("mode") == "local":
+        print(f"[ok] avg latency (sec) : {report.get('avg_latency_sec', 0):.3f}")
+        print(f"[ok] avg throughput    : {report.get('avg_throughput_tps', 0):.1f} tokens/s")
+        print(f"[ok] peak VRAM (MB)    : {report.get('max_peak_vram_mb', 0):.0f}")
+
+
+def _run_finetune_benchmark(args: argparse.Namespace) -> None:
+    cfg = _load_cfg(args.base_config, args.config)
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "run_benchmark",
+        Path(__file__).resolve().parent / "experiments" / "02_finetune_exp" / "run_benchmark.py",
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    mod.run_benchmark(
+        cfg,
+        eval_only=args.eval_only,
+        skip_train=args.skip_train,
+        skip_base_eval=args.skip_base_eval,
+        dry_run=args.dry_run,
+    )
 
 
 def _run_app_instruction(args: argparse.Namespace) -> None:
@@ -97,10 +125,10 @@ def build_parser() -> argparse.ArgumentParser:
     data_generate_parser.add_argument("--config", type=Path, default=None)
     data_generate_parser.set_defaults(handler=_run_data_generate)
 
-    data_augment_parser = data_subparsers.add_parser("augment", help="Augment generated dataset.")
-    data_augment_parser.add_argument("--base-config", type=Path, default=Path("configs/base.yaml"))
-    data_augment_parser.add_argument("--config", type=Path, default=None)
-    data_augment_parser.set_defaults(handler=_run_data_augment)
+    data_calibrate_parser = data_subparsers.add_parser("calibrate", help="Validate dataset quality.")
+    data_calibrate_parser.add_argument("--base-config", type=Path, default=Path("configs/base.yaml"))
+    data_calibrate_parser.add_argument("--config", type=Path, default=None)
+    data_calibrate_parser.set_defaults(handler=_run_data_calibrate)
 
     finetune_parser = root_subparsers.add_parser("finetune", help="Model fine-tuning commands.")
     finetune_subparsers = finetune_parser.add_subparsers(dest="finetune_command", required=True)
@@ -118,6 +146,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     finetune_start_parser.add_argument("extra_args", nargs=argparse.REMAINDER)
     finetune_start_parser.set_defaults(handler=_run_finetune_start)
+
+    finetune_benchmark_parser = finetune_subparsers.add_parser(
+        "benchmark", help="Run pre/post fine-tuning accuracy benchmark.")
+    finetune_benchmark_parser.add_argument("--base-config", type=Path, default=Path("configs/base.yaml"))
+    finetune_benchmark_parser.add_argument("--config", type=Path, default=None)
+    finetune_benchmark_parser.add_argument("--dry-run", action="store_true")
+    finetune_benchmark_parser.add_argument("--skip-train", action="store_true",
+                                           help="Skip training, only evaluate.")
+    finetune_benchmark_parser.add_argument("--skip-base-eval", action="store_true",
+                                           help="Skip base model eval (train + eval finetuned only).")
+    finetune_benchmark_parser.add_argument("--eval-only", choices=["base", "finetuned"], default=None,
+                                           help="Only evaluate one model.")
+    finetune_benchmark_parser.set_defaults(handler=_run_finetune_benchmark)
 
     eval_parser = root_subparsers.add_parser("eval", help="Evaluation commands.")
     eval_subparsers = eval_parser.add_subparsers(dest="eval_command", required=True)

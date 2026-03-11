@@ -1,5 +1,0 @@
-dataset_prepare:
-  generate:
-    num_samples: 200
-    seed: 123
-    out_dir: data_prepare/exp_01
