@@ -1,201 +1,200 @@
 # Bishe_LLM_for_genesis
 
-面向 Genesis 仿真场景的大语言模型工程化项目，覆盖数据构建、微调、评测和交互式应用全流程。
+面向 Genesis 仿真场景的 LLM 工程项目：覆盖数据生成、微调、评测、推理性能基准和仿真联调。
 
-## 项目目标
+## 一页速览（答辩演示建议）
 
-1. 将自然语言指令转换为可执行的机器人 JSON action。
-2. 提供从数据集生成到模型评测的统一工程链路。
-3. 通过统一 CLI 降低多脚本分散调用的维护成本。
+```bash
+# 1) 安装
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
 
-## 当前目录结构
+# 2) 数据生成（API）
+python cli.py data generate --config experiments/01_data_exp/configs/api_generate.yaml
+
+# 3) 微调（先 dry-run）
+python cli.py finetune start --config experiments/02_finetune_exp/configs/train.yaml --dry-run
+
+# 4) 准确率评测
+python cli.py eval accuracy --config experiments/03_eval_exp/configs/accuracy.yaml
+
+# 5) 推理 benchmark（本地模型，按实际模型路径替换）
+python cli.py eval benchmark --backend transformers --model-path model/Qwen_Qwen2.5-3B-Instruct
+```
+
+仿真端到端启动见下文「最小仿真启动」。
+
+## 当前目录结构（与代码一致）
 
 ```text
 Bishe_LLM_for_genesis/
+├── cli.py
 ├── configs/
-│   └── default.yaml               # 统一 YAML 配置
+│   └── base.yaml
+├── experiments/
+│   ├── 01_data_exp/
+│   │   ├── README.md
+│   │   ├── run_api_generate.py
+│   │   └── configs/api_generate.yaml
+│   ├── 02_finetune_exp/
+│   │   ├── README.md
+│   │   ├── run_train.py
+│   │   ├── run_benchmark.py
+│   │   └── configs/
+│   ├── 03_eval_exp/
+│   │   ├── README.md
+│   │   ├── run_accuracy.py
+│   │   └── configs/accuracy.yaml
+│   ├── 04_sim_exp/
+│   │   ├── README.md
+│   │   ├── run_e2e_sim.py
+│   │   ├── test_genesis_interactive_env.py
+│   │   └── configs/e2e_sim.yaml
+│   └── finetune_exp/
+│       └── README.md
+├── scripts/
+│   └── bootstrap_sim_assets.sh
 ├── src/
-│   ├── data/                      # 数据生成、增强、校准
-│   ├── finetune/                  # 微调入口与执行逻辑
-│   ├── eval/                      # 精度评测与性能统计
-│   ├── app/                       # 指令交互与仿真执行
-│   └── utils/                     # 通用工具（配置加载等）
-├── tests/                         # 回归测试脚本
-├── cli.py                         # 统一命令行入口
-├── pyproject.toml                 # 打包与依赖配置
-└── README.md
+│   ├── data_core/
+│   ├── finetune_core/
+│   ├── eval_core/
+│   ├── sim_core/
+│   ├── app/
+│   ├── genesis/
+│   ├── protocols/
+│   └── utils/
+└── tests/
 ```
 
-## 环境要求
+## 配置路径规则
 
-1. Python `>=3.10`
-2. 建议 Linux + NVIDIA GPU（涉及 `torch`、`vllm`、`bitsandbytes` 时）
-3. 已安装 Genesis 运行所需依赖（用于仿真与回归测试）
+统一采用「基础配置 + 实验覆盖配置」模式。
 
-## 安装
-
-1. 创建虚拟环境并激活。
-2. 在项目根目录执行：
-
-```bash
-pip install -e .
-```
-
-安装后可使用命令 `genesis-cli`。
-
-## 配置说明
-
-统一配置文件路径：
-
-```text
-configs/base.yaml
-```
-
-主要配置分组：
-
-1. `dataset_prepare`：数据生成、增强、校准参数
-2. `finetune.train`：LLaMA-Factory 训练参数
-3. `test.accuracy_eval`：评测参数
-4. `app.interactive` / `app.inference`：应用运行与模型推理参数（支持 API / 本地模型切换）
-
-如需在线调用 OpenAI 兼容接口，必须通过环境变量提供密钥（不要把真实 key 写入 YAML）：
-
-1. `OPENAI_API_KEY`（默认用于评测与 app API 模式）
-2. `DEEPSEEK_API_KEY`（默认用于数据生成）
-3. 也可在配置中改 `api_key_env` 指向自定义环境变量名
-
-示例：
-
-```bash
-cp .env.example .env
-export OPENAI_API_KEY="sk-..."
-export DEEPSEEK_API_KEY="sk-..."
-```
+- 基础配置：`configs/base.yaml`
+- 数据实验覆盖：`experiments/01_data_exp/configs/api_generate.yaml`
+- 微调实验覆盖：`experiments/02_finetune_exp/configs/train.yaml`
+- 评测实验覆盖：`experiments/03_eval_exp/configs/accuracy.yaml`
+- 仿真实验覆盖：`experiments/04_sim_exp/configs/e2e_sim.yaml`
 
 说明：
 
-1. 配置字段 `api_key` 仅为兼容保留，不再作为真实密钥来源。
-2. 缺少环境变量时，程序会抛出明确错误并提示对应变量名。
+- CLI 默认 `--base-config configs/base.yaml`
+- 通过 `--config <实验yaml>` 做深度覆盖
+- 旧路径 `configs/default.yaml` 仅兼容回退，不作为主文档路径
 
-## 统一 CLI 用法
+## 实际 CLI 命令（以 `python cli.py --help` 为准）
 
-查看总帮助：
+### data
+
+- `python cli.py data generate [--base-config ...] [--config ...]`
+- `python cli.py data calibrate [--base-config ...] [--config ...]`
+
+### finetune
+
+- `python cli.py finetune start [--base-config ...] [--config ...] [--dry-run] [--finetune-method {lora,qlora,dora,galore}] [extra_args...]`
+- `python cli.py finetune benchmark [--base-config ...] [--config ...] [--dry-run] [--skip-train] [--skip-base-eval] [--eval-only {base,finetuned}]`
+
+### eval
+
+- `python cli.py eval accuracy [--base-config ...] [--config ...]`
+- `python cli.py eval benchmark --backend {transformers,vllm} --model-path <path> [其他可选参数]`
+
+### app
+
+- `python cli.py app run-instruction --instruction "..." [--print-raw] [--disable-sim-state] [--base-config ...] [--config ...]`
+
+## 已删除/不存在的命令（请勿使用）
+
+- `python cli.py data augment`（不存在）
+- `python cli.py app run-sim`（不存在）
+- `python cli.py data generate -- --num-samples ...`（`data generate` 不接受该透传参数）
+- `python cli.py eval accuracy -- --num-samples ...`（`eval accuracy` 不接受该透传参数）
+
+## 从零开始最小流程
+
+### 1) 数据生成与校验
 
 ```bash
-python cli.py --help
+python cli.py data generate --config experiments/01_data_exp/configs/api_generate.yaml
+python cli.py data calibrate
 ```
 
-或（安装后）：
+### 2) 训练（微调）
+
+```bash
+# 建议先检查命令拼装是否正确
+python cli.py finetune start --config experiments/02_finetune_exp/configs/train.yaml --dry-run
+
+# 实际训练
+python cli.py finetune start --config experiments/02_finetune_exp/configs/train.yaml
+```
+
+### 3) 准确率评测
+
+```bash
+python cli.py eval accuracy --config experiments/03_eval_exp/configs/accuracy.yaml
+```
+
+### 4) benchmark（推理性能）
+
+```bash
+python cli.py eval benchmark \
+  --backend transformers \
+  --model-path model/Qwen_Qwen2.5-3B-Instruct \
+  --num-samples 32 \
+  --batch-size 1 \
+  --output-json experiments/03_eval_exp/reports/inference_benchmark.json
+```
+
+### 5) 最小仿真启动（端到端）
+
+```bash
+# 一次性拉取/定位 Genesis 资产
+bash scripts/bootstrap_sim_assets.sh
+
+# 如需自定义路径
+export GENESIS_REPO_DIR="/abs/path/to/Genesis"
+export GENESIS_ASSETS_ROOT="/abs/path/to/Genesis/genesis/assets"
+
+# 运行端到端仿真实验（需要 PYTHONPATH）
+PYTHONPATH=. python experiments/04_sim_exp/run_e2e_sim.py \
+  --instruction "移动到方块上方并张开夹爪"
+```
+
+## 功能边界（答辩建议直接引用）
+
+### 已实现并可演示
+
+- API 生成 `instruction -> action JSON` 数据（Alpaca/ShareGPT）
+- 基于 LLaMA-Factory 的微调启动与前后对比 benchmark
+- 准确率评测（`parse_ok / exact_match / action_match`）
+- 本地推理吞吐与延迟 benchmark（HF/vLLM）
+- 仿真端到端链路（指令 -> 模型 -> action 执行）
+
+### 实验性
+
+- `finetune_method=dora/galore`（可用但建议在答辩中声明实验性）
+- `eval accuracy` 的本地 `vllm` 后端
+- `app.inference.mode=local`（依赖本地模型与推理后端环境）
+
+### 计划中 / 未接入统一 CLI
+
+- 数据增强（`data augment`）
+- 数据切分的 CLI 子命令（当前仅配置与底层模块具备）
+- `app` 域下的仿真执行子命令（当前 CLI 仅 `run-instruction`）
+
+## 运行与测试
+
+安装后可使用入口命令：
 
 ```bash
 genesis-cli --help
 ```
 
-### 1. 数据生成
+测试建议：
 
 ```bash
-python cli.py data generate
-python cli.py data generate -- --num-samples 1000 --seed 123
+pytest -q
 ```
-
-### 2. 数据增强
-
-```bash
-python cli.py data augment
-python cli.py data augment -- --num-source 200 --aug-per-sample 1
-```
-
-### 3. 启动微调
-
-```bash
-python cli.py finetune start --dry-run
-python cli.py finetune start --gpus 0 -- --num_train_epochs 3
-```
-
-### 4. 精度评测
-
-```bash
-python cli.py eval accuracy
-python cli.py eval accuracy -- --num-samples 50
-```
-
-### 5. 应用交互（指令 -> action）
-
-```bash
-python cli.py app run-instruction
-python cli.py app run-instruction --instruction "打开夹爪并移动到目标点"
-```
-
-## 最小仿真启动指南
-
-仿真链路依赖 Genesis 运行时与机器人 MJCF/XML 资产。项目已内置启动前预检，会在缺依赖或缺资产时给出明确错误。
-
-1. 运行 bootstrap（第三方资产框架）：
-
-```bash
-bash scripts/bootstrap_sim_assets.sh
-```
-
-2. 如需自定义路径，设置环境变量（可写入 `~/.bashrc`）：
-
-```bash
-export GENESIS_REPO_DIR="/abs/path/to/Genesis"
-export GENESIS_ASSETS_ROOT="/abs/path/to/Genesis/genesis/assets"
-```
-
-3. 最小仿真命令：
-
-```bash
-python experiments/04_sim_exp/run_e2e_sim.py --instruction "移动到方块上方并张开夹爪"
-```
-
-4. 或直接交互测试环境：
-
-```bash
-python experiments/04_sim_exp/test_genesis_interactive_env.py
-```
-
-### 缺资源时报错示例
-
-当 MJCF/XML 不存在时，启动前会报错并列出检查路径，例如：
-
-```text
-src.genesis.sim_runtime.SimBootstrapError: Simulation robot asset file was not found.
-Requested file: xml/franka_emika_panda/panda.xml
-robot_type: mjcf
-Checked candidate paths:
-- /path/to/project/xml/franka_emika_panda/panda.xml
-- /path/to/project/Genesis/genesis/assets/xml/franka_emika_panda/panda.xml
-Try bootstrap first: `bash scripts/bootstrap_sim_assets.sh`
-Then set one of:
-- `GENESIS_REPO_DIR=/abs/path/to/Genesis`
-- `GENESIS_ASSETS_ROOT=/abs/path/to/assets/root`
-```
-
-## 典型工作流
-
-1. 生成基础数据集：`data generate`
-2. 使用 API 增强数据：`data augment`
-3. 启动微调：`finetune start`
-4. 运行精度评测：`eval accuracy`
-5. 在仿真中交互验证：`app run-instruction`
-
-## 测试
-
-运行回归测试：
-
-```bash
-python tests/run_regression_tests.py --config configs/default.yaml --target all
-```
-
-可选分组：
-
-1. `manager`
-2. `controller`
-3. `basic`
-
-## 开发约定
-
-1. 业务代码统一放在 `src/` 包内。
-2. 配置统一通过 `src/utils/config.py` 加载 YAML。
-3. 新功能优先接入 `cli.py`，避免新增散落 `run_xxx.py` 顶层入口。
