@@ -1,7 +1,8 @@
 finetune:
   train:
     llamafactory_dir: LlamaFactory
-    config: experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml
+    # config is intentionally omitted: auto-selected based on finetune_method.
+    # Override here only if you need a completely custom config file.
     train_file: data_prepare/splits/train.json
     val_file: data_prepare/splits/val.json
     dry_run: true

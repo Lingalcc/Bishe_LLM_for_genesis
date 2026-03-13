@@ -1,0 +1,50 @@
+### model
+model_name_or_path: model/Qwen_Qwen2.5-3B-Instruct
+trust_remote_code: true
+
+### method
+# GaLore: full-parameter fine-tuning with gradient low-rank projection.
+# MUST use finetuning_type=full; lora/adapter modes are incompatible.
+stage: sft
+do_train: true
+finetuning_type: full
+use_galore: true
+galore_layerwise: false   # true requires non-DDP (single GPU); false is safe for all setups
+galore_target: all
+galore_rank: 16
+galore_scale: 2.0
+
+### dataset
+dataset: genesis_franka_toolcall
+template: qwen
+cutoff_len: 1024
+max_samples: 625
+preprocessing_num_workers: 4
+dataloader_num_workers: 2
+
+### output
+output_dir: output/qwen2.5-3b-genesis-galore
+logging_steps: 5
+save_steps: 100
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: none
+
+### train
+# GaLore uses a much lower LR than LoRA-based methods.
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-5
+num_train_epochs: 5.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+max_grad_norm: 1.0
+
+### eval
+val_size: 0.05
+per_device_eval_batch_size: 2
+eval_strategy: steps
+eval_steps: 50
