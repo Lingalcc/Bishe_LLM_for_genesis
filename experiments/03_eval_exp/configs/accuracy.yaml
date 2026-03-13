@@ -1,5 +1,17 @@
 test:
   accuracy_eval:
-    dataset_file: data_prepare/exp_01/genesis_franka_toolcall_alpaca.json
-    report_file: experiments/03_eval_exp/accuracy_report.json
-    num_samples: 50
+    mode: local
+    dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    report_file: experiments/03_eval_exp/reports/accuracy_report_local.json
+    num_samples: 200
+    seed: 42
+
+    model_path: model/qwen2.5-3b-genesis-qlora
+    backend: transformers       # transformers | vllm
+    quantization: null          # transformers: null/4bit/8bit
+                               # vllm: 由 vLLM 支持的量化名称（如 awq 等）
+    max_new_tokens: 512
+    max_model_len: 4096         # 仅 vllm 生效
+    gpu_memory_utilization: 0.9 # 仅 vllm 生效
+    trust_remote_code: true
+    temperature: 0.0
