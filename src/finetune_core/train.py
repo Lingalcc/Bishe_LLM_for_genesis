@@ -24,8 +24,18 @@ DEFAULT_PIPELINE_CONFIG = REPO_ROOT / "configs" / "base.yaml"
 DEFAULT_LLAMAFACTORY_DIR = (
     REPO_ROOT / "LlamaFactory" if (REPO_ROOT / "LlamaFactory").exists() else REPO_ROOT / "LLaMA-Factory"
 )
-DEFAULT_CONFIG = REPO_ROOT / "experiments" / "02_finetune_exp" / "configs" / "llamafactory_train_qlora_sft.yaml"
+DEFAULT_CONFIG = REPO_ROOT / "experiments" / "02_finetune_exp" / "configs" / "llamafactory_train_lora_sft.yaml"
 SUPPORTED_FINETUNE_METHODS = {"lora", "qlora", "dora", "galore"}
+
+# Per-method default base configs — auto-selected when no explicit config is given.
+# Each config is pre-tuned for the method (correct finetuning_type, quantization flags, etc.).
+_CONFIGS_DIR = REPO_ROOT / "experiments" / "02_finetune_exp" / "configs"
+_METHOD_DEFAULT_CONFIGS: dict[str, Path] = {
+    "lora":   _CONFIGS_DIR / "llamafactory_train_lora_sft.yaml",
+    "qlora":  _CONFIGS_DIR / "llamafactory_train_qlora_sft.yaml",
+    "dora":   _CONFIGS_DIR / "llamafactory_train_dora_sft.yaml",
+    "galore": _CONFIGS_DIR / "llamafactory_train_galore_sft.yaml",
+}
 
 
 @dataclass(frozen=True)
@@ -74,7 +84,6 @@ def _resolve_effective_settings(cfg: FinetuneConfig) -> tuple[Path, Path, str | 
     section = _load_finetune_train_section(cfg.pipeline_config)
 
     llamafactory_dir_raw = cfg.llamafactory_dir or section.get("llamafactory_dir") or DEFAULT_LLAMAFACTORY_DIR
-    config_raw = cfg.config or section.get("config") or DEFAULT_CONFIG
     gpus_raw = cfg.gpus if cfg.gpus is not None else section.get("gpus")
     finetune_method_raw = cfg.finetune_method or section.get("finetune_method") or "lora"
     dry_run = bool(cfg.dry_run or bool(section.get("dry_run", False)))
@@ -82,7 +91,6 @@ def _resolve_effective_settings(cfg: FinetuneConfig) -> tuple[Path, Path, str | 
     llamafactory_dir = Path(str(llamafactory_dir_raw))
     if not llamafactory_dir.is_absolute() and cfg.llamafactory_dir is None:
         llamafactory_dir = REPO_ROOT / llamafactory_dir
-    config_path = Path(str(config_raw))
     gpus = None if gpus_raw in (None, "") else str(gpus_raw)
     finetune_method = str(finetune_method_raw).strip().lower()
     if finetune_method not in SUPPORTED_FINETUNE_METHODS:
@@ -91,19 +99,85 @@ def _resolve_effective_settings(cfg: FinetuneConfig) -> tuple[Path, Path, str | 
             f"Supported: {sorted(SUPPORTED_FINETUNE_METHODS)}"
         )
 
+    # Auto-select the method-appropriate base config when nothing is explicitly specified.
+    # This prevents the "selected galore but config is still lora/qlora" class of bugs.
+    explicit_config = cfg.config or section.get("config")
+    if explicit_config:
+        config_raw = explicit_config
+    else:
+        config_raw = _METHOD_DEFAULT_CONFIGS.get(finetune_method, DEFAULT_CONFIG)
+        logger.debug(
+            "No explicit config provided; auto-selected config for method=%s: %s",
+            finetune_method,
+            config_raw,
+        )
+
+    config_path = Path(str(config_raw))
     return llamafactory_dir, config_path, gpus, dry_run, finetune_method
 
 
 def _build_method_overrides(finetune_method: str) -> list[str]:
+    """Return CLI key=value overrides that fully characterise the requested finetune method.
+
+    These are appended *after* the base YAML config, so they take precedence over whatever
+    the YAML says.  Each method sets every field it requires AND explicitly corrects fields
+    that would conflict (e.g. GaLore must not have finetuning_type=lora).
+
+    Support matrix
+    --------------
+    lora   : adapter-based, no quantization.
+    qlora  : adapter-based + 4-bit NF4 quantization (requires bitsandbytes).
+    dora   : adapter-based LoRA variant with weight-decomposition, no quantization.
+    galore : full-parameter with gradient low-rank projection (requires finetuning_type=full).
+    """
     if finetune_method == "lora":
-        return []
+        # Explicit: adapter mode, quantization disabled.
+        return [
+            "finetuning_type=lora",
+        ]
     if finetune_method == "qlora":
-        return ["quantization_bit=4"]
+        # Explicit: adapter mode + 4-bit NF4 quantization.
+        return [
+            "finetuning_type=lora",
+            "quantization_bit=4",
+            "quantization_type=nf4",
+            "double_quantization=true",
+        ]
     if finetune_method == "dora":
-        return ["use_dora=true"]
+        # Explicit: LoRA adapter with use_dora=true; no quantization.
+        return [
+            "finetuning_type=lora",
+            "use_dora=true",
+        ]
     if finetune_method == "galore":
-        return ["use_galore=true"]
+        # GaLore is an optimizer-level technique for full fine-tuning.
+        # finetuning_type MUST be "full"; using "lora" silently breaks GaLore.
+        return [
+            "finetuning_type=full",
+            "use_galore=true",
+            "galore_target=all",
+        ]
     raise ValueError(f"Unsupported finetune method: {finetune_method}")
+
+
+def _validate_method_requirements(finetune_method: str, *, dry_run: bool = False) -> None:
+    """Raise a clear error early if required packages for a method are absent.
+
+    Skips import checks during dry-run so the command can be previewed without
+    installing heavy CUDA dependencies.
+    """
+    if dry_run:
+        return
+
+    if finetune_method == "qlora":
+        try:
+            import bitsandbytes  # noqa: F401
+        except ImportError:
+            raise RuntimeError(
+                "[qlora] Missing required package: bitsandbytes.\n"
+                "Install with: pip install bitsandbytes\n"
+                "bitsandbytes is mandatory for 4-bit NF4 quantization used by QLoRA."
+            ) from None
 
 
 def _parse_gpu_indices(cuda_visible_devices: str | None) -> list[int] | None:
@@ -267,6 +341,21 @@ def _ensure_finetune_model_exists(config_path: Path) -> None:
     print(f"[finetune] 模型下载完成: {target_model_path}")
 
 
+def _print_dry_run_summary(result: dict[str, Any]) -> None:
+    """Print a human-readable summary of what would be executed, for easy inspection."""
+    sep = "-" * 60
+    print(sep)
+    print("[finetune] DRY-RUN — no training will be executed.")
+    print(f"  method      : {result['method']}")
+    print(f"  base_config : {result['base_config']}")
+    print(f"  method_args : {result['method_args']}")
+    print(f"  gpus        : {result['gpus']}")
+    if result.get("dataset_overrides"):
+        print(f"  dataset     : {result['dataset_overrides']}")
+    print(f"  command     : {result['command_shell']}")
+    print(sep)
+
+
 def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
     from src.finetune_core.metrics import GPUMonitor, TrainingMetrics, find_trainer_state, parse_trainer_state
 
@@ -306,6 +395,7 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
         "working_dir": str(llamafactory_dir),
         "pipeline_config": str(cfg.pipeline_config),
         "method": finetune_method,
+        "base_config": str(config_path),
         "method_args": method_args,
         "command": command,
         "command_shell": shlex.join(command),
@@ -316,8 +406,10 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
 
     if dry_run:
         result["executed"] = False
+        _print_dry_run_summary(result)
         return result
 
+    _validate_method_requirements(finetune_method, dry_run=False)
     _ensure_finetune_model_exists(config_path)
 
     # Parse GPU indices for monitoring.
