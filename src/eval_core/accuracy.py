@@ -13,6 +13,7 @@ from src.eval_core.evaluate_toolcall_accuracy import (
     payload_to_commands,
 )
 from src.eval_core.performance_monitor import time_and_memory_tracker
+from src.eval_core.prompting import DEFAULT_EVAL_SYSTEM_PROMPT, build_eval_messages
 from src.utils.secrets import safe_json_dumps
 
 logger = logging.getLogger(__name__)
@@ -50,13 +51,7 @@ class AccuracyEvalConfig:
     trust_remote_code: bool = True
 
     # System prompt
-    system_prompt: str = (
-        "你是 Franka 机械臂控制指令生成器。"
-        "请把用户自然语言转换为可执行的 JSON action。"
-        "如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，"
-        "你必须利用其中的物体名字、状态、坐标和姿态进行决策。"
-        "只输出 JSON，不要输出解释。"
-    )
+    system_prompt: str = DEFAULT_EVAL_SYSTEM_PROMPT
 
 
 def run_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
@@ -78,6 +73,7 @@ def run_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
         timeout=cfg.timeout,
         max_retries=cfg.max_retries,
         sleep_seconds=cfg.sleep_seconds,
+        system_prompt=cfg.system_prompt,
     )
 
 
@@ -104,6 +100,7 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
         valid_rows.append({
             "dataset_index": i,
             "instruction": instruction,
+            "system": row.get("system", "") if isinstance(row.get("system", ""), str) else "",
             "gt_output": output_text,
             "gt_commands": gt_commands,
         })
@@ -137,10 +134,11 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
     logger.info("Local eval: %d samples with backend=%s model=%s", total, cfg.backend, cfg.model_path)
 
     for i, sample in enumerate(selected):
-        messages = [
-            {"role": "system", "content": cfg.system_prompt},
-            {"role": "user", "content": sample["instruction"]},
-        ]
+        messages = build_eval_messages(
+            instruction=sample["instruction"],
+            cfg_system_prompt=cfg.system_prompt,
+            sample_system_prompt=sample.get("system", ""),
+        )
         pred_text = ""
         infer_error: str | None = None
         perf: dict[str, Any] = {}

@@ -165,7 +165,7 @@ test:
 |---|---|---|
 | `mode` | `api` | `api` 或 `local` |
 | `temperature` | `0.0` | 生成温度，`0` 更稳定 |
-| `system_prompt` | 内置中文提示词 | 本地模式强制作为 system 消息注入；API 模式使用数据集每条样本自带 `system` 字段 |
+| `system_prompt` | 内置中文提示词 | API / 本地统一优先级：`cfg.system_prompt` > 样本 `system` > 内置默认提示词 |
 
 ### 3.3 API 模式参数（`mode: api`）
 
