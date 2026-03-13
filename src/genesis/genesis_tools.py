@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from src.protocols.toolcall import validate_payload
+from src.genesis.sim_runtime import resolve_robot_asset_path
 
 
 def _to_builtin(value: Any) -> Any:
@@ -139,10 +140,11 @@ class GenesisManager:
 
         kwargs = dict(morph_kwargs or {})
         rt = robot_type.strip().lower()
+        resolved_file = resolve_robot_asset_path(file, robot_type=rt)
         if rt == "mjcf":
-            morph = gs.morphs.MJCF(file=file, **kwargs)
+            morph = gs.morphs.MJCF(file=str(resolved_file), **kwargs)
         elif rt == "urdf":
-            morph = gs.morphs.URDF(file=file, **kwargs)
+            morph = gs.morphs.URDF(file=str(resolved_file), **kwargs)
         else:
             raise ValueError(f"unsupported robot_type: {robot_type}")
         entity = scene.add_entity(morph)
@@ -150,7 +152,12 @@ class GenesisManager:
             name=name,
             category="robot",
             entity_class=type(entity).__name__,
-            params={"file": file, "robot_type": rt, "morph_kwargs": kwargs},
+            params={
+                "file": file,
+                "resolved_file": str(resolved_file),
+                "robot_type": rt,
+                "morph_kwargs": kwargs,
+            },
             entity=entity,
         )
         return entity
