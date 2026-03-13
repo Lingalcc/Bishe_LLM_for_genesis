@@ -1,6 +1,6 @@
 finetune:
   train:
     llamafactory_dir: LlamaFactory
-    config: experiments/02_finetune_exp/configs/llamafactory_train_lora_sft.yaml
+    config: experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml
     dry_run: true
-    finetune_method: lora
+    finetune_method: qlora

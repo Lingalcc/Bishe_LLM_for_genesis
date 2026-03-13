@@ -204,6 +204,8 @@ def run_benchmark(
                     "min_loss_step": tm.get("min_loss_step", 0),
                     "peak_vram_mb": tm.get("peak_vram_mb", 0),
                     "avg_vram_mb": tm.get("avg_vram_mb", 0),
+                    "peak_delta_vram_mb": tm.get("peak_delta_vram_mb", 0),
+                    "avg_delta_vram_mb": tm.get("avg_delta_vram_mb", 0),
                     "loss_curve": tm.get("loss_curve", {}),
                     "vram_detail": tm.get("vram_detail", {}),
                 })

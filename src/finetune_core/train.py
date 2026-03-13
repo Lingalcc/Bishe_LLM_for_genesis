@@ -22,7 +22,7 @@ DEFAULT_PIPELINE_CONFIG = REPO_ROOT / "configs" / "base.yaml"
 DEFAULT_LLAMAFACTORY_DIR = (
     REPO_ROOT / "LlamaFactory" if (REPO_ROOT / "LlamaFactory").exists() else REPO_ROOT / "LLaMA-Factory"
 )
-DEFAULT_CONFIG = REPO_ROOT / "experiments" / "02_finetune_exp" / "configs" / "llamafactory_train_lora_sft.yaml"
+DEFAULT_CONFIG = REPO_ROOT / "experiments" / "02_finetune_exp" / "configs" / "llamafactory_train_qlora_sft.yaml"
 SUPPORTED_FINETUNE_METHODS = {"lora", "qlora", "dora", "galore"}
 
 
@@ -95,12 +95,27 @@ def _build_method_overrides(finetune_method: str) -> list[str]:
     if finetune_method == "lora":
         return []
     if finetune_method == "qlora":
-        return ["--quantization_bit", "4"]
+        return ["quantization_bit=4"]
     if finetune_method == "dora":
-        return ["--use_dora", "true"]
+        return ["use_dora=true"]
     if finetune_method == "galore":
-        return ["--use_galore", "true"]
+        return ["use_galore=true"]
     raise ValueError(f"Unsupported finetune method: {finetune_method}")
+
+
+def _parse_gpu_indices(cuda_visible_devices: str | None) -> list[int] | None:
+    """Parse numeric GPU indices from CUDA_VISIBLE_DEVICES, or None if not numeric."""
+    if not cuda_visible_devices:
+        return None
+    indices: list[int] = []
+    for part in cuda_visible_devices.split(","):
+        token = part.strip()
+        if not token:
+            continue
+        if not token.isdigit():
+            return None
+        indices.append(int(token))
+    return indices or None
 
 
 def _load_yaml_file(path: Path) -> dict[str, Any]:
@@ -169,7 +184,7 @@ def _resolve_yaml_paths_for_subprocess(config_path: Path) -> list[str]:
         if p.is_absolute():
             continue
         resolved = (REPO_ROOT / p).resolve()
-        overrides.extend([f"--{key}", str(resolved)])
+        overrides.append(f"{key}={resolved}")
     return overrides
 
 
@@ -294,16 +309,23 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
 
     _ensure_finetune_model_exists(config_path)
 
-    # Parse GPU indices for monitoring
-    gpu_indices = [int(g) for g in gpus.split(",") if g.strip()] if gpus else [0]
-    gpu_monitor = GPUMonitor(gpu_indices=gpu_indices, interval_sec=2.0)
+    # Parse GPU indices for monitoring.
+    # Prefer effective CUDA_VISIBLE_DEVICES from env to avoid mismatches.
+    effective_visible_gpus = env.get("CUDA_VISIBLE_DEVICES")
+    gpu_indices = _parse_gpu_indices(effective_visible_gpus)
+    gpu_monitor = GPUMonitor(gpu_indices=gpu_indices, interval_sec=0.5)
 
     logger.info("Starting training: method=%s gpus=%s", finetune_method, gpus)
-    gpu_monitor.start()
     t_start = time.time()
 
+    proc: subprocess.Popen[str] | None = None
     try:
-        subprocess.run(command, cwd=str(llamafactory_dir), env=env, check=True)
+        proc = subprocess.Popen(command, cwd=str(llamafactory_dir), env=env)
+        gpu_monitor.set_target_pid(proc.pid)
+        gpu_monitor.start()
+        return_code = proc.wait()
+        if return_code != 0:
+            raise subprocess.CalledProcessError(return_code, command)
     finally:
         gpu_monitor.stop()
 
@@ -331,6 +353,8 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
         loss_curve=loss_data.get("train_loss", {}),
         peak_vram_mb=vram_summary.get("peak_vram_mb", 0.0),
         avg_vram_mb=vram_summary.get("avg_vram_mb", 0.0),
+        peak_delta_vram_mb=vram_summary.get("peak_delta_vram_mb", 0.0),
+        avg_delta_vram_mb=vram_summary.get("avg_delta_vram_mb", 0.0),
         vram_detail=vram_summary,
     )
 

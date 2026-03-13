@@ -8,7 +8,7 @@
 experiments/02_finetune_exp/
 ├── configs/
 │   └── train.yaml            # 实验覆盖配置（覆盖 configs/base.yaml）
-│   └── llamafactory_train_lora_sft.yaml  # 本地维护的 LLaMA-Factory 训练配置（建议改这里）
+│   └── llamafactory_train_qlora_sft.yaml # 本地维护的 QLoRA 训练配置（默认）
 ├── reports/                   # 评估报告输出目录
 │   ├── benchmark_report.json  # 完整基准测试报告
 │   ├── pre_finetune_accuracy.json
@@ -22,7 +22,7 @@ experiments/02_finetune_exp/
 
 | 方法 | 说明 | 配置值 |
 |------|------|--------|
-| **LoRA** | 低秩适配（默认） | `lora` |
+| **LoRA** | 低秩适配 | `lora` |
 | **QLoRA** | 4-bit 量化 + LoRA | `qlora` |
 | **DoRA** | 权重分解 LoRA | `dora` |
 | **GaLore** | 梯度低秩投影 | `galore` |
@@ -40,7 +40,7 @@ finetune:
 ### 1. 单次微调
 
 ```bash
-# 默认 LoRA 微调（dry-run 模式，仅打印命令）
+# 默认 QLoRA 微调（dry-run 模式，仅打印命令）
 python experiments/02_finetune_exp/run_train.py --dry-run
 
 # 实际执行微调
@@ -143,9 +143,9 @@ python cli.py finetune benchmark --eval-only finetuned
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
 | `llamafactory_dir` | `LlamaFactory` | LLaMA Factory 安装路径 |
-| `config` | `experiments/02_finetune_exp/configs/llamafactory_train_lora_sft.yaml` | 训练配置文件（独立于 LLaMA-Factory 仓库） |
+| `config` | `experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml` | 训练配置文件（独立于 LLaMA-Factory 仓库） |
 | `gpus` | `"0"` | 使用的 GPU 编号（逗号分隔） |
-| `finetune_method` | `lora` | 微调方法 |
+| `finetune_method` | `qlora` | 微调方法 |
 | `dry_run` | `false` | 仅打印命令，不执行 |
 
 ### 基准测试配置 (`benchmark`)

@@ -59,6 +59,8 @@ def _run_finetune_start(args: argparse.Namespace) -> None:
         print(f"[finetune] final loss  : {tm.get('final_loss', 0):.4f}")
         print(f"[finetune] min loss    : {tm.get('min_loss', 0):.4f} (step {tm.get('min_loss_step', 0)})")
         print(f"[finetune] peak VRAM   : {tm.get('peak_vram_mb', 0):.0f} MB")
+        if "peak_delta_vram_mb" in tm:
+            print(f"[finetune] peak ΔVRAM  : {tm.get('peak_delta_vram_mb', 0):.0f} MB")
 
 
 def _run_eval_accuracy(args: argparse.Namespace) -> None:

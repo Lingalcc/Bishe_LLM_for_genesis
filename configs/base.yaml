@@ -29,10 +29,10 @@ dataset_prepare:
 finetune:
   train:
     llamafactory_dir: LlamaFactory
-    config: experiments/02_finetune_exp/configs/llamafactory_train_lora_sft.yaml
+    config: experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml
     gpus: "0"
     dry_run: false
-    finetune_method: lora
+    finetune_method: qlora
 
 test:
   accuracy_eval:
@@ -67,7 +67,7 @@ test:
 benchmark:
   dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
   base_model_path: model/Qwen_Qwen2.5-3B-Instruct
-  finetuned_model_path: model/my_lora_merged_model
+  finetuned_model_path: model/qwen2.5-3b-genesis-qlora
   report_dir: experiments/02_finetune_exp/reports
   num_samples: 100
   seed: 42

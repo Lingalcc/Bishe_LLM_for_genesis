@@ -30,21 +30,130 @@ class VRAMSnapshot:
     gpu_index: int
     used_mb: float
     total_mb: float
+    pid: int | None = None
+    source: str = "gpu_total"
 
 
 class GPUMonitor:
     """Background thread that polls nvidia-smi for VRAM usage."""
 
-    def __init__(self, gpu_indices: list[int] | None = None, interval_sec: float = 2.0):
-        self._gpu_indices = gpu_indices or [0]
+    def __init__(
+        self,
+        gpu_indices: list[int] | None = None,
+        interval_sec: float = 0.5,
+        target_pid: int | None = None,
+    ):
+        # `None` means monitor all visible GPUs.
+        self._gpu_indices = gpu_indices
         self._interval = interval_sec
+        self._target_pid = target_pid
         self._snapshots: list[VRAMSnapshot] = []
         self._lock = threading.Lock()
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
 
+    def set_target_pid(self, pid: int) -> None:
+        self._target_pid = pid
+
+    def _query_gpu_info(self) -> dict[str, tuple[int, float]]:
+        """Return gpu_uuid -> (gpu_index, total_vram_mb)."""
+        try:
+            result = subprocess.run(
+                ["nvidia-smi", "--query-gpu=index,uuid,memory.total", "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=10,
+            )
+            if result.returncode != 0:
+                return {}
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return {}
+
+        info: dict[str, tuple[int, float]] = {}
+        for line in result.stdout.strip().splitlines():
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) < 3:
+                continue
+            try:
+                gpu_index = int(parts[0])
+                gpu_uuid = parts[1]
+                total_mb = float(parts[2])
+                info[gpu_uuid] = (gpu_index, total_mb)
+            except (ValueError, IndexError):
+                continue
+        return info
+
+    def _poll_compute_apps_once(self) -> list[VRAMSnapshot]:
+        """Query process-level VRAM via nvidia-smi compute-apps table."""
+        gpu_info = self._query_gpu_info()
+        if not gpu_info:
+            return []
+
+        try:
+            result = subprocess.run(
+                ["nvidia-smi", "--query-compute-apps=pid,gpu_uuid,used_memory", "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=10,
+            )
+            if result.returncode != 0:
+                return []
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return []
+
+        now = time.time()
+        pid = self._target_pid
+        usage_by_gpu: dict[int, float] = {}
+        total_by_gpu: dict[int, float] = {}
+        matched_pid = False
+
+        for line in result.stdout.strip().splitlines():
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) < 3:
+                continue
+            try:
+                app_pid = int(parts[0])
+                gpu_uuid = parts[1]
+                used_mb = float(parts[2])
+            except (ValueError, IndexError):
+                continue
+
+            if pid is not None and app_pid != pid:
+                continue
+            if pid is not None:
+                matched_pid = True
+
+            gpu_meta = gpu_info.get(gpu_uuid)
+            if gpu_meta is None:
+                continue
+            idx, total_mb = gpu_meta
+            if self._gpu_indices is not None and idx not in self._gpu_indices:
+                continue
+            usage_by_gpu[idx] = usage_by_gpu.get(idx, 0.0) + used_mb
+            total_by_gpu[idx] = total_mb
+
+        # If we target a specific pid and it is not active yet, skip this sample.
+        if pid is not None and not matched_pid:
+            return []
+
+        snaps: list[VRAMSnapshot] = []
+        for idx in sorted(usage_by_gpu):
+            snaps.append(
+                VRAMSnapshot(
+                    timestamp=now,
+                    gpu_index=idx,
+                    used_mb=usage_by_gpu[idx],
+                    total_mb=total_by_gpu.get(idx, 0.0),
+                    pid=pid,
+                    source="process",
+                )
+            )
+        return snaps
+
     def _poll_once(self) -> list[VRAMSnapshot]:
         """Query nvidia-smi for current VRAM usage."""
+        # Prefer process-level accounting (more precise for benchmark comparisons).
+        process_snaps = self._poll_compute_apps_once()
+        if process_snaps:
+            return process_snaps
+
+        # Fallback to total GPU memory usage if process-level metrics are unavailable.
         try:
             result = subprocess.run(
                 ["nvidia-smi", "--query-gpu=index,memory.used,memory.total",
@@ -64,10 +173,11 @@ class GPUMonitor:
                 continue
             try:
                 idx = int(parts[0])
-                if idx in self._gpu_indices:
+                if self._gpu_indices is None or idx in self._gpu_indices:
                     snaps.append(VRAMSnapshot(
                         timestamp=now, gpu_index=idx,
                         used_mb=float(parts[1]), total_mb=float(parts[2]),
+                        pid=self._target_pid, source="gpu_total",
                     ))
             except (ValueError, IndexError):
                 continue
@@ -109,23 +219,38 @@ class GPUMonitor:
         per_gpu = {}
         all_peaks: list[float] = []
         all_avgs: list[float] = []
+        all_peak_deltas: list[float] = []
+        all_avg_deltas: list[float] = []
         for idx, values in sorted(gpu_data.items()):
             peak = max(values)
             avg = sum(values) / len(values)
+            baseline = values[0]
+            peak_delta = peak - baseline
+            avg_delta = avg - baseline
             total = next((s.total_mb for s in snaps if s.gpu_index == idx), 0.0)
+            sample_source = next((s.source for s in snaps if s.gpu_index == idx), "unknown")
             per_gpu[str(idx)] = {
                 "peak_vram_mb": peak,
                 "avg_vram_mb": round(avg, 1),
+                "baseline_vram_mb": baseline,
+                "peak_delta_vram_mb": round(peak_delta, 1),
+                "avg_delta_vram_mb": round(avg_delta, 1),
                 "total_vram_mb": total,
                 "peak_utilization": round(peak / total * 100, 1) if total > 0 else 0.0,
                 "num_samples": len(values),
+                "sample_source": sample_source,
             }
             all_peaks.append(peak)
             all_avgs.append(avg)
+            all_peak_deltas.append(peak_delta)
+            all_avg_deltas.append(avg_delta)
 
         return {
             "peak_vram_mb": max(all_peaks),
             "avg_vram_mb": round(sum(all_avgs) / len(all_avgs), 1),
+            "peak_delta_vram_mb": round(max(all_peak_deltas), 1),
+            "avg_delta_vram_mb": round(sum(all_avg_deltas) / len(all_avg_deltas), 1),
+            "target_pid": self._target_pid,
             "num_snapshots": len(snaps),
             "per_gpu": per_gpu,
         }
@@ -258,6 +383,8 @@ class TrainingMetrics:
     # VRAM
     peak_vram_mb: float = 0.0
     avg_vram_mb: float = 0.0
+    peak_delta_vram_mb: float = 0.0
+    avg_delta_vram_mb: float = 0.0
     vram_detail: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -273,6 +400,8 @@ class TrainingMetrics:
             "min_loss_step": self.min_loss_step,
             "peak_vram_mb": self.peak_vram_mb,
             "avg_vram_mb": self.avg_vram_mb,
+            "peak_delta_vram_mb": self.peak_delta_vram_mb,
+            "avg_delta_vram_mb": self.avg_delta_vram_mb,
             "loss_curve": self.loss_curve,
             "vram_detail": self.vram_detail,
         }

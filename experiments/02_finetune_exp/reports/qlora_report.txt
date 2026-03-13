@@ -1,0 +1,543 @@
+/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/jieba/_compat.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[WARNING|2026-03-12 00:07:53] llamafactory.hparams.parser:149 >> We recommend enable `upcast_layernorm` in quantized training.
+[INFO|2026-03-12 00:07:53] llamafactory.hparams.parser:508 >> Process rank: 0, world size: 1, device: cuda:0, distributed training: False, compute dtype: torch.bfloat16
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,523 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,523 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,523 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,523 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,523 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,523 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,523 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2364] 2026-03-12 00:07:53,682 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[INFO|configuration_utils.py:763] 2026-03-12 00:07:53,682 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:839] 2026-03-12 00:07:53,683 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,684 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,684 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,684 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,684 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,684 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,684 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-12 00:07:53,684 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2364] 2026-03-12 00:07:53,828 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[INFO|2026-03-12 00:07:53] llamafactory.data.loader:144 >> Loading dataset ../../data_prepare/genesis_franka_toolcall_alpaca.json...
+training example:
+input_ids:
+[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 44063, 102320, 33108, 102651, 107914, 101127, 43918, 17714, 15, 13, 20, 33108, 16, 13, 15, 108718, 26381, 151645, 198, 151644, 77091, 198, 4913, 24270, 788, 61753, 1311, 788, 330, 746, 814, 36081, 9661, 497, 330, 3661, 788, 508, 15, 13, 20, 11, 220, 16, 13, 15, 1125, 330, 67, 36081, 7258, 13564, 788, 508, 19, 11, 220, 20, 13989, 13989, 151645, 198]
+inputs:
+<|im_start|>system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
+<|im_start|>user
+将第五和第六关节分别设置为0.5和1.0弧度<|im_end|>
+<|im_start|>assistant
+{"commands": [{"action": "set_dofs_position", "values": [0.5, 1.0], "dofs_idx_local": [4, 5]}]}<|im_end|>
+
+label_ids:
+[-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 4913, 24270, 788, 61753, 1311, 788, 330, 746, 814, 36081, 9661, 497, 330, 3661, 788, 508, 15, 13, 20, 11, 220, 16, 13, 15, 1125, 330, 67, 36081, 7258, 13564, 788, 508, 19, 11, 220, 20, 13989, 13989, 151645, 198]
+labels:
+{"commands": [{"action": "set_dofs_position", "values": [0.5, 1.0], "dofs_idx_local": [4, 5]}]}<|im_end|>
+
+eval example:
+input_ids:
+[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 44063, 100754, 102768, 101921, 26939, 113188, 107914, 81812, 3837, 101889, 100372, 104089, 104792, 108302, 3837, 101148, 26939, 7, 15, 13, 21, 11, 15, 13, 17, 11, 15, 13, 19, 8, 81812, 151645, 198, 151644, 77091, 198, 4913, 24270, 788, 61753, 1311, 788, 330, 746, 8976, 966, 497, 330, 80, 966, 788, 508, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 19, 11, 220, 15, 13, 15, 19, 66125, 5212, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 11, 220, 15, 13, 17, 11, 220, 15, 13, 19, 1125, 330, 72983, 788, 508, 16, 11, 220, 15, 11, 220, 15, 11, 220, 15, 13989, 13989, 151645, 198]
+inputs:
+<|im_start|>system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
+<|im_start|>user
+将机械臂调整到初始关节位置，然后完全打开夹爪，移动到(0.6,0.2,0.4)位置<|im_end|>
+<|im_start|>assistant
+{"commands": [{"action": "set_qpos", "qpos": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.04]}, {"action": "move_ee", "pos": [0.6, 0.2, 0.4], "quat": [1, 0, 0, 0]}]}<|im_end|>
+
+label_ids:
+[-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 4913, 24270, 788, 61753, 1311, 788, 330, 746, 8976, 966, 497, 330, 80, 966, 788, 508, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 11, 220, 15, 13, 15, 19, 11, 220, 15, 13, 15, 19, 66125, 5212, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 11, 220, 15, 13, 17, 11, 220, 15, 13, 19, 1125, 330, 72983, 788, 508, 16, 11, 220, 15, 11, 220, 15, 11, 220, 15, 13989, 13989, 151645, 198]
+labels:
+{"commands": [{"action": "set_qpos", "qpos": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.04]}, {"action": "move_ee", "pos": [0.6, 0.2, 0.4], "quat": [1, 0, 0, 0]}]}<|im_end|>
+
+[INFO|configuration_utils.py:763] 2026-03-12 00:07:54,865 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:839] 2026-03-12 00:07:54,866 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|2026-03-12 00:07:54] llamafactory.model.model_utils.quantization:144 >> Quantizing model to 4 bit with bitsandbytes.
+[INFO|2026-03-12 00:07:54] llamafactory.model.model_utils.kv_cache:144 >> KV cache is disabled during training.
+[WARNING|logging.py:328] 2026-03-12 00:07:54,985 >> `torch_dtype` is deprecated! Use `dtype` instead!
+[INFO|modeling_utils.py:1169] 2026-03-12 00:07:56,087 >> loading weights file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/model.safetensors.index.json
+[INFO|modeling_utils.py:1243] 2026-03-12 00:07:56,087 >> Will use dtype=torch.bfloat16 as defined in model's config object
+[INFO|modeling_utils.py:2341] 2026-03-12 00:07:56,087 >> Instantiating Qwen2ForCausalLM model under default dtype torch.bfloat16.
+[INFO|configuration_utils.py:986] 2026-03-12 00:07:56,088 >> Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "use_cache": false
+}
+
+Loading checkpoint shards: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:06<00:00,  3.50s/it]
+[INFO|configuration_utils.py:939] 2026-03-12 00:08:03,200 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/generation_config.json
+[INFO|configuration_utils.py:986] 2026-03-12 00:08:03,200 >> Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "do_sample": true,
+  "eos_token_id": [
+    151645,
+    151643
+  ],
+  "pad_token_id": 151643,
+  "repetition_penalty": 1.05,
+  "temperature": 0.7,
+  "top_k": 20,
+  "top_p": 0.8
+}
+
+[INFO|dynamic_module_utils.py:423] 2026-03-12 00:08:03,200 >> Could not locate the custom_generate/generate.py inside /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct.
+[INFO|2026-03-12 00:08:03] llamafactory.model.model_utils.checkpointing:144 >> Gradient checkpointing enabled.
+[INFO|2026-03-12 00:08:03] llamafactory.model.model_utils.attention:144 >> Using torch SDPA for faster training and inference.
+[INFO|2026-03-12 00:08:03] llamafactory.model.adapter:144 >> Upcasting trainable params to float32.
+[INFO|2026-03-12 00:08:03] llamafactory.model.adapter:144 >> Fine-tuning method: LoRA
+[INFO|2026-03-12 00:08:03] llamafactory.model.model_utils.misc:144 >> Found linear modules: gate_proj,q_proj,down_proj,o_proj,v_proj,up_proj,k_proj
+[INFO|2026-03-12 00:08:03] llamafactory.model.loader:144 >> trainable params: 29,933,568 || all params: 3,115,872,256 || trainable%: 0.9607
+[INFO|trainer.py:749] 2026-03-12 00:08:03,797 >> Using auto half precision backend
+[WARNING|trainer.py:982] 2026-03-12 00:08:03,798 >> The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+[INFO|trainer.py:2519] 2026-03-12 00:08:03,962 >> ***** Running training *****
+[INFO|trainer.py:2520] 2026-03-12 00:08:03,962 >>   Num examples = 593
+[INFO|trainer.py:2521] 2026-03-12 00:08:03,962 >>   Num Epochs = 5
+[INFO|trainer.py:2522] 2026-03-12 00:08:03,962 >>   Instantaneous batch size per device = 2
+[INFO|trainer.py:2525] 2026-03-12 00:08:03,962 >>   Total train batch size (w. parallel, distributed & accumulation) = 16
+[INFO|trainer.py:2526] 2026-03-12 00:08:03,962 >>   Gradient Accumulation steps = 8
+[INFO|trainer.py:2527] 2026-03-12 00:08:03,962 >>   Total optimization steps = 190
+[INFO|trainer.py:2528] 2026-03-12 00:08:03,964 >>   Number of trainable parameters = 29,933,568
+{'loss': 1.8785, 'grad_norm': 4.567540168762207, 'learning_rate': 4.210526315789474e-05, 'epoch': 0.13}                                                                                               
+{'loss': 1.3131, 'grad_norm': 1.6245578527450562, 'learning_rate': 9.473684210526316e-05, 'epoch': 0.27}                                                                                              
+{'loss': 0.54, 'grad_norm': 0.693178117275238, 'learning_rate': 0.00014736842105263158, 'epoch': 0.4}                                                                                                 
+{'loss': 0.2369, 'grad_norm': 0.9291559457778931, 'learning_rate': 0.0002, 'epoch': 0.54}                                                                                                             
+{'loss': 0.1773, 'grad_norm': 0.6147146224975586, 'learning_rate': 0.00019957838880989078, 'epoch': 0.67}                                                                                             
+{'loss': 0.1167, 'grad_norm': 0.46439602971076965, 'learning_rate': 0.0001983171103594755, 'epoch': 0.81}                                                                                             
+{'loss': 0.1002, 'grad_norm': 0.3140687048435211, 'learning_rate': 0.00019622680003092503, 'epoch': 0.94}                                                                                             
+{'loss': 0.0995, 'grad_norm': 0.3521777093410492, 'learning_rate': 0.0001933250837887457, 'epoch': 1.05}                                                                                              
+{'loss': 0.08, 'grad_norm': 0.282524973154068, 'learning_rate': 0.00018963642955370201, 'epoch': 1.19}                                                                                                
+{'loss': 0.0793, 'grad_norm': 0.3040429949760437, 'learning_rate': 0.00018519194088383273, 'epoch': 1.32}                                                                                             
+ 26%|██████████████████████████████████████████                                                                                                                      | 50/190 [03:00<08:08,  3.49s/it][INFO|trainer.py:4643] 2026-03-12 00:11:04,392 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4645] 2026-03-12 00:11:04,392 >>   Num examples = 32
+[INFO|trainer.py:4648] 2026-03-12 00:11:04,392 >>   Batch size = 2
+{'eval_loss': 0.0827534943819046, 'eval_runtime': 2.2915, 'eval_samples_per_second': 13.965, 'eval_steps_per_second': 6.982, 'epoch': 1.32}                                                           
+{'loss': 0.0875, 'grad_norm': 0.42223358154296875, 'learning_rate': 0.00018002909470228842, 'epoch': 1.46}                                                                                            
+{'loss': 0.0773, 'grad_norm': 0.27291834354400635, 'learning_rate': 0.00017419142528352817, 'epoch': 1.59}                                                                                            
+{'loss': 0.0777, 'grad_norm': 0.3885764479637146, 'learning_rate': 0.00016772815716257412, 'epoch': 1.73}                                                                                             
+{'loss': 0.0838, 'grad_norm': 0.2589588761329651, 'learning_rate': 0.00016069379006271566, 'epoch': 1.86}                                                                                             
+{'loss': 0.0698, 'grad_norm': 0.24481956660747528, 'learning_rate': 0.0001531476393416456, 'epoch': 2.0}                                                                                              
+{'loss': 0.054, 'grad_norm': 0.26740139722824097, 'learning_rate': 0.00014515333583108896, 'epoch': 2.11}                                                                                             
+{'loss': 0.0525, 'grad_norm': 0.2965356409549713, 'learning_rate': 0.00013677828928738934, 'epoch': 2.24}                                                                                             
+{'loss': 0.0543, 'grad_norm': 0.40921056270599365, 'learning_rate': 0.00012809311997735696, 'epoch': 2.38}                                                                                            
+{'loss': 0.0474, 'grad_norm': 0.3269316256046295, 'learning_rate': 0.00011917106319237386, 'epoch': 2.51}                                                                                             
+{'loss': 0.0527, 'grad_norm': 0.24677444994449615, 'learning_rate': 0.00011008735171202684, 'epoch': 2.65}                                                                                            
+ 53%|███████████████████████████████████████████████████████████████████████████████████▋                                                                           | 100/190 [06:01<05:07,  3.41s/it][INFO|trainer.py:4643] 2026-03-12 00:14:05,446 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4645] 2026-03-12 00:14:05,446 >>   Num examples = 32
+[INFO|trainer.py:4648] 2026-03-12 00:14:05,446 >>   Batch size = 2
+{'eval_loss': 0.07148247957229614, 'eval_runtime': 5.8756, 'eval_samples_per_second': 5.446, 'eval_steps_per_second': 2.723, 'epoch': 2.65}                                                           
+ 53%|███████████████████████████████████████████████████████████████████████████████████▋                                                                           | 100/190 [06:07<05:07,  3.41s/it[INFO|trainer.py:4309] 2026-03-12 00:14:11,320 >> Saving model checkpoint to /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-100                                            
+[INFO|configuration_utils.py:763] 2026-03-12 00:14:11,381 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:839] 2026-03-12 00:14:11,382 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2421] 2026-03-12 00:14:11,553 >> chat template saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-100/chat_template.jinja
+[INFO|tokenization_utils_base.py:2590] 2026-03-12 00:14:11,553 >> tokenizer config file saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-100/tokenizer_config.json
+[INFO|tokenization_utils_base.py:2599] 2026-03-12 00:14:11,553 >> Special tokens file saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-100/special_tokens_map.json
+{'loss': 0.0399, 'grad_norm': 0.34725236892700195, 'learning_rate': 0.00010091858142447265, 'epoch': 2.78}                                                                                            
+{'loss': 0.0472, 'grad_norm': 0.23515354096889496, 'learning_rate': 9.174206545276677e-05, 'epoch': 2.92}                                                                                             
+{'loss': 0.0338, 'grad_norm': 0.5905457139015198, 'learning_rate': 8.263518223330697e-05, 'epoch': 3.03}                                                                                              
+{'loss': 0.039, 'grad_norm': 0.2560516893863678, 'learning_rate': 7.36747230435401e-05, 'epoch': 3.16}                                                                                                
+{'loss': 0.0299, 'grad_norm': 0.24592804908752441, 'learning_rate': 6.493624448072457e-05, 'epoch': 3.3}                                                                                              
+{'loss': 0.0419, 'grad_norm': 0.40065905451774597, 'learning_rate': 5.64934313517927e-05, 'epoch': 3.43}                                                                                              
+{'loss': 0.0412, 'grad_norm': 0.2654631733894348, 'learning_rate': 4.841747534656763e-05, 'epoch': 3.57}                                                                                              
+{'loss': 0.0346, 'grad_norm': 0.2636302411556244, 'learning_rate': 4.077647473350201e-05, 'epoch': 3.7}                                                                                               
+{'loss': 0.0315, 'grad_norm': 0.2140786051750183, 'learning_rate': 3.363486013983788e-05, 'epoch': 3.84}                                                                                              
+{'loss': 0.0296, 'grad_norm': 0.21170563995838165, 'learning_rate': 2.7052851258137935e-05, 'epoch': 3.97}                                                                                            
+ 79%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                                 | 150/190 [09:08<02:55,  4.38s/it][INFO|trainer.py:4643] 2026-03-12 00:17:12,717 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4645] 2026-03-12 00:17:12,717 >>   Num examples = 32
+[INFO|trainer.py:4648] 2026-03-12 00:17:12,717 >>   Batch size = 2
+{'eval_loss': 0.06844739615917206, 'eval_runtime': 2.211, 'eval_samples_per_second': 14.473, 'eval_steps_per_second': 7.237, 'epoch': 3.97}                                                           
+{'loss': 0.022, 'grad_norm': 0.25017106533050537, 'learning_rate': 2.1085949060360654e-05, 'epoch': 4.08}                                                                                             
+{'loss': 0.0273, 'grad_norm': 0.26364850997924805, 'learning_rate': 1.578446780124344e-05, 'epoch': 4.22}                                                                                             
+{'loss': 0.0211, 'grad_norm': 0.2146448940038681, 'learning_rate': 1.119311075724625e-05, 'epoch': 4.35}                                                                                              
+{'loss': 0.026, 'grad_norm': 0.2932480573654175, 'learning_rate': 7.350593278519824e-06, 'epoch': 4.48}                                                                                               
+{'loss': 0.0255, 'grad_norm': 0.21964751183986664, 'learning_rate': 4.2893163324085885e-06, 'epoch': 4.62}                                                                                            
+{'loss': 0.021, 'grad_norm': 0.25463879108428955, 'learning_rate': 2.035093291242607e-06, 'epoch': 4.75}                                                                                              
+{'loss': 0.0237, 'grad_norm': 0.2155885398387909, 'learning_rate': 6.069322682050516e-07, 'epoch': 4.89}                                                                                              
+{'loss': 0.0276, 'grad_norm': 0.7776804566383362, 'learning_rate': 1.687583666772907e-08, 'epoch': 5.0}                                                                                               
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 190/190 [11:28<00:00,  2.59s/it][INFO|trainer.py:4309] 2026-03-12 00:19:32,003 >> Saving model checkpoint to /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-190
+[INFO|configuration_utils.py:763] 2026-03-12 00:19:32,049 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:839] 2026-03-12 00:19:32,049 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2421] 2026-03-12 00:19:32,204 >> chat template saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-190/chat_template.jinja
+[INFO|tokenization_utils_base.py:2590] 2026-03-12 00:19:32,204 >> tokenizer config file saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-190/tokenizer_config.json
+[INFO|tokenization_utils_base.py:2599] 2026-03-12 00:19:32,204 >> Special tokens file saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/checkpoint-190/special_tokens_map.json
+[INFO|trainer.py:2810] 2026-03-12 00:19:32,615 >> 
+
+Training completed. Do not forget to share your model on huggingface.co/models =)
+
+
+{'train_runtime': 688.6505, 'train_samples_per_second': 4.306, 'train_steps_per_second': 0.276, 'train_loss': 0.15372244323554793, 'epoch': 5.0}                                                      
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 190/190 [11:28<00:00,  3.62s/it]
+[INFO|trainer.py:4309] 2026-03-12 00:19:32,616 >> Saving model checkpoint to /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora
+[INFO|configuration_utils.py:763] 2026-03-12 00:19:32,665 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:839] 2026-03-12 00:19:32,666 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2421] 2026-03-12 00:19:32,842 >> chat template saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/chat_template.jinja
+[INFO|tokenization_utils_base.py:2590] 2026-03-12 00:19:32,843 >> tokenizer config file saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/tokenizer_config.json
+[INFO|tokenization_utils_base.py:2599] 2026-03-12 00:19:32,843 >> Special tokens file saved in /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/special_tokens_map.json
+***** train metrics *****
+  epoch                    =        5.0
+  total_flos               =  5932990GF
+  train_loss               =     0.1537
+  train_runtime            = 0:11:28.65
+  train_samples_per_second =      4.306
+  train_steps_per_second   =      0.276
+Figure saved at: /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/training_loss.png
+Figure saved at: /home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora/training_eval_loss.png
+[WARNING|2026-03-12 00:19:33] llamafactory.extras.ploting:149 >> No metric eval_accuracy to plot.
+[INFO|trainer.py:4643] 2026-03-12 00:19:33,061 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4645] 2026-03-12 00:19:33,061 >>   Num examples = 32
+[INFO|trainer.py:4648] 2026-03-12 00:19:33,061 >>   Batch size = 2
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:02<00:00,  7.78it/s]
+***** eval metrics *****
+  epoch                   =        5.0
+  eval_loss               =      0.071
+  eval_runtime            = 0:00:02.28
+  eval_samples_per_second =     14.006
+  eval_steps_per_second   =      7.003
+[INFO|modelcard.py:456] 2026-03-12 00:19:35,346 >> Dropping the following result as it does not have all the necessary fields:
+{'task': {'name': 'Causal Language Modeling', 'type': 'text-generation'}}
+[finetune] working_dir: /home/lin/Bishe_LLM_for_genesis/LlamaFactory
+[finetune] method     : qlora
+[finetune] command    : llamafactory-cli train /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml quantization_bit=4 model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora
+[finetune] GPUs       : 0
+[finetune] executed   : True
+[finetune] time (sec) : 709
+[finetune] final loss  : 0.0276
+[finetune] min loss    : 0.0210 (step 180)
+[finetune] peak VRAM   : 7158 MB
+(llm_genesis) lin@LAPTOP-B88DDGVB:~/Bishe_LLM_for_genesis$ 
