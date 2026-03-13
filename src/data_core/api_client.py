@@ -6,24 +6,27 @@ a robust JSON extractor for handling messy LLM outputs.
 from __future__ import annotations
 
 import json
-import os
 import re
 import urllib.request
 from typing import Any
 
+from src.utils.secrets import MissingSecretError, resolve_api_key_from_env
+
 
 def resolve_api_key(api_key: str, api_key_env: str) -> str:
-    """Resolve API key from explicit value or environment variable."""
-    key = api_key.strip()
-    if key:
-        return key
-    env_name = api_key_env.strip() or "OPENAI_API_KEY"
-    key = os.environ.get(env_name, "").strip()
-    if not key:
-        raise RuntimeError(
-            f"API key is empty. Set config api_key or env var `{env_name}`."
+    """Resolve API key from environment variables only.
+
+    Signature is preserved for backward compatibility.
+    """
+    try:
+        return resolve_api_key_from_env(
+            api_key=api_key,
+            api_key_env=api_key_env,
+            default_env="OPENAI_API_KEY",
+            source_name="Data generation API",
         )
-    return key
+    except MissingSecretError as exc:
+        raise RuntimeError(str(exc)) from exc
 
 
 def call_chat_api(

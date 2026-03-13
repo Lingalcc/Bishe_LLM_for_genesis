@@ -44,6 +44,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.utils.config import load_merged_config
+from src.utils.secrets import safe_json_dumps
 
 logging.basicConfig(
     level=logging.INFO,
@@ -149,7 +150,7 @@ def run_benchmark(
     if dry_run:
         report["dry_run"] = True
         print("\n[Dry Run] Benchmark configuration:")
-        print(json.dumps(report, ensure_ascii=False, indent=2))
+        print(safe_json_dumps(report, ensure_ascii=False, indent=2))
         return report
 
     # Step 1: Pre-finetune evaluation
@@ -269,7 +270,7 @@ def run_benchmark(
 
     # Write report
     benchmark_report_path = report_dir / "benchmark_report.json"
-    benchmark_report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    benchmark_report_path.write_text(safe_json_dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info("Benchmark report: %s", benchmark_report_path)
 
     # Print summary

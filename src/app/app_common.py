@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import time
 import urllib.error
@@ -12,6 +11,7 @@ from typing import Any
 
 from src.app.local_llm_engine import LocalLLMEngine
 from src.utils.config import get_section
+from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env
 
 
 DEFAULT_APP_SYSTEM_PROMPT = (
@@ -196,12 +196,15 @@ def _resolve_inference_config(cfg: dict[str, Any]) -> dict[str, Any]:
 
 
 def _resolve_api_key(api_cfg: dict[str, Any]) -> str:
-    api_key = str(api_cfg.get("api_key", "")).strip()
-    if api_key:
-        return api_key
-
-    api_key_env = str(api_cfg.get("api_key_env", "OPENAI_API_KEY")).strip() or "OPENAI_API_KEY"
-    return os.environ.get(api_key_env, "").strip()
+    try:
+        return resolve_api_key_from_env(
+            api_key=str(api_cfg.get("api_key", "")),
+            api_key_env=str(api_cfg.get("api_key_env", "OPENAI_API_KEY")),
+            default_env="OPENAI_API_KEY",
+            source_name="Interactive app API",
+        )
+    except MissingSecretError as exc:
+        raise RuntimeError(str(exc)) from exc
 
 
 def _build_local_prompt(system_prompt: str, user_prompt: str) -> str:
@@ -276,12 +279,6 @@ def predict_actions_from_instruction(
                     gen_cfg = {}
 
                 api_key = _resolve_api_key(api_cfg)
-                if not api_key:
-                    api_key_env = str(api_cfg.get("api_key_env", "OPENAI_API_KEY"))
-                    raise RuntimeError(
-                        "API key is empty. Set app.inference.api.api_key "
-                        f"or env var `{api_key_env}`."
-                    )
 
                 raw = call_chat_completions(
                     api_base=str(api_cfg.get("api_base", "https://api.openai.com/v1")),
@@ -340,7 +337,7 @@ def predict_actions_from_instruction(
             last_err = err
             time.sleep(min(8.0, 0.8 * (2**i)))
 
-    raise RuntimeError(f"model prediction failed: {last_err}")
+    raise RuntimeError(f"model prediction failed: {redact_text(str(last_err))}")
 
 
 def build_interactive_env(show_viewer: bool = True):

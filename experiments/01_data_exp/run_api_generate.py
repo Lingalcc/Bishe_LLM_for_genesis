@@ -18,7 +18,7 @@ Usage:
 Environment:
     Set your API key via environment variable before running:
         export DEEPSEEK_API_KEY="sk-..."
-    Or set api_key directly in the config YAML.
+    Real secrets must come from environment variables.
 """
 from __future__ import annotations
 
