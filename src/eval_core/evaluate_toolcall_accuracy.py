@@ -9,6 +9,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from src.eval_core.prompting import DEFAULT_EVAL_SYSTEM_PROMPT, build_eval_messages
 from src.protocols.toolcall import extract_first_json, validate_payload
 from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env, safe_json_dumps
 
@@ -96,18 +97,12 @@ def predict_once(
     api_base: str,
     api_key: str,
     model: str,
-    instruction: str,
-    system_prompt: str,
+    messages: list[dict[str, str]],
     temperature: float,
     max_tokens: int,
     timeout: int,
     max_retries: int,
 ) -> str:
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": instruction},
-    ]
-
     last_err: Exception | None = None
     for i in range(max_retries):
         try:
@@ -151,6 +146,7 @@ def evaluate_toolcall_accuracy(
     timeout: int = 120,
     max_retries: int = 3,
     sleep_seconds: float = 0.0,
+    system_prompt: str = DEFAULT_EVAL_SYSTEM_PROMPT,
 ) -> dict[str, Any]:
     if num_samples <= 0:
         raise ValueError("--num-samples must be > 0")
@@ -242,12 +238,16 @@ def evaluate_toolcall_accuracy(
                 raise TypeError("predictions-file must be JSON list or dict")
         else:
             try:
+                messages = build_eval_messages(
+                    instruction=sample["instruction"],
+                    cfg_system_prompt=system_prompt,
+                    sample_system_prompt=sample.get("system", ""),
+                )
                 prediction_text = predict_once(
                     api_base=api_base,
                     api_key=api_key,
                     model=model,
-                    instruction=sample["instruction"],
-                    system_prompt=sample["system"],
+                    messages=messages,
                     temperature=temperature,
                     max_tokens=max_tokens,
                     timeout=timeout,
