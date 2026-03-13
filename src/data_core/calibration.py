@@ -3,19 +3,20 @@
 Reads an Alpaca-format dataset and validates every row:
   - instruction / output fields are present and non-empty
   - output is valid JSON with a ``commands`` array
-  - each command passes the project's ``toolcall_validator``
+  - each command passes the unified ``protocols.toolcall`` validator
 
 Reports statistics and optionally raises on violations.
 """
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from src.eval_core.toolcall_validator import validate_payload
+import json
+
+from src.protocols.toolcall import extract_first_json, validate_payload
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +63,8 @@ def calibrate_dataset(cfg: CalibrationConfig) -> dict[str, Any]:
 
         # Parse JSON
         try:
-            payload = json.loads(output_str)
-        except json.JSONDecodeError as exc:
+            payload = extract_first_json(output_str)
+        except ValueError as exc:
             errors.append({"index": idx, "error": f"invalid JSON: {exc}"})
             continue
 

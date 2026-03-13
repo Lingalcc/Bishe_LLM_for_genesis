@@ -3,14 +3,13 @@ from __future__ import annotations
 
 import json
 import random
-import re
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
 
-from src.eval_core.toolcall_validator import validate_payload
+from src.protocols.toolcall import extract_first_json, validate_payload
 from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env, safe_json_dumps
 
 
@@ -19,42 +18,11 @@ def normalize_text(text: str) -> str:
 
 
 def extract_first_json_from_text(text: str) -> Any:
-    payload = text.strip()
-    if not payload:
-        raise ValueError("empty response")
-
-    try:
-        return json.loads(payload)
-    except json.JSONDecodeError:
-        pass
-
-    code_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", payload, flags=re.IGNORECASE)
-    if code_match:
-        inner = code_match.group(1).strip()
-        try:
-            return json.loads(inner)
-        except json.JSONDecodeError:
-            pass
-
-    decoder = json.JSONDecoder()
-    for idx, ch in enumerate(payload):
-        if ch not in "[{":
-            continue
-        try:
-            obj, _ = decoder.raw_decode(payload[idx:])
-            return obj
-        except json.JSONDecodeError:
-            continue
-
-    raise ValueError("no valid JSON found")
+    return extract_first_json(text)
 
 
 def payload_to_commands(payload_like: Any) -> list[dict[str, Any]]:
-    payload_obj = payload_like
-    if isinstance(payload_like, str):
-        payload_obj = extract_first_json_from_text(payload_like)
-    commands = validate_payload(payload_obj)
-    return commands
+    return validate_payload(payload_like, policy="evaluation")
 
 
 def normalize_value(value: Any) -> Any:

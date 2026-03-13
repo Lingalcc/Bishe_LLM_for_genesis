@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import re
 import time
 import urllib.error
 import urllib.request
@@ -10,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from src.app.local_llm_engine import LocalLLMEngine
+from src.protocols.toolcall import extract_first_json, normalize_payload, validate_payload
 from src.utils.config import get_section
 from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env
 
@@ -35,54 +35,13 @@ _LOCAL_ENGINE_CACHE: dict[str, LocalLLMEngine] = {}
 
 
 def extract_first_json_from_text(text: str) -> Any:
-    payload = text.strip()
-    if not payload:
-        raise ValueError("empty response")
-
-    try:
-        return json.loads(payload)
-    except json.JSONDecodeError:
-        pass
-
-    code_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", payload, flags=re.IGNORECASE)
-    if code_match:
-        inner = code_match.group(1).strip()
-        try:
-            return json.loads(inner)
-        except json.JSONDecodeError:
-            pass
-
-    decoder = json.JSONDecoder()
-    for idx, ch in enumerate(payload):
-        if ch not in "{[":
-            continue
-        try:
-            obj, _ = decoder.raw_decode(payload[idx:])
-            return obj
-        except json.JSONDecodeError:
-            continue
-
-    raise ValueError("no valid JSON found")
+    return extract_first_json(text)
 
 
 def normalize_action_payload(payload: Any) -> dict[str, Any]:
-    if isinstance(payload, dict) and "commands" in payload:
-        commands = payload["commands"]
-    elif isinstance(payload, list):
-        commands = payload
-    elif isinstance(payload, dict) and "action" in payload:
-        commands = [payload]
-    else:
-        raise ValueError("payload must be command object, command list, or {'commands':[...]} format")
-
-    if not isinstance(commands, list) or not commands:
-        raise ValueError("commands must be non-empty list")
-    for i, cmd in enumerate(commands):
-        if not isinstance(cmd, dict):
-            raise TypeError(f"command at index {i} must be object")
-        if "action" not in cmd:
-            raise ValueError(f"command at index {i} missing 'action'")
-    return {"commands": commands}
+    normalized = normalize_payload(payload)
+    validate_payload(normalized, policy="execution")
+    return normalized
 
 
 def collect_scene_state(manager: Any) -> dict[str, Any]:
