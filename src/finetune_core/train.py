@@ -8,10 +8,12 @@ import shutil
 import subprocess
 import sys
 import time
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from src.data_core.dataset_safety import enforce_train_eval_no_leakage
 from src.utils.config import get_section, load_config
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,7 @@ class FinetuneConfig:
     gpus: str | None = None
     dry_run: bool = False
     finetune_method: str | None = None
+    dataset_overrides: tuple[str, ...] = ()
     extra_args: tuple[str, ...] = ()
 
 
@@ -283,7 +286,14 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
 
     method_args = _build_method_overrides(finetune_method)
     path_overrides = _resolve_yaml_paths_for_subprocess(config_path)
-    command = _resolve_train_prefix() + ["train", str(config_path)] + method_args + path_overrides + command_extra_args
+    command = (
+        _resolve_train_prefix()
+        + ["train", str(config_path)]
+        + method_args
+        + path_overrides
+        + list(cfg.dataset_overrides)
+        + command_extra_args
+    )
 
     env = os.environ.copy()
     src_dir = str((llamafactory_dir / "src").resolve())
@@ -301,6 +311,7 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
         "command_shell": shlex.join(command),
         "gpus": gpus,
         "dry_run": dry_run,
+        "dataset_overrides": list(cfg.dataset_overrides),
     }
 
     if dry_run:
@@ -378,6 +389,27 @@ def _extract_output_dir(config_path: Path) -> Path | None:
     return None
 
 
+def _build_split_dataset_overrides(train_file: Path, val_file: Path) -> tuple[str, ...]:
+    """Create a runtime dataset_info.json so LLaMA Factory reads explicit train/val files."""
+    runtime_dataset_dir = (REPO_ROOT / ".cache" / "llamafactory_dataset_splits").resolve()
+    runtime_dataset_dir.mkdir(parents=True, exist_ok=True)
+    dataset_info_path = runtime_dataset_dir / "dataset_info.json"
+    dataset_info = {
+        "__train_split__": {"file_name": str(train_file)},
+        "__val_split__": {"file_name": str(val_file)},
+    }
+    dataset_info_path.write_text(
+        json.dumps(dataset_info, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return (
+        f"dataset_dir={runtime_dataset_dir}",
+        "dataset=__train_split__",
+        "eval_dataset=__val_split__",
+        "val_size=0.0",
+    )
+
+
 def run_finetune_from_merged_config(
     merged_config: dict[str, Any],
     *,
@@ -385,6 +417,35 @@ def run_finetune_from_merged_config(
     dry_run_override: bool | None = None,
 ) -> dict[str, Any]:
     section = get_section(merged_config, "finetune", "train")
+    train_file = Path(section["train_file"]).expanduser().resolve() if section.get("train_file") else None
+    val_file = Path(section["val_file"]).expanduser().resolve() if section.get("val_file") else None
+    if (train_file is None) ^ (val_file is None):
+        raise ValueError("finetune.train.train_file and finetune.train.val_file must be provided together.")
+
+    leak_cfg = section.get("leakage_check", {}) if isinstance(section.get("leakage_check"), dict) else {}
+    leakage_enabled = bool(leak_cfg.get("enabled", True))
+    leakage_strict = bool(leak_cfg.get("strict", True))
+    test_section = get_section(merged_config, "test", "accuracy_eval")
+    test_file_raw = test_section.get("test_file") or test_section.get("dataset_file")
+    test_file = Path(str(test_file_raw)).expanduser().resolve() if test_file_raw else None
+
+    if leakage_enabled:
+        enforce_train_eval_no_leakage(
+            train_file=train_file,
+            val_file=val_file,
+            test_file=test_file,
+            strict=leakage_strict,
+            check_content_overlap=True,
+        )
+
+    dataset_overrides: tuple[str, ...] = ()
+    if train_file is not None and val_file is not None:
+        if not train_file.exists():
+            raise FileNotFoundError(f"train_file not found: {train_file}")
+        if not val_file.exists():
+            raise FileNotFoundError(f"val_file not found: {val_file}")
+        dataset_overrides = _build_split_dataset_overrides(train_file, val_file)
+
     cfg = FinetuneConfig(
         pipeline_config=Path(section.get("pipeline_config", DEFAULT_PIPELINE_CONFIG)),
         llamafactory_dir=Path(section["llamafactory_dir"]) if section.get("llamafactory_dir") else None,
@@ -392,6 +453,7 @@ def run_finetune_from_merged_config(
         gpus=str(section["gpus"]) if section.get("gpus") is not None else None,
         dry_run=bool(section.get("dry_run", False)) if dry_run_override is None else dry_run_override,
         finetune_method=(str(section["finetune_method"]) if section.get("finetune_method") else None),
+        dataset_overrides=dataset_overrides,
         extra_args=extra_args,
     )
     return run_finetune(cfg)
