@@ -5,10 +5,10 @@ import json
 import time
 import urllib.error
 import urllib.request
-from pathlib import Path
 from typing import Any
 
 from src.app.local_llm_engine import LocalLLMEngine
+from src.genesis.sim_runtime import DEFAULT_FRANKA_MJCF, preflight_sim_environment
 from src.protocols.toolcall import extract_first_json, normalize_payload, validate_payload
 from src.utils.config import get_section
 from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env
@@ -299,19 +299,32 @@ def predict_actions_from_instruction(
     raise RuntimeError(f"model prediction failed: {redact_text(str(last_err))}")
 
 
-def build_interactive_env(show_viewer: bool = True):
-    import sys
+def _resolve_sim_config(cfg: dict[str, Any] | None) -> dict[str, Any]:
+    if cfg is None:
+        return {}
+    sim_cfg = get_section(cfg, "app", "sim")
+    return sim_cfg if isinstance(sim_cfg, dict) else {}
 
-    repo_root = Path(__file__).resolve().parents[2]
-    local_genesis_path = repo_root / "Genesis"
-    if str(local_genesis_path) not in sys.path:
-        sys.path.insert(0, str(local_genesis_path))
 
+def build_interactive_env(show_viewer: bool = True, *, cfg: dict[str, Any] | None = None):
+    sim_cfg = _resolve_sim_config(cfg)
+    backend = str(sim_cfg.get("backend", "gpu")).strip() or "gpu"
+    robot_file = str(sim_cfg.get("robot_file", DEFAULT_FRANKA_MJCF)).strip() or DEFAULT_FRANKA_MJCF
+    robot_type = str(sim_cfg.get("robot_type", "mjcf")).strip().lower() or "mjcf"
+    genesis_repo = sim_cfg.get("genesis_repo")
+    asset_root = sim_cfg.get("asset_root")
+
+    preflight = preflight_sim_environment(
+        robot_file=robot_file,
+        robot_type=robot_type,
+        genesis_repo=genesis_repo,
+        asset_root=asset_root,
+    )
     import genesis as gs
     from src.genesis.genesis_tools import GenesisManager, GenesisRobot
 
     manager = GenesisManager(
-        backend="gpu",
+        backend=backend,
         init_kwargs={"precision": "32", "logging_level": "warning"},
         scene_kwargs={
             "show_viewer": show_viewer,
@@ -332,8 +345,8 @@ def build_interactive_env(show_viewer: bool = True):
     manager.add_plane("ground")
     manager.add_robot_from_file(
         name="franka",
-        file="xml/franka_emika_panda/panda.xml",
-        robot_type="mjcf",
+        file=str(preflight.resolved_robot_file),
+        robot_type=robot_type,
     )
     manager.add_object(
         name="cube",

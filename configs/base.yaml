@@ -100,6 +100,12 @@ app:
   interactive:
     enabled: true
     show_viewer: true
+  sim:
+    backend: gpu
+    robot_type: mjcf
+    robot_file: xml/franka_emika_panda/panda.xml
+    genesis_repo: null
+    asset_root: null
   state_injection:
     enable_instruction_to_action: true
     enable_instruction_to_motion: true

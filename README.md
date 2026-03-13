@@ -126,6 +126,52 @@ python cli.py app run-instruction
 python cli.py app run-instruction --instruction "打开夹爪并移动到目标点"
 ```
 
+## 最小仿真启动指南
+
+仿真链路依赖 Genesis 运行时与机器人 MJCF/XML 资产。项目已内置启动前预检，会在缺依赖或缺资产时给出明确错误。
+
+1. 运行 bootstrap（第三方资产框架）：
+
+```bash
+bash scripts/bootstrap_sim_assets.sh
+```
+
+2. 如需自定义路径，设置环境变量（可写入 `~/.bashrc`）：
+
+```bash
+export GENESIS_REPO_DIR="/abs/path/to/Genesis"
+export GENESIS_ASSETS_ROOT="/abs/path/to/Genesis/genesis/assets"
+```
+
+3. 最小仿真命令：
+
+```bash
+python experiments/04_sim_exp/run_e2e_sim.py --instruction "移动到方块上方并张开夹爪"
+```
+
+4. 或直接交互测试环境：
+
+```bash
+python experiments/04_sim_exp/test_genesis_interactive_env.py
+```
+
+### 缺资源时报错示例
+
+当 MJCF/XML 不存在时，启动前会报错并列出检查路径，例如：
+
+```text
+src.genesis.sim_runtime.SimBootstrapError: Simulation robot asset file was not found.
+Requested file: xml/franka_emika_panda/panda.xml
+robot_type: mjcf
+Checked candidate paths:
+- /path/to/project/xml/franka_emika_panda/panda.xml
+- /path/to/project/Genesis/genesis/assets/xml/franka_emika_panda/panda.xml
+Try bootstrap first: `bash scripts/bootstrap_sim_assets.sh`
+Then set one of:
+- `GENESIS_REPO_DIR=/abs/path/to/Genesis`
+- `GENESIS_ASSETS_ROOT=/abs/path/to/assets/root`
+```
+
 ## 典型工作流
 
 1. 生成基础数据集：`data generate`

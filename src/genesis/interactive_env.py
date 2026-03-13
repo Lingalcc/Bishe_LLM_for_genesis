@@ -3,9 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
-import genesis as gs
-
 from src.genesis.genesis_tools import GenesisManager, GenesisRobot
+from src.genesis.sim_runtime import DEFAULT_FRANKA_MJCF, preflight_sim_environment
 
 
 class GenesisInteractiveTestEnv:
@@ -17,8 +16,16 @@ class GenesisInteractiveTestEnv:
         self.robot: GenesisRobot | None = None
         self._cube_name = "cube"
         self._cube_init_pos = [0.65, 0.0, 0.02]
+        self.robot_file = DEFAULT_FRANKA_MJCF
+        self.robot_type = "mjcf"
 
     def setup(self) -> None:
+        preflight = preflight_sim_environment(
+            robot_file=self.robot_file,
+            robot_type=self.robot_type,
+        )
+        import genesis as gs
+
         self.manager = GenesisManager(
             backend="cpu",
             init_kwargs={"precision": "32", "logging_level": "warning"},
@@ -33,8 +40,8 @@ class GenesisInteractiveTestEnv:
         self.manager.add_plane("ground")
         self.manager.add_robot_from_file(
             name="franka",
-            file="xml/franka_emika_panda/panda.xml",
-            robot_type="mjcf",
+            file=str(preflight.resolved_robot_file),
+            robot_type=self.robot_type,
         )
         self.manager.add_object(
             name=self._cube_name,
