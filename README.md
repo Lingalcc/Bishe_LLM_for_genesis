@@ -48,7 +48,7 @@ pip install -e .
 统一配置文件路径：
 
 ```text
-configs/default.yaml
+configs/base.yaml
 ```
 
 主要配置分组：
@@ -58,11 +58,24 @@ configs/default.yaml
 3. `test.accuracy_eval`：评测参数
 4. `app.interactive` / `app.inference`：应用运行与模型推理参数（支持 API / 本地模型切换）
 
-如需在线调用 OpenAI 兼容接口，建议设置：
+如需在线调用 OpenAI 兼容接口，必须通过环境变量提供密钥（不要把真实 key 写入 YAML）：
 
-1. `dataset_prepare.augment.api_key` 或 `api_key_env`
-2. `test.accuracy_eval.api_key` 或 `api_key_env`
-3. `app.inference.api.api_key` 或 `app.inference.api.api_key_env`
+1. `OPENAI_API_KEY`（默认用于评测与 app API 模式）
+2. `DEEPSEEK_API_KEY`（默认用于数据生成）
+3. 也可在配置中改 `api_key_env` 指向自定义环境变量名
+
+示例：
+
+```bash
+cp .env.example .env
+export OPENAI_API_KEY="sk-..."
+export DEEPSEEK_API_KEY="sk-..."
+```
+
+说明：
+
+1. 配置字段 `api_key` 仅为兼容保留，不再作为真实密钥来源。
+2. 缺少环境变量时，程序会抛出明确错误并提示对应变量名。
 
 ## 统一 CLI 用法
 

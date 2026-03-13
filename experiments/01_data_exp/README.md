@@ -87,14 +87,10 @@ print(f"有效率: {report['valid_ratio']:.2%}  ({report['valid_rows']}/{report[
 
 ### API 密钥配置
 
-二选一：
-
 ```bash
-# 方式 1: 环境变量（推荐）
+# 环境变量（推荐且默认）
 export DEEPSEEK_API_KEY="sk-xxx"
-
-# 方式 2: 写入配置文件
-# 在 api_generate.yaml 中设置 api_key 字段
+# 若需自定义变量名，可在 api_generate.yaml 修改 api_key_env
 ```
 
 ## 输出文件

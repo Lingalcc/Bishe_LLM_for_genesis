@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import os
 import random
 import re
 import time
@@ -12,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from src.eval_core.toolcall_validator import validate_payload
+from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env, safe_json_dumps
 
 
 def normalize_text(text: str) -> str:
@@ -158,7 +158,7 @@ def predict_once(
 
     if last_err is None:
         raise RuntimeError("prediction failed without explicit error")
-    raise RuntimeError(f"prediction failed after retries: {last_err}")
+    raise RuntimeError(f"prediction failed after retries: {redact_text(str(last_err))}")
 
 
 def load_predictions_file(predictions_path: Path) -> Any:
@@ -229,15 +229,20 @@ def evaluate_toolcall_accuracy(
     if predictions_file is not None:
         predictions_blob = load_predictions_file(predictions_file)
 
-    api_key = ""
     if predictions_file is None:
-        api_key = api_key.strip()
-        if not api_key:
-            api_key = os.environ.get(api_key_env, "").strip()
-        if not api_key:
-            raise RuntimeError(
-                f"missing API key. provide api_key, set env var '{api_key_env}', or provide predictions_file"
+        try:
+            api_key = resolve_api_key_from_env(
+                api_key=api_key,
+                api_key_env=api_key_env,
+                default_env="OPENAI_API_KEY",
+                source_name="Accuracy evaluation API",
             )
+        except MissingSecretError as exc:
+            raise RuntimeError(
+                f"{exc} Or provide `predictions_file` to run offline evaluation."
+            ) from exc
+    else:
+        api_key = ""
 
     total = len(selected_rows)
     parse_ok = 0
@@ -343,5 +348,5 @@ def evaluate_toolcall_accuracy(
     }
 
     report_file.parent.mkdir(parents=True, exist_ok=True)
-    report_file.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    report_file.write_text(safe_json_dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report

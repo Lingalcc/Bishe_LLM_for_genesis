@@ -85,7 +85,7 @@ export OPENAI_API_KEY="你的key"
 python experiments/03_eval_exp/run_accuracy.py
 ```
 
-或直接在 yaml 中填 `api_key`。
+也可在 yaml 中改 `api_key_env` 指向自定义环境变量名（不建议在 yaml 填真实 `api_key`）。
 
 ### 2.2 本地模型评测
 
@@ -252,4 +252,3 @@ API 模式额外字段：
 
 允许这样做，脚本会自动创建父目录。  
 但建议统一写到 `experiments/03_eval_exp/reports/`，便于管理多次实验结果。
-

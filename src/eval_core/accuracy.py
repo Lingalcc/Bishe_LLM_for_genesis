@@ -13,6 +13,7 @@ from src.eval_core.evaluate_toolcall_accuracy import (
     payload_to_commands,
 )
 from src.eval_core.performance_monitor import time_and_memory_tracker
+from src.utils.secrets import safe_json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +223,7 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
     }
 
     cfg.report_file.parent.mkdir(parents=True, exist_ok=True)
-    cfg.report_file.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    cfg.report_file.write_text(safe_json_dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report
 
 
