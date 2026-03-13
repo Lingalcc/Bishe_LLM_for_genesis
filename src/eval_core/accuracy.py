@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from src.data_core.dataset_safety import enforce_train_eval_no_leakage
 from src.eval_core.evaluate_toolcall_accuracy import (
     canonicalize_commands,
     evaluate_toolcall_accuracy,
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class AccuracyEvalConfig:
+    test_file: Path | None = None
     dataset_file: Path = Path("data_prepare/genesis_franka_toolcall_alpaca.json")
     predictions_file: Path | None = None
     report_file: Path = Path("experiments/03_eval_exp/reports/accuracy_report.json")
@@ -56,10 +58,11 @@ class AccuracyEvalConfig:
 
 def run_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
     """Run accuracy evaluation — dispatches to API or local engine."""
+    effective_dataset_file = cfg.test_file or cfg.dataset_file
     if cfg.mode == "local" and cfg.model_path:
-        return _run_local_accuracy_eval(cfg)
+        return _run_local_accuracy_eval(cfg, dataset_file=effective_dataset_file)
     return evaluate_toolcall_accuracy(
-        dataset_file=cfg.dataset_file,
+        dataset_file=effective_dataset_file,
         predictions_file=cfg.predictions_file,
         report_file=cfg.report_file,
         num_samples=cfg.num_samples,
@@ -77,12 +80,12 @@ def run_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
     )
 
 
-def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
+def _run_local_accuracy_eval(cfg: AccuracyEvalConfig, *, dataset_file: Path) -> dict[str, Any]:
     """Evaluate with a local model, collecting VRAM & latency metrics."""
     from src.eval_core.inference_engines import build_inference_engine
 
     # Load dataset
-    rows = json.loads(cfg.dataset_file.read_text(encoding="utf-8"))
+    rows = json.loads(dataset_file.read_text(encoding="utf-8"))
     valid_rows: list[dict[str, Any]] = []
     for i, row in enumerate(rows):
         if not isinstance(row, dict):
@@ -203,7 +206,7 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
         "model_path": cfg.model_path,
         "backend": cfg.backend,
         "quantization": cfg.quantization,
-        "dataset_file": str(cfg.dataset_file),
+        "dataset_file": str(dataset_file),
         "seed": cfg.seed,
         "num_samples_evaluated": total,
         "num_valid_rows_in_dataset": len(valid_rows),
@@ -231,8 +234,29 @@ def run_accuracy_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
         if isinstance(config.get("test"), dict)
         else {}
     )
+    test_file_raw = section.get("test_file")
+    dataset_file_raw = section.get("dataset_file", AccuracyEvalConfig.dataset_file)
+    test_file = Path(test_file_raw) if test_file_raw else None
+
+    leak_cfg = section.get("leakage_check", {}) if isinstance(section.get("leakage_check"), dict) else {}
+    leakage_enabled = bool(leak_cfg.get("enabled", True))
+    leakage_strict = bool(leak_cfg.get("strict", True))
+    train_section = config.get("finetune", {}).get("train", {}) if isinstance(config.get("finetune"), dict) else {}
+    train_file = Path(train_section["train_file"]).expanduser().resolve() if train_section.get("train_file") else None
+    val_file = Path(train_section["val_file"]).expanduser().resolve() if train_section.get("val_file") else None
+    effective_test_file = (test_file or Path(dataset_file_raw)).expanduser().resolve()
+    if leakage_enabled:
+        enforce_train_eval_no_leakage(
+            train_file=train_file,
+            val_file=val_file,
+            test_file=effective_test_file,
+            strict=leakage_strict,
+            check_content_overlap=True,
+        )
+
     cfg = AccuracyEvalConfig(
-        dataset_file=Path(section.get("dataset_file", AccuracyEvalConfig.dataset_file)),
+        test_file=test_file,
+        dataset_file=Path(dataset_file_raw),
         predictions_file=Path(section["predictions_file"]) if section.get("predictions_file") else None,
         report_file=Path(section.get("report_file", AccuracyEvalConfig.report_file)),
         num_samples=int(section.get("num_samples", AccuracyEvalConfig.num_samples)),

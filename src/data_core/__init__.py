@@ -1,7 +1,9 @@
 from src.data_core.api_client import call_chat_api, extract_json_array, resolve_api_key
 from src.data_core.calibration import CalibrationConfig, calibrate_from_merged_config
+from src.data_core.dataset_safety import check_train_eval_leakage, enforce_train_eval_no_leakage
 from src.data_core.format_utils import to_alpaca_format, to_sharegpt_format, validate_sample
 from src.data_core.generate import GenerateDatasetConfig, run_generate_from_merged_config
+from src.data_core.split_dataset import SplitDatasetConfig, run_split_dataset
 
 __all__ = [
     # api_client
@@ -11,6 +13,9 @@ __all__ = [
     # calibration
     "CalibrationConfig",
     "calibrate_from_merged_config",
+    # dataset safety
+    "check_train_eval_leakage",
+    "enforce_train_eval_no_leakage",
     # format_utils
     "to_alpaca_format",
     "to_sharegpt_format",
@@ -18,4 +23,7 @@ __all__ = [
     # generate
     "GenerateDatasetConfig",
     "run_generate_from_merged_config",
+    # split
+    "SplitDatasetConfig",
+    "run_split_dataset",
 ]
