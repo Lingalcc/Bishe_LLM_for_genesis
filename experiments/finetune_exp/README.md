@@ -1,8 +1,14 @@
-# finetune_exp
+# finetune_exp（历史目录）
 
-该目录用于维护本项目微调所需的 LLaMA-Factory 训练配置，目标是将业务侧改动与 `LlamaFactory` 源码解耦。
+该目录当前用于保留历史训练模板，不是统一 CLI 的默认配置来源。
 
-- 推荐修改位置：`experiments/finetune_exp/llamafactory/train_lora_sft.yaml`
-- 不推荐直接修改：`LlamaFactory/examples/...`
+## 当前状态
 
-默认微调入口会优先读取本目录下的配置文件。
+- 现行微调入口：`python cli.py finetune start`
+- 现行配置目录：`experiments/02_finetune_exp/configs/`
+- 本目录文件：作为历史参考/迁移缓存
+
+## 答辩建议说法
+
+- `experiments/finetune_exp`：计划中逐步并入或清理
+- 实际可复现实验：以 `experiments/02_finetune_exp` 为准

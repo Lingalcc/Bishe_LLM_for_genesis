@@ -23,6 +23,7 @@ from src.data_core.format_utils import (
     to_sharegpt_format,
     validate_sample,
 )
+from src.utils.secrets import redact_text
 
 logger = logging.getLogger(__name__)
 
@@ -371,12 +372,14 @@ class DatasetGenerator:
                 )
             except Exception as exc:
                 last_err = exc
-                logger.warning("API attempt %d failed: %s", attempt + 1, exc)
+                logger.warning("API attempt %d failed: %s", attempt + 1, redact_text(str(exc)))
 
             time.sleep(min(30.0, self.cfg.sleep_seconds * (2 ** attempt)))
 
         logger.error(
-            "Batch failed after %d retries: %s", self.cfg.max_retries, last_err,
+            "Batch failed after %d retries: %s",
+            self.cfg.max_retries,
+            redact_text(str(last_err)) if last_err is not None else "unknown error",
         )
         return []
 
@@ -425,11 +428,13 @@ class DatasetGenerator:
                 )
             except Exception as exc:
                 last_err = exc
-                logger.warning("API attempt %d failed: %s", attempt + 1, exc)
+                logger.warning("API attempt %d failed: %s", attempt + 1, redact_text(str(exc)))
             time.sleep(min(30.0, self.cfg.sleep_seconds * (2 ** attempt)))
 
         logger.error(
-            "Batch failed after %d retries: %s", self.cfg.max_retries, last_err,
+            "Batch failed after %d retries: %s",
+            self.cfg.max_retries,
+            redact_text(str(last_err)) if last_err is not None else "unknown error",
         )
         return difficulty, []
 

@@ -7,18 +7,22 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from src.data_core.dataset_safety import enforce_train_eval_no_leakage
 from src.eval_core.evaluate_toolcall_accuracy import (
     canonicalize_commands,
     evaluate_toolcall_accuracy,
     payload_to_commands,
 )
 from src.eval_core.performance_monitor import time_and_memory_tracker
+from src.eval_core.prompting import DEFAULT_EVAL_SYSTEM_PROMPT, build_eval_messages
+from src.utils.secrets import safe_json_dumps
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
 class AccuracyEvalConfig:
+    test_file: Path | None = None
     dataset_file: Path = Path("data_prepare/genesis_franka_toolcall_alpaca.json")
     predictions_file: Path | None = None
     report_file: Path = Path("experiments/03_eval_exp/reports/accuracy_report.json")
@@ -49,21 +53,16 @@ class AccuracyEvalConfig:
     trust_remote_code: bool = True
 
     # System prompt
-    system_prompt: str = (
-        "你是 Franka 机械臂控制指令生成器。"
-        "请把用户自然语言转换为可执行的 JSON action。"
-        "如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，"
-        "你必须利用其中的物体名字、状态、坐标和姿态进行决策。"
-        "只输出 JSON，不要输出解释。"
-    )
+    system_prompt: str = DEFAULT_EVAL_SYSTEM_PROMPT
 
 
 def run_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
     """Run accuracy evaluation — dispatches to API or local engine."""
+    effective_dataset_file = cfg.test_file or cfg.dataset_file
     if cfg.mode == "local" and cfg.model_path:
-        return _run_local_accuracy_eval(cfg)
+        return _run_local_accuracy_eval(cfg, dataset_file=effective_dataset_file)
     return evaluate_toolcall_accuracy(
-        dataset_file=cfg.dataset_file,
+        dataset_file=effective_dataset_file,
         predictions_file=cfg.predictions_file,
         report_file=cfg.report_file,
         num_samples=cfg.num_samples,
@@ -77,15 +76,16 @@ def run_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
         timeout=cfg.timeout,
         max_retries=cfg.max_retries,
         sleep_seconds=cfg.sleep_seconds,
+        system_prompt=cfg.system_prompt,
     )
 
 
-def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
+def _run_local_accuracy_eval(cfg: AccuracyEvalConfig, *, dataset_file: Path) -> dict[str, Any]:
     """Evaluate with a local model, collecting VRAM & latency metrics."""
     from src.eval_core.inference_engines import build_inference_engine
 
     # Load dataset
-    rows = json.loads(cfg.dataset_file.read_text(encoding="utf-8"))
+    rows = json.loads(dataset_file.read_text(encoding="utf-8"))
     valid_rows: list[dict[str, Any]] = []
     for i, row in enumerate(rows):
         if not isinstance(row, dict):
@@ -103,6 +103,7 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
         valid_rows.append({
             "dataset_index": i,
             "instruction": instruction,
+            "system": row.get("system", "") if isinstance(row.get("system", ""), str) else "",
             "gt_output": output_text,
             "gt_commands": gt_commands,
         })
@@ -136,10 +137,11 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
     logger.info("Local eval: %d samples with backend=%s model=%s", total, cfg.backend, cfg.model_path)
 
     for i, sample in enumerate(selected):
-        messages = [
-            {"role": "system", "content": cfg.system_prompt},
-            {"role": "user", "content": sample["instruction"]},
-        ]
+        messages = build_eval_messages(
+            instruction=sample["instruction"],
+            cfg_system_prompt=cfg.system_prompt,
+            sample_system_prompt=sample.get("system", ""),
+        )
         pred_text = ""
         infer_error: str | None = None
         perf: dict[str, Any] = {}
@@ -204,7 +206,7 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
         "model_path": cfg.model_path,
         "backend": cfg.backend,
         "quantization": cfg.quantization,
-        "dataset_file": str(cfg.dataset_file),
+        "dataset_file": str(dataset_file),
         "seed": cfg.seed,
         "num_samples_evaluated": total,
         "num_valid_rows_in_dataset": len(valid_rows),
@@ -222,7 +224,7 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig) -> dict[str, Any]:
     }
 
     cfg.report_file.parent.mkdir(parents=True, exist_ok=True)
-    cfg.report_file.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    cfg.report_file.write_text(safe_json_dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report
 
 
@@ -232,8 +234,29 @@ def run_accuracy_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
         if isinstance(config.get("test"), dict)
         else {}
     )
+    test_file_raw = section.get("test_file")
+    dataset_file_raw = section.get("dataset_file", AccuracyEvalConfig.dataset_file)
+    test_file = Path(test_file_raw) if test_file_raw else None
+
+    leak_cfg = section.get("leakage_check", {}) if isinstance(section.get("leakage_check"), dict) else {}
+    leakage_enabled = bool(leak_cfg.get("enabled", True))
+    leakage_strict = bool(leak_cfg.get("strict", True))
+    train_section = config.get("finetune", {}).get("train", {}) if isinstance(config.get("finetune"), dict) else {}
+    train_file = Path(train_section["train_file"]).expanduser().resolve() if train_section.get("train_file") else None
+    val_file = Path(train_section["val_file"]).expanduser().resolve() if train_section.get("val_file") else None
+    effective_test_file = (test_file or Path(dataset_file_raw)).expanduser().resolve()
+    if leakage_enabled:
+        enforce_train_eval_no_leakage(
+            train_file=train_file,
+            val_file=val_file,
+            test_file=effective_test_file,
+            strict=leakage_strict,
+            check_content_overlap=True,
+        )
+
     cfg = AccuracyEvalConfig(
-        dataset_file=Path(section.get("dataset_file", AccuracyEvalConfig.dataset_file)),
+        test_file=test_file,
+        dataset_file=Path(dataset_file_raw),
         predictions_file=Path(section["predictions_file"]) if section.get("predictions_file") else None,
         report_file=Path(section.get("report_file", AccuracyEvalConfig.report_file)),
         num_samples=int(section.get("num_samples", AccuracyEvalConfig.num_samples)),

@@ -11,6 +11,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.eval_core.performance_monitor import monitor_inference_performance
+from src.utils.secrets import safe_json_dumps
 
 
 def _normalize_text(text: str) -> str:
@@ -135,7 +136,7 @@ def evaluate_dataset(
 
     out_path = Path(report_file)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_path.write_text(safe_json_dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report
 
 
@@ -159,4 +160,4 @@ def _demo() -> None:
     ]
     engine = _DummyEngine()
     report = evaluate_dataset(dataset, engine)
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+    print(safe_json_dumps(report, ensure_ascii=False, indent=2))

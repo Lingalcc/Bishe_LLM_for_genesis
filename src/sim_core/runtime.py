@@ -51,7 +51,7 @@ def run_instruction_to_action(
     manager = None
     try:
         if use_sim_state:
-            manager, _ = build_interactive_env(show_viewer=show_viewer)
+            manager, _ = build_interactive_env(show_viewer=show_viewer, cfg=merged_cfg)
 
         scene_state = collect_scene_state(manager) if manager is not None else None
         raw, payload = predict_actions_from_instruction(
@@ -90,7 +90,7 @@ def run_action_to_motion(
 
     manager = None
     try:
-        manager, robot = build_interactive_env(show_viewer=show_viewer)
+        manager, robot = build_interactive_env(show_viewer=show_viewer, cfg=merged_cfg)
         results = robot.execute_json(raw_action)
         return {"disabled": False, "results": results}
     finally:
@@ -117,7 +117,7 @@ def run_instruction_to_motion(
 
     manager = None
     try:
-        manager, robot = build_interactive_env(show_viewer=show_viewer)
+        manager, robot = build_interactive_env(show_viewer=show_viewer, cfg=merged_cfg)
         scene_state = collect_scene_state(robot.manager) if use_sim_state else None
         raw, payload = predict_actions_from_instruction(
             cfg.instruction.strip(),
@@ -149,7 +149,7 @@ def run_interactive_session(config_path: Path) -> None:
     print("Starting Genesis interactive control...")
     manager = None
     try:
-        manager, robot = build_interactive_env(show_viewer=show_viewer)
+        manager, robot = build_interactive_env(show_viewer=show_viewer, cfg=merged_cfg)
         print("/help /state /scene /example /quit")
         print(DEFAULT_APP_EXAMPLE_JSON)
 

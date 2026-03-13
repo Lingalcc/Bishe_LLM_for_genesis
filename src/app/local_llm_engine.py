@@ -84,6 +84,29 @@ class LocalLLMEngine:
             raise RuntimeError("No backend is initialized. Cannot generate text.")
         return raw_text
 
+    def generate_batch(
+        self,
+        prompts: list[str],
+        *,
+        temperature: float | None = None,
+        top_p: float | None = None,
+        max_new_tokens: int | None = None,
+    ) -> list[str]:
+        if not isinstance(prompts, list) or not prompts:
+            raise ValueError("`prompts` must be a non-empty list of strings.")
+        resolved_prompts = [str(p) for p in prompts]
+        if any(not p.strip() for p in resolved_prompts):
+            raise ValueError("`prompts` contains empty prompt.")
+        return [
+            self.generate(
+                prompt=prompt,
+                temperature=temperature,
+                top_p=top_p,
+                max_new_tokens=max_new_tokens,
+            )
+            for prompt in resolved_prompts
+        ]
+
     def _validate_init_args(self) -> None:
         model_path_obj = Path(self.model_path)
         if not model_path_obj.exists():

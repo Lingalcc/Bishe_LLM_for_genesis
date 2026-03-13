@@ -2,16 +2,16 @@
 from __future__ import annotations
 
 import json
-import os
 import random
-import re
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
 
-from src.eval_core.toolcall_validator import validate_payload
+from src.eval_core.prompting import DEFAULT_EVAL_SYSTEM_PROMPT, build_eval_messages
+from src.protocols.toolcall import extract_first_json, validate_payload
+from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env, safe_json_dumps
 
 
 def normalize_text(text: str) -> str:
@@ -19,42 +19,11 @@ def normalize_text(text: str) -> str:
 
 
 def extract_first_json_from_text(text: str) -> Any:
-    payload = text.strip()
-    if not payload:
-        raise ValueError("empty response")
-
-    try:
-        return json.loads(payload)
-    except json.JSONDecodeError:
-        pass
-
-    code_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", payload, flags=re.IGNORECASE)
-    if code_match:
-        inner = code_match.group(1).strip()
-        try:
-            return json.loads(inner)
-        except json.JSONDecodeError:
-            pass
-
-    decoder = json.JSONDecoder()
-    for idx, ch in enumerate(payload):
-        if ch not in "[{":
-            continue
-        try:
-            obj, _ = decoder.raw_decode(payload[idx:])
-            return obj
-        except json.JSONDecodeError:
-            continue
-
-    raise ValueError("no valid JSON found")
+    return extract_first_json(text)
 
 
 def payload_to_commands(payload_like: Any) -> list[dict[str, Any]]:
-    payload_obj = payload_like
-    if isinstance(payload_like, str):
-        payload_obj = extract_first_json_from_text(payload_like)
-    commands = validate_payload(payload_obj)
-    return commands
+    return validate_payload(payload_like, policy="evaluation")
 
 
 def normalize_value(value: Any) -> Any:
@@ -128,18 +97,12 @@ def predict_once(
     api_base: str,
     api_key: str,
     model: str,
-    instruction: str,
-    system_prompt: str,
+    messages: list[dict[str, str]],
     temperature: float,
     max_tokens: int,
     timeout: int,
     max_retries: int,
 ) -> str:
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": instruction},
-    ]
-
     last_err: Exception | None = None
     for i in range(max_retries):
         try:
@@ -158,7 +121,7 @@ def predict_once(
 
     if last_err is None:
         raise RuntimeError("prediction failed without explicit error")
-    raise RuntimeError(f"prediction failed after retries: {last_err}")
+    raise RuntimeError(f"prediction failed after retries: {redact_text(str(last_err))}")
 
 
 def load_predictions_file(predictions_path: Path) -> Any:
@@ -183,6 +146,7 @@ def evaluate_toolcall_accuracy(
     timeout: int = 120,
     max_retries: int = 3,
     sleep_seconds: float = 0.0,
+    system_prompt: str = DEFAULT_EVAL_SYSTEM_PROMPT,
 ) -> dict[str, Any]:
     if num_samples <= 0:
         raise ValueError("--num-samples must be > 0")
@@ -229,15 +193,20 @@ def evaluate_toolcall_accuracy(
     if predictions_file is not None:
         predictions_blob = load_predictions_file(predictions_file)
 
-    api_key = ""
     if predictions_file is None:
-        api_key = api_key.strip()
-        if not api_key:
-            api_key = os.environ.get(api_key_env, "").strip()
-        if not api_key:
-            raise RuntimeError(
-                f"missing API key. provide api_key, set env var '{api_key_env}', or provide predictions_file"
+        try:
+            api_key = resolve_api_key_from_env(
+                api_key=api_key,
+                api_key_env=api_key_env,
+                default_env="OPENAI_API_KEY",
+                source_name="Accuracy evaluation API",
             )
+        except MissingSecretError as exc:
+            raise RuntimeError(
+                f"{exc} Or provide `predictions_file` to run offline evaluation."
+            ) from exc
+    else:
+        api_key = ""
 
     total = len(selected_rows)
     parse_ok = 0
@@ -269,12 +238,16 @@ def evaluate_toolcall_accuracy(
                 raise TypeError("predictions-file must be JSON list or dict")
         else:
             try:
+                messages = build_eval_messages(
+                    instruction=sample["instruction"],
+                    cfg_system_prompt=system_prompt,
+                    sample_system_prompt=sample.get("system", ""),
+                )
                 prediction_text = predict_once(
                     api_base=api_base,
                     api_key=api_key,
                     model=model,
-                    instruction=sample["instruction"],
-                    system_prompt=sample["system"],
+                    messages=messages,
                     temperature=temperature,
                     max_tokens=max_tokens,
                     timeout=timeout,
@@ -343,5 +316,5 @@ def evaluate_toolcall_accuracy(
     }
 
     report_file.parent.mkdir(parents=True, exist_ok=True)
-    report_file.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    report_file.write_text(safe_json_dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report

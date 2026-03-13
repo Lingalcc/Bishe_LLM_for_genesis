@@ -8,6 +8,7 @@ from pathlib import Path
 from src.data_core.calibration import calibrate_from_merged_config
 from src.data_core.generate import run_generate_from_merged_config
 from src.eval_core.accuracy import run_accuracy_from_merged_config
+from src.eval_core.inference_benchmark import InferenceBenchmarkConfig, run_inference_benchmark
 from src.finetune_core.train import SUPPORTED_FINETUNE_METHODS, run_finetune_from_merged_config
 from src.sim_core.runtime import SimRuntimeConfig, run_instruction_to_action
 from src.utils.config import load_merged_config
@@ -74,6 +75,41 @@ def _run_eval_accuracy(args: argparse.Namespace) -> None:
         print(f"[ok] avg latency (sec) : {report.get('avg_latency_sec', 0):.3f}")
         print(f"[ok] avg throughput    : {report.get('avg_throughput_tps', 0):.1f} tokens/s")
         print(f"[ok] peak VRAM (MB)    : {report.get('max_peak_vram_mb', 0):.0f}")
+
+
+def _run_eval_benchmark(args: argparse.Namespace) -> None:
+    cfg = InferenceBenchmarkConfig(
+        backend=args.backend,
+        model_path=args.model_path,
+        quantization=args.quantization,
+        batch_size=args.batch_size,
+        num_samples=args.num_samples,
+        prompt=args.prompt,
+        prompts_file=str(args.prompts_file) if args.prompts_file else None,
+        use_chat=args.use_chat,
+        warmup_batches=args.warmup_batches,
+        max_new_tokens=args.max_new_tokens,
+        temperature=args.temperature,
+        max_model_len=args.max_model_len,
+        gpu_memory_utilization=args.gpu_memory_utilization,
+        trust_remote_code=not args.no_trust_remote_code,
+        output_json=str(args.output_json),
+        output_csv=str(args.output_csv) if args.output_csv else None,
+    )
+    report = run_inference_benchmark(cfg)
+    print(f"[ok] backend          : {report['backend']}")
+    print(f"[ok] quantization     : {report['quantization']}")
+    print(f"[ok] batch_size       : {report['batch_size']}")
+    print(f"[ok] num_samples      : {report['num_samples']}")
+    print(f"[ok] avg_latency (s)  : {report['avg_latency']:.4f}")
+    print(f"[ok] p50_latency (s)  : {report['p50_latency']:.4f}")
+    print(f"[ok] p95_latency (s)  : {report['p95_latency']:.4f}")
+    print(f"[ok] throughput       : {report['throughput']:.4f} samples/s")
+    print(f"[ok] peak_memory (MB) : {report['peak_memory']:.2f}")
+    print(f"[ok] errors           : {report['errors']}")
+    print(f"[ok] json report      : {args.output_json}")
+    if args.output_csv:
+        print(f"[ok] csv report       : {args.output_csv}")
 
 
 def _run_finetune_benchmark(args: argparse.Namespace) -> None:
@@ -169,6 +205,35 @@ def build_parser() -> argparse.ArgumentParser:
     eval_accuracy_parser.add_argument("--base-config", type=Path, default=Path("configs/base.yaml"))
     eval_accuracy_parser.add_argument("--config", type=Path, default=None)
     eval_accuracy_parser.set_defaults(handler=_run_eval_accuracy)
+
+    eval_benchmark_parser = eval_subparsers.add_parser(
+        "benchmark", help="Run local inference benchmark (HF/vLLM)."
+    )
+    eval_benchmark_parser.add_argument("--backend", required=True, choices=["transformers", "vllm"])
+    eval_benchmark_parser.add_argument("--model-path", required=True)
+    eval_benchmark_parser.add_argument("--quantization", default=None)
+    eval_benchmark_parser.add_argument("--batch-size", type=int, default=1)
+    eval_benchmark_parser.add_argument("--num-samples", type=int, default=32)
+    eval_benchmark_parser.add_argument(
+        "--prompt",
+        type=str,
+        default="Generate one short JSON action for robot arm control.",
+    )
+    eval_benchmark_parser.add_argument("--prompts-file", type=Path, default=None)
+    eval_benchmark_parser.add_argument("--use-chat", action="store_true")
+    eval_benchmark_parser.add_argument("--warmup-batches", type=int, default=1)
+    eval_benchmark_parser.add_argument("--max-new-tokens", type=int, default=128)
+    eval_benchmark_parser.add_argument("--temperature", type=float, default=0.0)
+    eval_benchmark_parser.add_argument("--max-model-len", type=int, default=4096)
+    eval_benchmark_parser.add_argument("--gpu-memory-utilization", type=float, default=0.9)
+    eval_benchmark_parser.add_argument("--no-trust-remote-code", action="store_true")
+    eval_benchmark_parser.add_argument(
+        "--output-json",
+        type=Path,
+        default=Path("experiments/03_eval_exp/reports/inference_benchmark.json"),
+    )
+    eval_benchmark_parser.add_argument("--output-csv", type=Path, default=None)
+    eval_benchmark_parser.set_defaults(handler=_run_eval_benchmark)
 
     app_parser = root_subparsers.add_parser("app", help="Simulation runtime commands.")
     app_subparsers = app_parser.add_subparsers(dest="app_command", required=True)

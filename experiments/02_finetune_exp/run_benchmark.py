@@ -32,7 +32,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import sys
 import time
@@ -44,6 +43,8 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.utils.config import load_merged_config
+from src.utils.run_meta import record_run_meta
+from src.utils.secrets import safe_json_dumps
 
 logging.basicConfig(
     level=logging.INFO,
@@ -149,7 +150,7 @@ def run_benchmark(
     if dry_run:
         report["dry_run"] = True
         print("\n[Dry Run] Benchmark configuration:")
-        print(json.dumps(report, ensure_ascii=False, indent=2))
+        print(safe_json_dumps(report, ensure_ascii=False, indent=2))
         return report
 
     # Step 1: Pre-finetune evaluation
@@ -269,7 +270,7 @@ def run_benchmark(
 
     # Write report
     benchmark_report_path = report_dir / "benchmark_report.json"
-    benchmark_report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    benchmark_report_path.write_text(safe_json_dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info("Benchmark report: %s", benchmark_report_path)
 
     # Print summary
@@ -343,6 +344,33 @@ def main() -> None:
         base_config_path=args.base_config,
         override_config_path=args.config if args.config.exists() else None,
     )
+    bench_cfg = merged.get("benchmark", {}) if isinstance(merged.get("benchmark"), dict) else {}
+    finetune_train = (
+        merged.get("finetune", {}).get("train", {})
+        if isinstance(merged.get("finetune"), dict)
+        else {}
+    )
+    eval_cfg = (
+        merged.get("test", {}).get("accuracy_eval", {})
+        if isinstance(merged.get("test"), dict)
+        else {}
+    )
+    report_dir = Path(bench_cfg.get("report_dir", "experiments/02_finetune_exp/reports"))
+    meta_path = record_run_meta(
+        report_dir,
+        merged_config=merged,
+        cli_args=vars(args),
+        argv=sys.argv,
+        seed=(int(bench_cfg["seed"]) if bench_cfg.get("seed") is not None else None),
+        data_paths=[
+            bench_cfg.get("dataset_file", ""),
+            finetune_train.get("train_file", ""),
+            finetune_train.get("val_file", ""),
+            eval_cfg.get("test_file", ""),
+        ],
+        extra_meta={"entry": "experiments/02_finetune_exp/run_benchmark.py", "stage": "benchmark"},
+    )
+    print(f"[benchmark] run meta : {meta_path}")
     run_benchmark(
         merged,
         eval_only=args.eval_only,

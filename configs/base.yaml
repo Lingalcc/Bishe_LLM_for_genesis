@@ -25,18 +25,39 @@ dataset_prepare:
     dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
     max_print_errors: 10
     strict: false
+  split:
+    input_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    out_dir: data_prepare/splits
+    train_ratio: 0.8
+    val_ratio: 0.1
+    test_ratio: 0.1
+    seed: 42
+    train_file: train.json
+    val_file: val.json
+    test_file: test.json
+    metadata_file: split_metadata.json
 
 finetune:
   train:
     llamafactory_dir: LlamaFactory
-    config: experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml
+    # config is intentionally omitted: auto-selected from _METHOD_DEFAULT_CONFIGS based on finetune_method.
+    # Override here only if you need a completely custom config file.
+    train_file: data_prepare/splits/train.json
+    val_file: data_prepare/splits/val.json
+    leakage_check:
+      enabled: true
+      strict: true
     gpus: "0"
     dry_run: false
     finetune_method: qlora
 
 test:
   accuracy_eval:
+    test_file: data_prepare/splits/test.json
     dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    leakage_check:
+      enabled: true
+      strict: true
     predictions_file: null
     report_file: experiments/03_eval_exp/reports/accuracy_report.json
     num_samples: 200
@@ -80,6 +101,12 @@ app:
   interactive:
     enabled: true
     show_viewer: true
+  sim:
+    backend: gpu
+    robot_type: mjcf
+    robot_file: xml/franka_emika_panda/panda.xml
+    genesis_repo: null
+    asset_root: null
   state_injection:
     enable_instruction_to_action: true
     enable_instruction_to_motion: true

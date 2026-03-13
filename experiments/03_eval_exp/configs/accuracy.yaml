@@ -1,6 +1,7 @@
 test:
   accuracy_eval:
     mode: local
+    test_file: data_prepare/splits/test.json
     dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
     report_file: experiments/03_eval_exp/reports/accuracy_report_local.json
     num_samples: 200

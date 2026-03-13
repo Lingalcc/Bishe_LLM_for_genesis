@@ -6,10 +6,9 @@ Supports two output formats used by LLaMA Factory:
 """
 from __future__ import annotations
 
-import json
 from typing import Any
 
-from src.eval_core.toolcall_validator import validate_payload
+from src.protocols.toolcall import extract_first_json, validate_payload
 
 # System prompt embedded into ShareGPT training data
 SYSTEM_PROMPT_FOR_DATASET = (
@@ -32,7 +31,7 @@ def validate_sample(sample: dict[str, Any]) -> bool:
     if not isinstance(output_str, str) or not output_str.strip():
         return False
     try:
-        payload = json.loads(output_str)
+        payload = extract_first_json(output_str)
         validate_payload(payload)
         return True
     except Exception:

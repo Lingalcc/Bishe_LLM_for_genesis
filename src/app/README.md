@@ -10,7 +10,7 @@
 
 ## 统一配置
 
-默认读取统一配置文件：`configs/default.yaml`  
+默认读取统一配置文件：`configs/base.yaml`  
 对应配置段：
 
 - `app.interactive`
@@ -19,7 +19,7 @@
 
 可通过 `app.interactive.enabled` 控制是否允许启动应用。
 `app.inference.mode` 支持 `api` / `local` 切换。
-API Key 建议配置在 `app.inference.api.api_key` 或环境变量 `app.inference.api.api_key_env`。
+API Key 请通过环境变量提供（可在 `app.inference.api.api_key_env` 指定变量名）。
 状态注入开关：
 
 - `app.state_injection.enable_instruction_to_action`

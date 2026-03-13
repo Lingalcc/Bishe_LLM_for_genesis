@@ -13,7 +13,7 @@ dataset_prepare:
     stats_file: genesis_franka_toolcall_stats.json
 
     # --- Generation parameters ---
-    num_samples: 1000          # Total number of samples to generate
+    num_samples: 2000          # Total number of samples to generate
     seed: 42
     batch_size: 20             # Number of samples per API call
     state_context_ratio: 0.7   # Proportion of samples with scene state context
@@ -30,7 +30,7 @@ dataset_prepare:
     # Supports any OpenAI-compatible API (OpenAI, DeepSeek, SiliconFlow, etc.)
     api_base: "https://api.siliconflow.cn/v1"
     model: "deepseek-ai/DeepSeek-V3"
-    api_key: "sk-rhodxvjeyskjunernolimgmxldpenkmsnlqcmoyvnovuddza"                # Leave empty to use env variable
+    api_key: ""                           # Reserved for compatibility; real key must come from env var
     api_key_env: "DEEPSEEK_API_KEY"   # Environment variable name for API key
     temperature: 0.9
     max_tokens: 4096

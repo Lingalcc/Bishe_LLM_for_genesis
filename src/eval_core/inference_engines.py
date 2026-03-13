@@ -94,11 +94,11 @@ class HFInferenceEngine:
             return self._model.device
         return next(self._model.parameters()).device
 
-    def _generate_from_ids(self, input_ids: Any) -> str:
-        """Run generation on tokenized input_ids tensor."""
+    def _generate_from_tensors(self, input_ids: Any, attention_mask: Any) -> list[str]:
+        """Run batched generation on tokenized tensors."""
         target_device = self._input_device()
         input_ids = input_ids.to(target_device)
-        attention_mask = self._torch.ones_like(input_ids)
+        attention_mask = attention_mask.to(target_device)
 
         gen_kwargs: dict[str, Any] = {
             "max_new_tokens": self.max_new_tokens,
@@ -114,24 +114,52 @@ class HFInferenceEngine:
                 input_ids=input_ids, attention_mask=attention_mask, **gen_kwargs,
             )
 
-        prompt_len = input_ids.shape[-1]
-        new_ids = output_ids[0][prompt_len:]
-        return self._tokenizer.decode(new_ids, skip_special_tokens=True).strip()
+        prompt_lens = attention_mask.sum(dim=1).tolist()
+        texts: list[str] = []
+        for row_idx, prompt_len in enumerate(prompt_lens):
+            new_ids = output_ids[row_idx][int(prompt_len):]
+            texts.append(self._tokenizer.decode(new_ids, skip_special_tokens=True).strip())
+        return texts
 
     def generate(self, prompt: str) -> str:
         if not isinstance(prompt, str) or not prompt.strip():
             raise ValueError("prompt 必须是非空字符串。")
 
         inputs = self._tokenizer(prompt, return_tensors="pt")
-        return self._generate_from_ids(inputs["input_ids"])
+        outputs = self._generate_from_tensors(inputs["input_ids"], inputs["attention_mask"])
+        return outputs[0]
+
+    @staticmethod
+    def _validate_prompts(prompts: list[str]) -> list[str]:
+        if not isinstance(prompts, list) or not prompts:
+            raise ValueError("prompts 必须是非空字符串列表。")
+        normalized = [str(p) for p in prompts]
+        if any(not p.strip() for p in normalized):
+            raise ValueError("prompts 中包含空字符串。")
+        return normalized
+
+    def generate_batch(self, prompts: list[str]) -> list[str]:
+        prompts = self._validate_prompts(prompts)
+        inputs = self._tokenizer(prompts, return_tensors="pt", padding=True)
+        return self._generate_from_tensors(inputs["input_ids"], inputs["attention_mask"])
 
     def generate_chat(self, messages: list[dict[str, str]]) -> str:
         """Generate using chat template for Instruct models."""
         text = self._tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True,
         )
-        input_ids = self._tokenizer(text, return_tensors="pt")["input_ids"]
-        return self._generate_from_ids(input_ids)
+        inputs = self._tokenizer(text, return_tensors="pt")
+        outputs = self._generate_from_tensors(inputs["input_ids"], inputs["attention_mask"])
+        return outputs[0]
+
+    def generate_chat_batch(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        if not isinstance(messages_batch, list) or not messages_batch:
+            raise ValueError("messages_batch 必须是非空列表。")
+        prompts = [
+            self._tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+            for msgs in messages_batch
+        ]
+        return self.generate_batch(prompts)
 
 
 class VLLMInferenceEngine:
@@ -183,14 +211,30 @@ class VLLMInferenceEngine:
             max_tokens=self.max_new_tokens,
         )
 
-    def generate(self, prompt: str) -> str:
-        if not isinstance(prompt, str) or not prompt.strip():
-            raise ValueError("prompt 必须是非空字符串。")
+    @staticmethod
+    def _validate_prompts(prompts: list[str]) -> list[str]:
+        if not isinstance(prompts, list) or not prompts:
+            raise ValueError("prompts 必须是非空字符串列表。")
+        normalized = [str(p) for p in prompts]
+        if any(not p.strip() for p in normalized):
+            raise ValueError("prompts 中包含空字符串。")
+        return normalized
 
-        outputs = self._engine.generate([prompt], sampling_params=self._sampling_params(), use_tqdm=False)
-        if not outputs or not outputs[0].outputs:
-            raise RuntimeError("vLLM 输出为空。")
-        return outputs[0].outputs[0].text.strip()
+    def _generate_many(self, prompts: list[str]) -> list[str]:
+        prompts = self._validate_prompts(prompts)
+        outputs = self._engine.generate(prompts, sampling_params=self._sampling_params(), use_tqdm=False)
+        texts: list[str] = []
+        for item in outputs:
+            if not item.outputs:
+                raise RuntimeError("vLLM 输出为空。")
+            texts.append(item.outputs[0].text.strip())
+        return texts
+
+    def generate(self, prompt: str) -> str:
+        return self._generate_many([prompt])[0]
+
+    def generate_batch(self, prompts: list[str]) -> list[str]:
+        return self._generate_many(prompts)
 
     def generate_chat(self, messages: list[dict[str, str]]) -> str:
         """Generate using chat template for Instruct models."""
@@ -198,10 +242,17 @@ class VLLMInferenceEngine:
         text = tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True,
         )
-        outputs = self._engine.generate([text], sampling_params=self._sampling_params(), use_tqdm=False)
-        if not outputs or not outputs[0].outputs:
-            raise RuntimeError("vLLM 输出为空。")
-        return outputs[0].outputs[0].text.strip()
+        return self._generate_many([text])[0]
+
+    def generate_chat_batch(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        if not isinstance(messages_batch, list) or not messages_batch:
+            raise ValueError("messages_batch 必须是非空列表。")
+        tokenizer = self._engine.get_tokenizer()
+        prompts = [
+            tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+            for msgs in messages_batch
+        ]
+        return self._generate_many(prompts)
 
 
 def build_inference_engine(config: dict[str, Any]) -> Any:
@@ -246,4 +297,3 @@ def build_inference_engine(config: dict[str, Any]) -> Any:
         )
 
     raise ValueError(f"不支持的 backend={backend!r}。可选值: 'transformers', 'vllm'")
-

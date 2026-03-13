@@ -2,16 +2,16 @@
 from __future__ import annotations
 
 import json
-import os
-import re
 import time
 import urllib.error
 import urllib.request
-from pathlib import Path
 from typing import Any
 
 from src.app.local_llm_engine import LocalLLMEngine
+from src.genesis.sim_runtime import DEFAULT_FRANKA_MJCF, preflight_sim_environment
+from src.protocols.toolcall import extract_first_json, normalize_payload, validate_payload
 from src.utils.config import get_section
+from src.utils.secrets import MissingSecretError, redact_text, resolve_api_key_from_env
 
 
 DEFAULT_APP_SYSTEM_PROMPT = (
@@ -35,54 +35,13 @@ _LOCAL_ENGINE_CACHE: dict[str, LocalLLMEngine] = {}
 
 
 def extract_first_json_from_text(text: str) -> Any:
-    payload = text.strip()
-    if not payload:
-        raise ValueError("empty response")
-
-    try:
-        return json.loads(payload)
-    except json.JSONDecodeError:
-        pass
-
-    code_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", payload, flags=re.IGNORECASE)
-    if code_match:
-        inner = code_match.group(1).strip()
-        try:
-            return json.loads(inner)
-        except json.JSONDecodeError:
-            pass
-
-    decoder = json.JSONDecoder()
-    for idx, ch in enumerate(payload):
-        if ch not in "{[":
-            continue
-        try:
-            obj, _ = decoder.raw_decode(payload[idx:])
-            return obj
-        except json.JSONDecodeError:
-            continue
-
-    raise ValueError("no valid JSON found")
+    return extract_first_json(text)
 
 
 def normalize_action_payload(payload: Any) -> dict[str, Any]:
-    if isinstance(payload, dict) and "commands" in payload:
-        commands = payload["commands"]
-    elif isinstance(payload, list):
-        commands = payload
-    elif isinstance(payload, dict) and "action" in payload:
-        commands = [payload]
-    else:
-        raise ValueError("payload must be command object, command list, or {'commands':[...]} format")
-
-    if not isinstance(commands, list) or not commands:
-        raise ValueError("commands must be non-empty list")
-    for i, cmd in enumerate(commands):
-        if not isinstance(cmd, dict):
-            raise TypeError(f"command at index {i} must be object")
-        if "action" not in cmd:
-            raise ValueError(f"command at index {i} missing 'action'")
-    return {"commands": commands}
+    normalized = normalize_payload(payload)
+    validate_payload(normalized, policy="execution")
+    return normalized
 
 
 def collect_scene_state(manager: Any) -> dict[str, Any]:
@@ -196,12 +155,15 @@ def _resolve_inference_config(cfg: dict[str, Any]) -> dict[str, Any]:
 
 
 def _resolve_api_key(api_cfg: dict[str, Any]) -> str:
-    api_key = str(api_cfg.get("api_key", "")).strip()
-    if api_key:
-        return api_key
-
-    api_key_env = str(api_cfg.get("api_key_env", "OPENAI_API_KEY")).strip() or "OPENAI_API_KEY"
-    return os.environ.get(api_key_env, "").strip()
+    try:
+        return resolve_api_key_from_env(
+            api_key=str(api_cfg.get("api_key", "")),
+            api_key_env=str(api_cfg.get("api_key_env", "OPENAI_API_KEY")),
+            default_env="OPENAI_API_KEY",
+            source_name="Interactive app API",
+        )
+    except MissingSecretError as exc:
+        raise RuntimeError(str(exc)) from exc
 
 
 def _build_local_prompt(system_prompt: str, user_prompt: str) -> str:
@@ -276,12 +238,6 @@ def predict_actions_from_instruction(
                     gen_cfg = {}
 
                 api_key = _resolve_api_key(api_cfg)
-                if not api_key:
-                    api_key_env = str(api_cfg.get("api_key_env", "OPENAI_API_KEY"))
-                    raise RuntimeError(
-                        "API key is empty. Set app.inference.api.api_key "
-                        f"or env var `{api_key_env}`."
-                    )
 
                 raw = call_chat_completions(
                     api_base=str(api_cfg.get("api_base", "https://api.openai.com/v1")),
@@ -340,22 +296,35 @@ def predict_actions_from_instruction(
             last_err = err
             time.sleep(min(8.0, 0.8 * (2**i)))
 
-    raise RuntimeError(f"model prediction failed: {last_err}")
+    raise RuntimeError(f"model prediction failed: {redact_text(str(last_err))}")
 
 
-def build_interactive_env(show_viewer: bool = True):
-    import sys
+def _resolve_sim_config(cfg: dict[str, Any] | None) -> dict[str, Any]:
+    if cfg is None:
+        return {}
+    sim_cfg = get_section(cfg, "app", "sim")
+    return sim_cfg if isinstance(sim_cfg, dict) else {}
 
-    repo_root = Path(__file__).resolve().parents[2]
-    local_genesis_path = repo_root / "Genesis"
-    if str(local_genesis_path) not in sys.path:
-        sys.path.insert(0, str(local_genesis_path))
 
+def build_interactive_env(show_viewer: bool = True, *, cfg: dict[str, Any] | None = None):
+    sim_cfg = _resolve_sim_config(cfg)
+    backend = str(sim_cfg.get("backend", "gpu")).strip() or "gpu"
+    robot_file = str(sim_cfg.get("robot_file", DEFAULT_FRANKA_MJCF)).strip() or DEFAULT_FRANKA_MJCF
+    robot_type = str(sim_cfg.get("robot_type", "mjcf")).strip().lower() or "mjcf"
+    genesis_repo = sim_cfg.get("genesis_repo")
+    asset_root = sim_cfg.get("asset_root")
+
+    preflight = preflight_sim_environment(
+        robot_file=robot_file,
+        robot_type=robot_type,
+        genesis_repo=genesis_repo,
+        asset_root=asset_root,
+    )
     import genesis as gs
     from src.genesis.genesis_tools import GenesisManager, GenesisRobot
 
     manager = GenesisManager(
-        backend="gpu",
+        backend=backend,
         init_kwargs={"precision": "32", "logging_level": "warning"},
         scene_kwargs={
             "show_viewer": show_viewer,
@@ -376,8 +345,8 @@ def build_interactive_env(show_viewer: bool = True):
     manager.add_plane("ground")
     manager.add_robot_from_file(
         name="franka",
-        file="xml/franka_emika_panda/panda.xml",
-        robot_type="mjcf",
+        file=str(preflight.resolved_robot_file),
+        robot_type=robot_type,
     )
     manager.add_object(
         name="cube",

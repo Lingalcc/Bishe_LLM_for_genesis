@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from src.finetune_core.train import run_finetune_from_merged_config
 from src.utils.config import load_merged_config
+from src.utils.run_meta import record_run_meta
 
 
 def parse_args() -> argparse.Namespace:
@@ -37,6 +39,37 @@ def main() -> None:
         base_config_path=args.base_config,
         override_config_path=args.config if args.config.exists() else None,
     )
+    finetune_train = (
+        merged_config.get("finetune", {}).get("train", {})
+        if isinstance(merged_config.get("finetune"), dict)
+        else {}
+    )
+    test_acc = (
+        merged_config.get("test", {}).get("accuracy_eval", {})
+        if isinstance(merged_config.get("test"), dict)
+        else {}
+    )
+    report_dir = Path(
+        finetune_train.get(
+            "report_dir",
+            merged_config.get("benchmark", {}).get("report_dir", "experiments/02_finetune_exp/reports"),
+        )
+    )
+    meta_path = record_run_meta(
+        report_dir,
+        merged_config=merged_config,
+        cli_args=vars(args),
+        argv=sys.argv,
+        seed=(int(finetune_train["seed"]) if finetune_train.get("seed") is not None else None),
+        data_paths=[
+            finetune_train.get("train_file", ""),
+            finetune_train.get("val_file", ""),
+            test_acc.get("test_file", ""),
+            test_acc.get("dataset_file", ""),
+        ],
+        extra_meta={"entry": "experiments/02_finetune_exp/run_train.py", "stage": "finetune"},
+    )
+    print(f"[finetune] run meta   : {meta_path}")
 
     result = run_finetune_from_merged_config(
         merged_config,

@@ -6,11 +6,8 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-LOCAL_GENESIS_PATH = REPO_ROOT / "Genesis"
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
-if str(LOCAL_GENESIS_PATH) not in sys.path:
-    sys.path.insert(0, str(LOCAL_GENESIS_PATH))
 
 from src.genesis.interactive_env import GenesisInteractiveTestEnv
 

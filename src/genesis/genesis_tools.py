@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import json
-import re
 from dataclasses import dataclass
 from typing import Any
+
+from src.protocols.toolcall import validate_payload
+from src.genesis.sim_runtime import resolve_robot_asset_path
 
 
 def _to_builtin(value: Any) -> Any:
@@ -13,36 +14,6 @@ def _to_builtin(value: Any) -> Any:
         except Exception:
             return value
     return value
-
-
-def _extract_first_json_from_text(text: str) -> Any:
-    payload = text.strip()
-    if not payload:
-        raise ValueError("empty action text")
-
-    try:
-        return json.loads(payload)
-    except json.JSONDecodeError:
-        pass
-
-    code_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", payload, flags=re.IGNORECASE)
-    if code_match:
-        inner = code_match.group(1).strip()
-        try:
-            return json.loads(inner)
-        except json.JSONDecodeError:
-            pass
-
-    decoder = json.JSONDecoder()
-    for idx, ch in enumerate(payload):
-        if ch not in "{[":
-            continue
-        try:
-            obj, _ = decoder.raw_decode(payload[idx:])
-            return obj
-        except json.JSONDecodeError:
-            continue
-    raise ValueError("no valid JSON found in action text")
 
 
 def _call_first(obj: Any, names: list[str], *args: Any, **kwargs: Any) -> Any:
@@ -169,10 +140,11 @@ class GenesisManager:
 
         kwargs = dict(morph_kwargs or {})
         rt = robot_type.strip().lower()
+        resolved_file = resolve_robot_asset_path(file, robot_type=rt)
         if rt == "mjcf":
-            morph = gs.morphs.MJCF(file=file, **kwargs)
+            morph = gs.morphs.MJCF(file=str(resolved_file), **kwargs)
         elif rt == "urdf":
-            morph = gs.morphs.URDF(file=file, **kwargs)
+            morph = gs.morphs.URDF(file=str(resolved_file), **kwargs)
         else:
             raise ValueError(f"unsupported robot_type: {robot_type}")
         entity = scene.add_entity(morph)
@@ -180,7 +152,12 @@ class GenesisManager:
             name=name,
             category="robot",
             entity_class=type(entity).__name__,
-            params={"file": file, "robot_type": rt, "morph_kwargs": kwargs},
+            params={
+                "file": file,
+                "resolved_file": str(resolved_file),
+                "robot_type": rt,
+                "morph_kwargs": kwargs,
+            },
             entity=entity,
         )
         return entity
@@ -343,39 +320,13 @@ class GenesisRobot:
         return results
 
     def _normalize_commands(self, payload_like: str | dict[str, Any] | list[dict[str, Any]]) -> list[dict[str, Any]]:
-        payload: Any
-        if isinstance(payload_like, str):
-            payload = _extract_first_json_from_text(payload_like)
-        else:
-            payload = payload_like
-
-        if isinstance(payload, dict) and "commands" in payload:
-            commands = payload["commands"]
-        elif isinstance(payload, list):
-            commands = payload
-        elif isinstance(payload, dict) and "action" in payload:
-            commands = [payload]
-        else:
-            raise ValueError("action payload must be dict/list or {'commands': [...]} format")
-
-        if not isinstance(commands, list) or not commands:
-            raise ValueError("commands must be non-empty list")
-        out: list[dict[str, Any]] = []
-        for i, cmd in enumerate(commands):
-            if not isinstance(cmd, dict):
-                raise TypeError(f"command index={i} must be object")
-            if "action" not in cmd:
-                raise ValueError(f"command index={i} missing 'action'")
-            if "steps" in cmd:
-                raise ValueError("`steps` is not supported; stepping is handled internally with fixed default steps")
-            out.append(cmd)
-        return out
+        return validate_payload(payload_like, policy="execution")
 
     def _execute_one(self, cmd: dict[str, Any]) -> Any:
         action = str(cmd.get("action", "")).strip()
         steps = max(1, int(self.default_command_steps))
 
-        if action == "wait":
+        if action in {"wait", "step"}:
             self.manager.step(steps)
             return {"steps": steps}
 
