@@ -1,0 +1,317 @@
+[
+  {
+    "instruction": "重置整个仿真场景",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"reset_scene\"}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"ball\",\"category\":\"object\",\"state\":{\"pos\":[0.3,-0.2,0.1]}}]}[/STATE_CONTEXT]把机械臂移动到球的水平位置",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.3, -0.2, 0.3], \"quat\": [1, 0, 0, 0]}]}"
+  },
+  {
+    "instruction": "将第四个关节转到-45度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [-0.785], \"dofs_idx_local\": [3]}]}"
+  },
+  {
+    "instruction": "将机械臂恢复到初始姿势",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, -0.3, 0.0, -1.5, 0.0, 1.2, 0.7, 0.04, 0.04]}]}"
+  },
+  {
+    "instruction": "将第5和第6关节分别设置为0.5和1弧度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_dofs_position\", \"values\": [0.5, 1.0], \"dofs_idx_local\": [4, 5]}]}"
+  },
+  {
+    "instruction": "将机械臂回到初始位置并完全打开夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, 0.0, 0.0, -1.5, 0.0, 1.5, 0.7, 0.04, 0.04]}]}"
+  },
+  {
+    "instruction": "将前三个关节分别设为0度、-45度和0度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_dofs_position\", \"values\": [0.0, -0.785, 0.0], \"dofs_idx_local\": [0, 1, 2]}]}"
+  },
+  {
+    "instruction": "将末端移动到x=0.45米，y=-0.3米处，然后查询当前状态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.45, -0.3, 0.3], \"quat\": [1, 0, 0, 0]}, {\"action\": \"get_state\"}]}"
+  },
+  {
+    "instruction": "将末端执行器调整到竖直向下，然后施加5N的第二关节扭矩",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, 0.0, 0.4], \"quat\": [0, 1, 0, 0]}, {\"action\": \"control_dofs_force\", \"values\": [5.0], \"dofs_idx_local\": [1]}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"cube\",\"category\":\"object\",\"state\":{\"pos\":[0.65,0.0,0.05]}}]}[/STATE_CONTEXT] 将机械臂移动到方块上方10厘米处",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.65, 0.0, 0.15], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"red_block\",\"category\":\"object\",\"state\":{\"pos\":[0.55,0.2,0.05]}}]}[/STATE_CONTEXT] 抓住红色方块并把它举高到30厘米",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.55, 0.2, 0.15], \"quat\": [0, 1, 0, 0]}, {\"action\": \"close_gripper\", \"position\": 0.0}, {\"action\": \"move_ee\", \"pos\": [0.55, 0.2, 0.3], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "将末端向下移动5厘米，然后轻微夹紧",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, 0.0, 0.25], \"quat\": [0, 1, 0, 0]}, {\"action\": \"close_gripper\", \"position\": 0.01}]}"
+  },
+  {
+    "instruction": "将机械臂恢复到初始姿势",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, 0.0, 0.0, -1.57, 0.0, 1.57, 0.79, 0.04, 0.04]}]}"
+  },
+  {
+    "instruction": "稍微弯曲第二关节和第四关节",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [-0.5, -1.2], \"dofs_idx_local\": [1, 3]}]}"
+  },
+  {
+    "instruction": "完全闭合夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"close_gripper\", \"position\": 0.0}]}"
+  },
+  {
+    "instruction": "让第一和第二个关节同时运动，分别到达0.5和-0.3弧度位置",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [0.5, -0.3], \"dofs_idx_local\": [0, 1]}]}"
+  },
+  {
+    "instruction": "让夹爪以每秒0.01米的速度打开",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_velocity\", \"values\": [0.01], \"dofs_idx_local\": [7]}]}"
+  },
+  {
+    "instruction": "将第三关节转动30度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [0.52], \"dofs_idx_local\": [2]}]}"
+  },
+  {
+    "instruction": "使第三关节以0.2弧度/秒的速度旋转",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_velocity\", \"values\": [0.2], \"dofs_idx_local\": [2]}]}"
+  },
+  {
+    "instruction": "将夹爪开到2厘米宽，然后移动到工作台中心上方",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"open_gripper\", \"position\": 0.02}, {\"action\": \"move_ee\", \"pos\": [0.5, 0.0, 0.4], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "将第一关节旋转30度，然后小幅抬起第二关节",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [0.52], \"dofs_idx_local\": [0]}, {\"action\": \"control_dofs_position\", \"values\": [-0.2], \"dofs_idx_local\": [1]}]}"
+  },
+  {
+    "instruction": "向上移动末端10厘米，保持当前姿态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [0.0, 0.0, 0.1], \"dofs_idx_local\": [0,1,2]}]}"
+  },
+  {
+    "instruction": "将机械臂移动到右上角(0.7,0.4,0.3)，保持末端向下姿态，施加2Nm扭矩在第4关节",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.7, 0.4, 0.3], \"quat\": [0, 1, 0, 0]}, {\"action\": \"control_dofs_force\", \"values\": [2.0], \"dofs_idx_local\": [3]}]}"
+  },
+  {
+    "instruction": "弯曲第二和第四关节45度，然后以0.1弧度/秒的速度回正",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_dofs_position\", \"values\": [0, 0.785, 0, -0.785, 0, 0, 0], \"dofs_idx_local\": [0, 1, 2, 3, 4, 5, 6]}, {\"action\": \"control_dofs_velocity\", \"values\": [0.1, -0.1], \"dofs_idx_local\": [1, 3]}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"bottle\",\"category\":\"object\",\"state\":{\"pos\":[0.45,0.3,0.1]}}]}[/STATE_CONTEXT] 抓取瓶子然后放到工作台右侧",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.45, 0.3, 0.2], \"quat\": [0, 1, 0, 0]}, {\"action\": \"close_gripper\", \"position\": 0.0}, {\"action\": \"move_ee\", \"pos\": [0.7, 0.3, 0.3], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "让末端向下移动到离工作台5厘米高度，然后完全关闭夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.45, 0.2, 0.05], \"quat\": [0, 1, 0, 0]}, {\"action\": \"close_gripper\", \"position\": 0.0}]}"
+  },
+  {
+    "instruction": "将夹爪打开到2厘米宽度，然后让第四关节缓慢旋转",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"open_gripper\", \"position\": 0.02}, {\"action\": \"control_dofs_velocity\", \"values\": [0.1], \"dofs_idx_local\": [3]}]}"
+  },
+  {
+    "instruction": "把夹爪完全打开",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"open_gripper\", \"position\": 0.04}]}"
+  },
+  {
+    "instruction": "将手臂向左移动20厘米",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, -0.2, 0.3], \"quat\": [1, 0, 0, 0]}]}"
+  },
+  {
+    "instruction": "将夹爪开到3厘米宽",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"open_gripper\", \"position\": 0.03}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"cube\",\"category\":\"object\",\"state\":{\"pos\":[0.65,0.0,0.05]}}]}[/STATE_CONTEXT]移动到方块正上方15厘米处",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.65, 0.0, 0.2], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "先移动到x=0.6,y=-0.3位置，然后调整末端姿态为竖直向下",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.6, -0.3, 0.3], \"quat\": [1, 0, 0, 0]}, {\"action\": \"move_ee\", \"pos\": [0.6, -0.3, 0.3], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "让机械臂向上移动10厘米，然后打开夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, 0.0, 0.35], \"quat\": [1, 0, 0, 0]}, {\"action\": \"open_gripper\", \"position\": 0.04}]}"
+  },
+  {
+    "instruction": "将末端移动到左侧30厘米处，保持向下姿态，然后关闭夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, -0.3, 0.3], \"quat\": [0, 1, 0, 0]}, {\"action\": \"close_gripper\", \"position\": 0.0}]}"
+  },
+  {
+    "instruction": "先调整到初始姿势，然后查询当前状态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, 0.0, 0.0, -1.5708, 0.0, 1.5708, 0.7854, 0.04, 0.04]}, {\"action\": \"get_state\"}]}"
+  },
+  {
+    "instruction": "先查询当前机械臂状态，然后移动到默认初始位置",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"get_state\"}, {\"action\": \"set_qpos\", \"qpos\": [0.0, -0.3, 0.0, -1.5, 0.0, 1.2, 0.7, 0.04, 0.04]}]}"
+  },
+  {
+    "instruction": "将第二个关节弯曲45度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [0.785], \"dofs_idx_local\": [1]}]}"
+  },
+  {
+    "instruction": "让末端执行器向下移动10厘米",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, 0.0, 0.2], \"quat\": [1, 0, 0, 0]}]}"
+  },
+  {
+    "instruction": "将机械臂设置为初始姿态，然后关闭夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, -0.3, 0.0, -1.5, 0.0, 1.2, 0.7, 0.04, 0.04]}, {\"action\": \"close_gripper\", \"position\": 0.0}]}"
+  },
+  {
+    "instruction": "在第3关节施加0.3Nm的扭矩",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_force\", \"values\": [0.3], \"dofs_idx_local\": [2]}]}"
+  },
+  {
+    "instruction": "以0.1弧度/秒的速度转动第二个关节",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_velocity\", \"values\": [0.1], \"dofs_idx_local\": [1]}]}"
+  },
+  {
+    "instruction": "将第四关节(索引3)旋转到-0.5弧度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_dofs_position\", \"values\": [-0.5], \"dofs_idx_local\": [3]}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"bottle\",\"category\":\"object\",\"state\":{\"pos\":[0.6,0.2,0.1]}}]}[/STATE_CONTEXT] 接近瓶子顶部，施加轻微向下压力",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.6, 0.2, 0.2], \"quat\": [0, 1, 0, 0]}, {\"action\": \"control_dofs_force\", \"values\": [0, 0, 2], \"dofs_idx_local\": [0,1,2]}]}"
+  },
+  {
+    "instruction": "将机械臂调整到初始姿态，夹爪保持3厘米开度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.03, 0.03]}]}"
+  },
+  {
+    "instruction": "将夹爪开到一半宽度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"open_gripper\", \"position\": 0.02}]}"
+  },
+  {
+    "instruction": "关闭夹爪到一半位置",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"close_gripper\", \"position\": 0.02}]}"
+  },
+  {
+    "instruction": "关闭夹爪后，将机械臂垂直抬升20厘米，然后水平向左移动30厘米",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"close_gripper\", \"position\": 0.0}, {\"action\": \"move_ee\", \"pos\": [0.5, 0.0, 0.5], \"quat\": [1, 0, 0, 0]}, {\"action\": \"move_ee\", \"pos\": [0.5, -0.3, 0.5], \"quat\": [1, 0, 0, 0]}]}"
+  },
+  {
+    "instruction": "关闭夹爪抓住物体",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"close_gripper\", \"position\": 0.0}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"red_block\",\"category\":\"object\",\"state\":{\"pos\":[0.4,-0.1,0.1]}}]}[/STATE_CONTEXT]移动到红色方块正上方10厘米处",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.4, -0.1, 0.2], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "将第一个关节旋转到0.5弧度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_dofs_position\", \"values\": [0.5], \"dofs_idx_local\": [0]}]}"
+  },
+  {
+    "instruction": "将所有关节复位到初始位置",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, 0.0, 0.0, -1.5, 0.0, 1.5, 0.0, 0.04, 0.04]}]}"
+  },
+  {
+    "instruction": "让手臂向下伸直，然后以0.1弧度/秒的速度向上弯曲第二个关节",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, 0.0, 0.0, -3.14, 0.0, 1.57, 0.0, 0.04, 0.04]}, {\"action\": \"control_dofs_velocity\", \"values\": [0.1], \"dofs_idx_local\": [1]}]}"
+  },
+  {
+    "instruction": "调整第三关节到90度位置，然后让机械臂处于放松状态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [1.57], \"dofs_idx_local\": [2]}, {\"action\": \"control_dofs_force\", \"values\": [0, 0, 0, 0, 0, 0, 0], \"dofs_idx_local\": [0,1,2,3,4,5,6]}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"plate\",\"category\":\"object\",\"state\":{\"pos\":[0.6,0.25,0.02]}}]}[/STATE_CONTEXT] 将盘子从右侧移动到左侧",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.6, 0.25, 0.15], \"quat\": [0, 1, 0, 0]}, {\"action\": \"close_gripper\", \"position\": 0.0}, {\"action\": \"move_ee\", \"pos\": [0.3, -0.25, 0.2], \"quat\": [0, 1, 0, 0]}]}"
+  },
+  {
+    "instruction": "先移动到右上角，然后查询当前状态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.7, 0.4, 0.4], \"quat\": [0, 1, 0, 0]}, {\"action\": \"get_state\"}]}"
+  },
+  {
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"tool\",\"category\":\"object\",\"state\":{\"pos\":[0.55,0.35,0.3]}}]}[/STATE_CONTEXT] 移动到工具正上方，保持10厘米距离观察",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.55, 0.35, 0.4], \"quat\": [0, 1, 0, 0]}, {\"action\": \"get_state\"}]}"
+  },
+  {
+    "instruction": "将第二关节向下弯曲30度",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_dofs_position\", \"values\": [-0.523], \"dofs_idx_local\": [1]}]}"
+  },
+  {
+    "instruction": "轻微夹紧夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"close_gripper\", \"position\": 0.01}]}"
+  },
+  {
+    "instruction": "关闭机械臂的夹爪",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"close_gripper\", \"position\": 0.0}]}"
+  },
+  {
+    "instruction": "将末端执行器调整到45度倾斜姿态，然后移动到位",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, 0.0, 0.3], \"quat\": [0.924, 0.0, 0.383, 0.0]}]}"
+  },
+  {
+    "instruction": "将末端移动到前方30厘米处，高度20厘米，然后查询当前状态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"move_ee\", \"pos\": [0.5, 0.3, 0.2], \"quat\": [1, 0, 0, 0]}, {\"action\": \"get_state\"}]}"
+  },
+  {
+    "instruction": "让机械臂回到初始姿态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"set_qpos\", \"qpos\": [0.0, -0.3, 0.0, -1.5, 0.0, 1.2, 0.7, 0.04, 0.04]}]}"
+  },
+  {
+    "instruction": "先让第二关节弯曲45度，然后夹爪半开状态",
+    "input": "",
+    "output": "{\"commands\": [{\"action\": \"control_dofs_position\", \"values\": [0.785], \"dofs_idx_local\": [1]}, {\"action\": \"open_gripper\", \"position\": 0.02}]}"
+  }
+]

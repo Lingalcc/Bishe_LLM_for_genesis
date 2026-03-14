@@ -14,13 +14,16 @@ pip install -e .
 # 2) 数据生成（API）
 python cli.py data generate --config experiments/01_data_exp/configs/api_generate.yaml
 
-# 3) 微调（先 dry-run）
+# 3) 数据切分（训练前必做）
+python cli.py data split --config experiments/01_data_exp/configs/api_generate.yaml
+
+# 4) 微调（先 dry-run）
 python cli.py finetune start --config experiments/02_finetune_exp/configs/train.yaml --dry-run
 
-# 4) 准确率评测
+# 5) 准确率评测
 python cli.py eval accuracy --config experiments/03_eval_exp/configs/accuracy.yaml
 
-# 5) 推理 benchmark（本地模型，按实际模型路径替换）
+# 6) 推理 benchmark（本地模型，按实际模型路径替换）
 python cli.py eval benchmark --backend transformers --model-path model/Qwen_Qwen2.5-3B-Instruct
 ```
 
@@ -90,6 +93,7 @@ Bishe_LLM_for_genesis/
 
 - `python cli.py data generate [--base-config ...] [--config ...]`
 - `python cli.py data calibrate [--base-config ...] [--config ...]`
+- `python cli.py data split [--base-config ...] [--config ...] [--input-file ...] [--out-dir ...] [--train-ratio ...] [--val-ratio ...] [--test-ratio ...] [--seed ...]`
 
 ### finetune
 
@@ -105,25 +109,22 @@ Bishe_LLM_for_genesis/
 
 - `python cli.py app run-instruction --instruction "..." [--print-raw] [--disable-sim-state] [--base-config ...] [--config ...]`
 
-## 已删除/不存在的命令（请勿使用）
-
-- `python cli.py data augment`（不存在）
-- `python cli.py app run-sim`（不存在）
-- `python cli.py data generate -- --num-samples ...`（`data generate` 不接受该透传参数）
-- `python cli.py eval accuracy -- --num-samples ...`（`eval accuracy` 不接受该透传参数）
-
 ## 从零开始最小流程
 
 ### 1) 数据生成与校验
 
 ```bash
+# data generate 已内置去重与自动补采样（尽量达到 num_samples）
 python cli.py data generate --config experiments/01_data_exp/configs/api_generate.yaml
 python cli.py data calibrate
+python cli.py data split --config experiments/01_data_exp/configs/api_generate.yaml
 ```
 
 ### 2) 训练（微调）
 
 ```bash
+# 训练前会检查 split 文件是否存在，不存在会提示先执行 data split
+
 # 建议先检查命令拼装是否正确
 python cli.py finetune start --config experiments/02_finetune_exp/configs/train.yaml --dry-run
 
@@ -168,6 +169,7 @@ PYTHONPATH=. python experiments/04_sim_exp/run_e2e_sim.py \
 ### 已实现并可演示
 
 - API 生成 `instruction -> action JSON` 数据（Alpaca/ShareGPT）
+- 数据切分（`data split`，输出 `train/val/test + split_metadata`）
 - 基于 LLaMA-Factory 的微调启动与前后对比 benchmark
 - 准确率评测（`parse_ok / exact_match / action_match`）
 - 本地推理吞吐与延迟 benchmark（HF/vLLM）
@@ -182,7 +184,6 @@ PYTHONPATH=. python experiments/04_sim_exp/run_e2e_sim.py \
 ### 计划中 / 未接入统一 CLI
 
 - 数据增强（`data augment`）
-- 数据切分的 CLI 子命令（当前仅配置与底层模块具备）
 - `app` 域下的仿真执行子命令（当前 CLI 仅 `run-instruction`）
 
 ## 运行与测试

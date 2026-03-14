@@ -21,6 +21,7 @@ dataset_prepare:
     timeout: 120
     max_retries: 5
     sleep_seconds: 0.5
+    dedup_max_rounds: 8
   calibration:
     dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
     max_print_errors: 10

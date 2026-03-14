@@ -502,6 +502,33 @@ def _build_split_dataset_overrides(train_file: Path, val_file: Path) -> tuple[st
     )
 
 
+def _enforce_required_split_files(
+    *,
+    train_file: Path | None,
+    val_file: Path | None,
+    test_file: Path | None,
+    leakage_enabled: bool,
+) -> None:
+    missing: list[tuple[str, Path]] = []
+    if train_file is not None and not train_file.exists():
+        missing.append(("train_file", train_file))
+    if val_file is not None and not val_file.exists():
+        missing.append(("val_file", val_file))
+    if leakage_enabled and test_file is not None and not test_file.exists():
+        missing.append(("test_file", test_file))
+
+    if not missing:
+        return
+
+    details = ", ".join(f"{name}={path}" for name, path in missing)
+    raise FileNotFoundError(
+        "Missing required split files before finetune: "
+        f"{details}. "
+        "Please run `python cli.py data split --config experiments/01_data_exp/configs/api_generate.yaml` "
+        "or update dataset_prepare.split/finetune.train paths in YAML."
+    )
+
+
 def run_finetune_from_merged_config(
     merged_config: dict[str, Any],
     *,
@@ -509,6 +536,7 @@ def run_finetune_from_merged_config(
     dry_run_override: bool | None = None,
 ) -> dict[str, Any]:
     section = get_section(merged_config, "finetune", "train")
+    effective_dry_run = bool(section.get("dry_run", False)) if dry_run_override is None else dry_run_override
     train_file = Path(section["train_file"]).expanduser().resolve() if section.get("train_file") else None
     val_file = Path(section["val_file"]).expanduser().resolve() if section.get("val_file") else None
     if (train_file is None) ^ (val_file is None):
@@ -521,7 +549,15 @@ def run_finetune_from_merged_config(
     test_file_raw = test_section.get("test_file") or test_section.get("dataset_file")
     test_file = Path(str(test_file_raw)).expanduser().resolve() if test_file_raw else None
 
-    if leakage_enabled:
+    if not effective_dry_run:
+        _enforce_required_split_files(
+            train_file=train_file,
+            val_file=val_file,
+            test_file=test_file,
+            leakage_enabled=leakage_enabled,
+        )
+
+    if leakage_enabled and not effective_dry_run:
         enforce_train_eval_no_leakage(
             train_file=train_file,
             val_file=val_file,
@@ -532,18 +568,18 @@ def run_finetune_from_merged_config(
 
     dataset_overrides: tuple[str, ...] = ()
     if train_file is not None and val_file is not None:
-        if not train_file.exists():
-            raise FileNotFoundError(f"train_file not found: {train_file}")
-        if not val_file.exists():
-            raise FileNotFoundError(f"val_file not found: {val_file}")
-        dataset_overrides = _build_split_dataset_overrides(train_file, val_file)
+        if effective_dry_run:
+            if train_file.exists() and val_file.exists():
+                dataset_overrides = _build_split_dataset_overrides(train_file, val_file)
+        else:
+            dataset_overrides = _build_split_dataset_overrides(train_file, val_file)
 
     cfg = FinetuneConfig(
         pipeline_config=Path(section.get("pipeline_config", DEFAULT_PIPELINE_CONFIG)),
         llamafactory_dir=Path(section["llamafactory_dir"]) if section.get("llamafactory_dir") else None,
         config=Path(section["config"]) if section.get("config") else None,
         gpus=str(section["gpus"]) if section.get("gpus") is not None else None,
-        dry_run=bool(section.get("dry_run", False)) if dry_run_override is None else dry_run_override,
+        dry_run=effective_dry_run,
         finetune_method=(str(section["finetune_method"]) if section.get("finetune_method") else None),
         dataset_overrides=dataset_overrides,
         extra_args=extra_args,
