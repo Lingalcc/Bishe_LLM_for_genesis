@@ -106,6 +106,25 @@ class DatasetSplitAndLeakageTests(unittest.TestCase):
                 self.assertIn("sha256", meta["splits"][key])
                 self.assertIn("sample_set_sha256", meta["splits"][key])
 
+    def test_duplicate_samples_are_not_cross_split(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            src = root / "dataset_dup.json"
+            out = root / "splits"
+            repeated = {"instruction": "same", "input": "", "output": '{"commands":[{"action":"wait"}]}'}
+            rows = [repeated for _ in range(30)] + [
+                {"instruction": f"u-{i}", "input": "", "output": f'{{"commands":[{{"action":"wait","k":{i}}}]}}'}
+                for i in range(70)
+            ]
+            src.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
+
+            meta = run_split_dataset(
+                SplitDatasetConfig(input_file=src, out_dir=out, seed=42)
+            )
+            self.assertEqual(meta["overlap"]["train_val"], 0)
+            self.assertEqual(meta["overlap"]["train_test"], 0)
+            self.assertEqual(meta["overlap"]["val_test"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

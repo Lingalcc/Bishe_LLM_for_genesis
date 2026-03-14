@@ -3,7 +3,7 @@ from src.data_core.calibration import CalibrationConfig, calibrate_from_merged_c
 from src.data_core.dataset_safety import check_train_eval_leakage, enforce_train_eval_no_leakage
 from src.data_core.format_utils import to_alpaca_format, to_sharegpt_format, validate_sample
 from src.data_core.generate import GenerateDatasetConfig, run_generate_from_merged_config
-from src.data_core.split_dataset import SplitDatasetConfig, run_split_dataset
+from src.data_core.split_dataset import SplitDatasetConfig, run_split_dataset, run_split_from_merged_config
 
 __all__ = [
     # api_client
@@ -26,4 +26,5 @@ __all__ = [
     # split
     "SplitDatasetConfig",
     "run_split_dataset",
+    "run_split_from_merged_config",
 ]

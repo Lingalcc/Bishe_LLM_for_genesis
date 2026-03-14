@@ -67,6 +67,46 @@ def _split_indices(
     return train_idx, val_idx, test_idx
 
 
+def _sample_fingerprint(sample: Any) -> str:
+    canonical = json.dumps(sample, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _split_indices_grouped_by_fingerprint(
+    rows: list[Any],
+    *,
+    train_ratio: float,
+    val_ratio: float,
+    seed: int,
+) -> tuple[list[int], list[int], list[int]]:
+    """Split indices while keeping duplicate samples (same fingerprint) in the same split."""
+    groups: dict[str, list[int]] = {}
+    for idx, row in enumerate(rows):
+        key = _sample_fingerprint(row)
+        groups.setdefault(key, []).append(idx)
+
+    grouped_indices = list(groups.values())
+    rng = random.Random(seed)
+    rng.shuffle(grouped_indices)
+
+    n = len(rows)
+    train_target = int(n * train_ratio)
+    val_target = int(n * val_ratio)
+
+    train_idx: list[int] = []
+    val_idx: list[int] = []
+    test_idx: list[int] = []
+
+    for grp in grouped_indices:
+        if len(train_idx) < train_target:
+            train_idx.extend(grp)
+        elif len(val_idx) < val_target:
+            val_idx.extend(grp)
+        else:
+            test_idx.extend(grp)
+    return train_idx, val_idx, test_idx
+
+
 def run_split_dataset(cfg: SplitDatasetConfig) -> dict[str, Any]:
     input_file = cfg.input_file.expanduser().resolve()
     out_dir = cfg.out_dir.expanduser().resolve()
@@ -76,8 +116,8 @@ def run_split_dataset(cfg: SplitDatasetConfig) -> dict[str, Any]:
     _validate_ratios(cfg.train_ratio, cfg.val_ratio, cfg.test_ratio)
     rows = _load_rows(input_file)
 
-    train_idx, val_idx, test_idx = _split_indices(
-        len(rows),
+    train_idx, val_idx, test_idx = _split_indices_grouped_by_fingerprint(
+        rows,
         train_ratio=cfg.train_ratio,
         val_ratio=cfg.val_ratio,
         seed=cfg.seed,
@@ -147,7 +187,54 @@ def run_split_dataset(cfg: SplitDatasetConfig) -> dict[str, Any]:
         )
 
     _write_json(metadata_file, metadata)
+    metadata["metadata_file"] = str(metadata_file)
     return metadata
+
+
+def run_split_from_merged_config(
+    config: dict[str, Any],
+    *,
+    input_file: Path | None = None,
+    out_dir: Path | None = None,
+    train_ratio: float | None = None,
+    val_ratio: float | None = None,
+    test_ratio: float | None = None,
+    seed: int | None = None,
+    train_name: str | None = None,
+    val_name: str | None = None,
+    test_name: str | None = None,
+    metadata_name: str | None = None,
+) -> dict[str, Any]:
+    """Build :class:`SplitDatasetConfig` from merged config and optional CLI overrides."""
+    section = (
+        config.get("dataset_prepare", {}).get("split", {})
+        if isinstance(config.get("dataset_prepare"), dict)
+        else {}
+    )
+    input_file_raw = input_file or section.get("input_file")
+    out_dir_raw = out_dir or section.get("out_dir")
+    if not input_file_raw:
+        raise ValueError("dataset_prepare.split.input_file is required (or pass --input-file).")
+    if not out_dir_raw:
+        raise ValueError("dataset_prepare.split.out_dir is required (or pass --out-dir).")
+
+    cfg = SplitDatasetConfig(
+        input_file=Path(input_file_raw),
+        out_dir=Path(out_dir_raw),
+        train_ratio=float(train_ratio if train_ratio is not None else section.get("train_ratio", SplitDatasetConfig.train_ratio)),
+        val_ratio=float(val_ratio if val_ratio is not None else section.get("val_ratio", SplitDatasetConfig.val_ratio)),
+        test_ratio=float(test_ratio if test_ratio is not None else section.get("test_ratio", SplitDatasetConfig.test_ratio)),
+        seed=int(seed if seed is not None else section.get("seed", SplitDatasetConfig.seed)),
+        train_name=str(train_name or section.get("train_name") or section.get("train_file", SplitDatasetConfig.train_name)),
+        val_name=str(val_name or section.get("val_name") or section.get("val_file", SplitDatasetConfig.val_name)),
+        test_name=str(test_name or section.get("test_name") or section.get("test_file", SplitDatasetConfig.test_name)),
+        metadata_name=str(
+            metadata_name
+            or section.get("metadata_name")
+            or section.get("metadata_file", SplitDatasetConfig.metadata_name)
+        ),
+    )
+    return run_split_dataset(cfg)
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:

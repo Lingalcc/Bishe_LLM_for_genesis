@@ -7,6 +7,7 @@ from pathlib import Path
 
 from src.data_core.calibration import calibrate_from_merged_config
 from src.data_core.generate import run_generate_from_merged_config
+from src.data_core.split_dataset import run_split_from_merged_config
 from src.eval_core.accuracy import run_accuracy_from_merged_config
 from src.eval_core.inference_benchmark import InferenceBenchmarkConfig, run_inference_benchmark
 from src.finetune_core.train import SUPPORTED_FINETUNE_METHODS, run_finetune_from_merged_config
@@ -37,6 +38,27 @@ def _run_data_calibrate(args: argparse.Namespace) -> None:
     print(f"[ok] valid rows  : {report['valid_rows']}")
     print(f"[ok] invalid rows: {report['invalid_rows']}")
     print(f"[ok] valid ratio : {report['valid_ratio']:.2%}")
+
+
+def _run_data_split(args: argparse.Namespace) -> None:
+    cfg = _load_cfg(args.base_config, args.config)
+    metadata = run_split_from_merged_config(
+        cfg,
+        input_file=args.input_file,
+        out_dir=args.out_dir,
+        train_ratio=args.train_ratio,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+        seed=args.seed,
+        train_name=args.train_name,
+        val_name=args.val_name,
+        test_name=args.test_name,
+        metadata_name=args.metadata_name,
+    )
+    print(f"[split] train: {metadata['splits']['train']['num_samples']} -> {metadata['splits']['train']['path']}")
+    print(f"[split] val  : {metadata['splits']['val']['num_samples']} -> {metadata['splits']['val']['path']}")
+    print(f"[split] test : {metadata['splits']['test']['num_samples']} -> {metadata['splits']['test']['path']}")
+    print(f"[split] meta : {metadata.get('metadata_file', '')}")
 
 
 def _run_finetune_start(args: argparse.Namespace) -> None:
@@ -167,6 +189,21 @@ def build_parser() -> argparse.ArgumentParser:
     data_calibrate_parser.add_argument("--base-config", type=Path, default=Path("configs/base.yaml"))
     data_calibrate_parser.add_argument("--config", type=Path, default=None)
     data_calibrate_parser.set_defaults(handler=_run_data_calibrate)
+
+    data_split_parser = data_subparsers.add_parser("split", help="Split dataset into train/val/test.")
+    data_split_parser.add_argument("--base-config", type=Path, default=Path("configs/base.yaml"))
+    data_split_parser.add_argument("--config", type=Path, default=None)
+    data_split_parser.add_argument("--input-file", type=Path, default=None)
+    data_split_parser.add_argument("--out-dir", type=Path, default=None)
+    data_split_parser.add_argument("--train-ratio", type=float, default=None)
+    data_split_parser.add_argument("--val-ratio", type=float, default=None)
+    data_split_parser.add_argument("--test-ratio", type=float, default=None)
+    data_split_parser.add_argument("--seed", type=int, default=None)
+    data_split_parser.add_argument("--train-name", type=str, default=None)
+    data_split_parser.add_argument("--val-name", type=str, default=None)
+    data_split_parser.add_argument("--test-name", type=str, default=None)
+    data_split_parser.add_argument("--metadata-name", type=str, default=None)
+    data_split_parser.set_defaults(handler=_run_data_split)
 
     finetune_parser = root_subparsers.add_parser("finetune", help="Model fine-tuning commands.")
     finetune_subparsers = finetune_parser.add_subparsers(dest="finetune_command", required=True)

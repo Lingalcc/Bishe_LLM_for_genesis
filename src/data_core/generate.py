@@ -11,6 +11,7 @@ import logging
 import random
 import threading
 import time
+import hashlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
@@ -273,7 +274,8 @@ def _build_generation_user_prompt(
         f"随机种子提示: {seed_hint}（用于保证多样性，每次生成不同内容）\n\n"
         f"请直接输出包含 {batch_size} 条数据的 JSON 数组，格式为:\n"
         '[{"instruction": "...", "output": "{\\"commands\\": [...]}"}, ...]\n'
-        "确保每条 output 是合法的嵌套 JSON 字符串。"
+        "确保每条 output 是合法的嵌套 JSON 字符串。\n"
+        "同一批次内严禁重复样本（instruction 与 output 组合不能重复）。"
     )
 
 
@@ -315,6 +317,12 @@ class GenerateDatasetConfig:
     timeout: int = 120
     max_retries: int = 5
     sleep_seconds: float = 0.5
+    dedup_max_rounds: int = 8
+
+
+def _sample_fingerprint(sample: dict[str, Any]) -> str:
+    canonical = json.dumps(sample, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -439,58 +447,88 @@ class DatasetGenerator:
         return difficulty, []
 
     def generate_all(self) -> dict[str, Any]:
-        """Run parallel batch generation until *num_samples* valid samples are collected."""
+        """Run parallel generation with deduplication, refilling until target or max rounds."""
         all_samples: list[dict[str, Any]] = []
         total_api_calls = 0
         total_invalid = 0
         difficulty_counts = {"simple": 0, "medium": 0, "complex": 0}
+        duplicate_discarded = 0
         target = self.cfg.num_samples
         workers = max(1, self.cfg.max_workers)
+        max_rounds = max(1, int(self.cfg.dedup_max_rounds))
 
         logger.info(
             "Starting generation: target=%d samples, max_workers=%d",
             target, workers,
         )
 
-        # Pre-generate all batch args (deterministic from seed)
-        batch_args = self._prepare_batch_args(target)
-        total_api_calls = len(batch_args)
-
         lock = threading.Lock()
         collected: list[dict[str, Any]] = []
+        seen: set[str] = set()
         stats_invalid = 0
         stats_diff: dict[str, int] = {"simple": 0, "medium": 0, "complex": 0}
 
         def _on_result(difficulty: str, samples: list[dict[str, Any]], req_size: int) -> None:
-            nonlocal stats_invalid
+            nonlocal stats_invalid, duplicate_discarded
             with lock:
                 if not samples:
                     stats_invalid += req_size
                 for s in samples:
+                    fp = _sample_fingerprint(s)
+                    if fp in seen:
+                        duplicate_discarded += 1
+                        continue
+                    seen.add(fp)
                     collected.append(s)
                     stats_diff[difficulty] += 1
 
-        with ThreadPoolExecutor(max_workers=workers) as pool:
-            futures = {
-                pool.submit(
-                    self._generate_batch_from_args, diff, bsz, ws, sh,
-                ): (diff, bsz)
-                for diff, bsz, ws, sh in batch_args
-            }
-            done_count = 0
-            for future in as_completed(futures):
-                diff_req, bsz_req = futures[future]
-                done_count += 1
-                try:
-                    diff_ret, samples = future.result()
-                    _on_result(diff_ret, samples, bsz_req)
-                except Exception as exc:
-                    logger.error("Batch raised: %s", exc)
-                    _on_result(diff_req, [], bsz_req)
-                logger.info(
-                    "Progress: batches %d/%d  samples %d/%d",
-                    done_count, len(batch_args), len(collected), target,
-                )
+        round_idx = 0
+        while len(collected) < target and round_idx < max_rounds:
+            remaining = target - len(collected)
+            batch_args = self._prepare_batch_args(remaining)
+            total_api_calls += len(batch_args)
+            round_idx += 1
+            logger.info(
+                "Generation round %d/%d: requesting %d samples via %d batch(es)",
+                round_idx,
+                max_rounds,
+                remaining,
+                len(batch_args),
+            )
+
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                futures = {
+                    pool.submit(
+                        self._generate_batch_from_args, diff, bsz, ws, sh,
+                    ): (diff, bsz)
+                    for diff, bsz, ws, sh in batch_args
+                }
+                done_count = 0
+                for future in as_completed(futures):
+                    diff_req, bsz_req = futures[future]
+                    done_count += 1
+                    try:
+                        diff_ret, samples = future.result()
+                        _on_result(diff_ret, samples, bsz_req)
+                    except Exception as exc:
+                        logger.error("Batch raised: %s", exc)
+                        _on_result(diff_req, [], bsz_req)
+                    logger.info(
+                        "Progress: round %d batch %d/%d unique_samples %d/%d",
+                        round_idx,
+                        done_count,
+                        len(batch_args),
+                        len(collected),
+                        target,
+                    )
+
+        if len(collected) < target:
+            logger.warning(
+                "Generation finished below target after %d rounds: got %d/%d unique samples.",
+                round_idx,
+                len(collected),
+                target,
+            )
 
         # Trim to target & shuffle
         all_samples = collected[:target]
@@ -503,6 +541,9 @@ class DatasetGenerator:
             "target_samples": target,
             "api_calls": total_api_calls,
             "invalid_discarded": total_invalid,
+            "duplicate_discarded": duplicate_discarded,
+            "dedup_rounds": round_idx,
+            "target_reached": len(all_samples) >= target,
             "difficulty_distribution": difficulty_counts,
             "state_context_ratio": self.cfg.state_context_ratio,
             "max_workers": workers,
@@ -581,5 +622,6 @@ def run_generate_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
         timeout=int(section.get("timeout", GenerateDatasetConfig.timeout)),
         max_retries=int(section.get("max_retries", GenerateDatasetConfig.max_retries)),
         sleep_seconds=float(section.get("sleep_seconds", GenerateDatasetConfig.sleep_seconds)),
+        dedup_max_rounds=int(section.get("dedup_max_rounds", GenerateDatasetConfig.dedup_max_rounds)),
     )
     return run_generate_dataset(cfg)
