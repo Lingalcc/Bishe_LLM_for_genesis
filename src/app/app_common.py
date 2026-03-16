@@ -209,6 +209,33 @@ def _get_local_engine(local_cfg: dict[str, Any]) -> LocalLLMEngine:
     return engine
 
 
+def preload_local_engine(cfg: dict[str, Any], *, warmup: bool = False) -> LocalLLMEngine | None:
+    inf_cfg = _resolve_inference_config(cfg)
+    mode = str(inf_cfg.get("mode", "api")).strip().lower()
+    if mode != "local":
+        return None
+
+    local_cfg = inf_cfg.get("local", {})
+    if not isinstance(local_cfg, dict):
+        raise TypeError("app.inference.local must be a mapping object")
+
+    engine = _get_local_engine(local_cfg)
+    if warmup:
+        gen_cfg = local_cfg.get("generation", {})
+        if not isinstance(gen_cfg, dict):
+            gen_cfg = {}
+        engine.generate(
+            _build_local_prompt(
+                str(inf_cfg.get("system_prompt", DEFAULT_APP_SYSTEM_PROMPT)),
+                "输出一个最短 JSON：{\"commands\":[{\"action\":\"wait\"}]}",
+            ),
+            temperature=float(gen_cfg.get("temperature", 0.0)),
+            top_p=float(gen_cfg.get("top_p", 1.0)),
+            max_new_tokens=min(64, int(gen_cfg.get("max_new_tokens", 128))),
+        )
+    return engine
+
+
 def predict_actions_from_instruction(
     instruction: str,
     cfg: dict[str, Any],

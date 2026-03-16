@@ -4,6 +4,7 @@ from src.sim_core.runtime import (
     run_instruction_to_action,
     run_instruction_to_motion,
     run_interactive_session,
+    run_model_interactive_session,
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "run_action_to_motion",
     "run_instruction_to_motion",
     "run_interactive_session",
+    "run_model_interactive_session",
 ]
