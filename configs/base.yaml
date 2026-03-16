@@ -112,7 +112,7 @@ app:
     enable_instruction_to_action: true
     enable_instruction_to_motion: true
   inference:
-    mode: api # api | local
+    mode: local # api | local
     max_retries: 3
     sleep_seconds: 0.0
     system_prompt: 你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。
@@ -129,7 +129,7 @@ app:
         frequency_penalty: 0.0
         presence_penalty: 0.0
     local:
-      model_path: model/my_lora_merged_model
+      model_path: output/qwen2.5-3b-genesis-qlora
       backend: auto # auto | vllm | transformers
       quantization: null # null | awq | 4bit | 8bit
       max_model_len: 4096
@@ -138,4 +138,4 @@ app:
       generation:
         temperature: 0.0
         top_p: 1.0
-        max_new_tokens: 512
+        max_new_tokens: 128

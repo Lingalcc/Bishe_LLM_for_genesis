@@ -7,8 +7,9 @@
 本项目支持在 Google Colab 的单张 GPU 上完成 LLM 微调全流程：
 
 - 环境自动检测与依赖安装
-- Google Drive 持久化（模型、检查点、数据集）
-- 运行中断后自动恢复训练
+- Colab 本地高速磁盘运行大文件读写
+- Google Drive 仅保存数据集和最终导出的模型/结果/报告
+- 运行中断后支持从 Drive 导出的训练目录恢复
 - 支持 LoRA / QLoRA / DoRA / GaLore 四种微调方法
 
 ## 前置条件
@@ -17,7 +18,7 @@
 |------|------|
 | Google 账号 | 用于 Colab 和 Google Drive |
 | Colab GPU 运行时 | 免费版提供 T4，Colab Pro 提供 L4/A100 |
-| Google Drive 空间 | 建议预留 **15-20 GB**（模型约 6GB + 训练输出 + 数据集） |
+| Google Drive 空间 | 建议预留 **5-10 GB**（主要用于数据集和最终导出产物） |
 | HuggingFace Token（可选） | 下载需认证的模型时使用 |
 | DeepSeek API Key（可选） | 通过 API 生成训练数据时使用 |
 
@@ -71,37 +72,50 @@ DEEPSEEK_API_KEY = ""         # DeepSeek API Key（可选）
 | DoRA | ~14-16 GB | 权重分解 LoRA 变体 |
 | GaLore | ~30-35 GB | 全参数微调 + 梯度低秩投影，需 A100 |
 
-## 数据持久化
+## 存储策略
 
 ### 存储结构
 
-Notebook 会自动将以下目录通过符号链接指向 Google Drive：
+Notebook 会自动把仓库中的大目录软链到 Colab 本地磁盘 `/content/bishe_runtime`，让模型下载、训练 checkpoint、评估缓存等都在本地高速盘完成。
 
+```text
+/content/
+├── Bishe_LLM_for_genesis/
+│   ├── model/        -> /content/bishe_runtime/model
+│   ├── output/       -> /content/bishe_runtime/output
+│   ├── data_prepare/ -> /content/bishe_runtime/data_prepare
+│   └── .cache/       -> /content/bishe_runtime/.cache
+└── bishe_runtime/
+    ├── model/        # 基座模型、临时微调模型
+    ├── output/       # 训练输出和 checkpoints
+    ├── data_prepare/ # 当前运行使用的数据集
+    └── .cache/       # HuggingFace / transformers / datasets 缓存
 ```
+
+Google Drive 只用于保存输入数据集和最终导出的产物：
+
+```text
 Google Drive/
 └── MyDrive/
     └── Bishe_LLM_for_genesis/
-        ├── model/              # 基座模型和微调模型
-        │   ├── Qwen_Qwen2.5-3B-Instruct/  # 基座模型 (~6GB)
-        │   └── qwen2.5-3b-genesis-qlora/   # 微调模型
-        ├── output/             # 训练输出和检查点
-        │   └── qwen2.5-3b-genesis-qlora/
-        │       ├── checkpoint-100/
-        │       ├── checkpoint-200/
-        │       └── ...
-        └── data_prepare/       # 训练数据集
-            ├── genesis_franka_toolcall_alpaca.json
-            └── splits/
-                ├── train.json
-                ├── val.json
-                └── test.json
+        ├── data_prepare/
+        │   ├── genesis_franka_toolcall_alpaca.json
+        │   └── splits/
+        │       ├── train.json
+        │       ├── val.json
+        │       └── test.json
+        └── colab_exports/
+            ├── models/   # 导出的最终模型/训练目录
+            ├── results/  # loss 图、run_meta、训练产物摘要
+            └── reports/  # accuracy / benchmark 等报告
 ```
 
 ### 数据安全
 
-- **模型权重**、**训练检查点**、**数据集** 全部存放在 Google Drive
-- Colab 运行时重置/断开不会导致数据丢失
-- 训练默认每 100 步保存一次检查点（`save_steps: 100`）
+- 基座模型、训练 checkpoint、缓存默认都在 Colab 本地磁盘，读写速度更快
+- 训练结束后，Notebook 会自动把最终模型目录、结果文件和报告复制到 Google Drive
+- 如果你提前把数据集放到 Drive 的 `data_prepare/`，Notebook 会在运行开始时自动同步到本地
+- Colab 运行时重置会清空本地磁盘，因此需要依赖导出步骤保留最终产物
 
 ## 中断恢复
 
@@ -125,13 +139,13 @@ RESUME_FROM_CHECKPOINT = True
 - 挂载 Google Drive
 - 克隆/更新代码
 - 安装依赖
-- 重建符号链接
+- 重建到本地高速目录的符号链接
 
 ### 4. 继续训练
 
-运行 **Cell 10**，程序会自动查找最近的检查点并从该点继续训练。
+运行 **Cell 10**，程序会先检查 `Google Drive/Bishe_LLM_for_genesis/colab_exports/models/` 中是否已有对应方法的训练目录；如果存在，会先复制回本地 `output/`，再自动查找最近 checkpoint 继续训练。
 
-> **提示**：Cell 1-7 的恢复通常只需 2-3 分钟（依赖已缓存在 Drive 中）。
+> **提示**：Cell 1-7 的恢复通常只需 2-3 分钟。模型和缓存会重新落到本地高速盘，而不是长期堆在 Drive 上。
 
 ## 各实验步骤说明
 
@@ -139,14 +153,15 @@ RESUME_FROM_CHECKPOINT = True
 
 通过 DeepSeek API 生成 Franka 机械臂的 toolcall 训练数据：
 - 需要设置 `DEEPSEEK_API_KEY`
-- 也可以直接上传已有数据集到 Google Drive 的 `data_prepare/` 目录
+- 也可以直接上传已有数据集到 Google Drive 的 `data_prepare/` 目录，Notebook 会自动同步到本地运行目录
 
 ### 模型微调（Cell 10）
 
 使用 LlamaFactory 框架进行 SFT 训练：
 - 自动选择与微调方法匹配的配置文件
 - 训练进度和日志实时输出
-- 检查点自动保存到 Google Drive
+- checkpoint 和训练中间产物保存在 Colab 本地磁盘
+- 结果汇总 Cell 会把最终训练目录导出到 Google Drive
 
 ### 准确率评估（Cell 11）
 
@@ -183,10 +198,9 @@ extra_args.extend(["--", "per_device_train_batch_size=1"])
 
 ### Q: Google Drive 空间不足？
 
-- Qwen2.5-3B 模型约 6GB
-- 每个训练检查点约 0.5-1GB
-- 建议预留 15-20GB 总空间
-- 可以删除旧的 checkpoint：保留最后一个即可
+- 新版流程不会把基座模型和所有 checkpoint 长期堆在 Drive
+- Drive 主要保存数据集和最终导出结果，通常 5-10GB 足够
+- 如导出的模型目录过大，可以手动删除旧的 `colab_exports/models/<method>` 后重新导出
 
 ### Q: 依赖安装失败？
 
@@ -210,4 +224,4 @@ MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
 
 ### Q: 如何查看训练损失曲线？
 
-训练完成后，检查 `output/<method>/training_loss.png`（LlamaFactory 的 `plot_loss: true` 会自动生成）。
+训练完成后，检查本地 `output/<method>/training_loss.png`，同时导出副本会出现在 Drive 的 `colab_exports/results/<method>/` 下。

@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+output/
+model/*
+!model/download_hf_model.py
+
+experiments/03_eval_exp/reports/*_local.json

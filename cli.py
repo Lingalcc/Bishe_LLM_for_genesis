@@ -11,7 +11,7 @@ from src.data_core.split_dataset import run_split_from_merged_config
 from src.eval_core.accuracy import run_accuracy_from_merged_config
 from src.eval_core.inference_benchmark import InferenceBenchmarkConfig, run_inference_benchmark
 from src.finetune_core.train import SUPPORTED_FINETUNE_METHODS, run_finetune_from_merged_config
-from src.sim_core.runtime import SimRuntimeConfig, run_instruction_to_action
+from src.sim_core.runtime import SimRuntimeConfig, run_instruction_to_action, run_model_interactive_session
 from src.utils.config import load_merged_config
 
 
@@ -171,6 +171,11 @@ def _run_app_instruction(args: argparse.Namespace) -> None:
     print(json.dumps(result["payload"], ensure_ascii=False, indent=2))
 
 
+def _run_app_interactive(args: argparse.Namespace) -> None:
+    cfg = _load_cfg(args.base_config, args.config)
+    run_model_interactive_session(merged_config=cfg, disable_sim_state=args.disable_sim_state)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Unified CLI for data, finetune, evaluation and simulation workflows."
@@ -282,6 +287,15 @@ def build_parser() -> argparse.ArgumentParser:
     app_instruction_parser.add_argument("--print-raw", action="store_true")
     app_instruction_parser.add_argument("--disable-sim-state", action="store_true")
     app_instruction_parser.set_defaults(handler=_run_app_instruction)
+
+    app_interactive_parser = app_subparsers.add_parser(
+        "interactive",
+        help="Keep the simulation running and repeatedly execute model-generated actions.",
+    )
+    app_interactive_parser.add_argument("--base-config", type=Path, default=Path("configs/base.yaml"))
+    app_interactive_parser.add_argument("--config", type=Path, default=None)
+    app_interactive_parser.add_argument("--disable-sim-state", action="store_true")
+    app_interactive_parser.set_defaults(handler=_run_app_interactive)
 
     return parser
 

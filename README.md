@@ -2,6 +2,8 @@
 
 面向 Genesis 仿真场景的 LLM 工程项目：覆盖数据生成、微调、评测、推理性能基准和仿真联调。
 
+Google Colab 使用说明见 [CLOUD_README.md](/home/lin/Bishe_LLM_for_genesis/CLOUD_README.md)，当前云端流程已更新为“Colab 本地高速磁盘运行，Google Drive 仅导出最终产物”。
+
 ## 一页速览（答辩演示建议）
 
 ```bash
