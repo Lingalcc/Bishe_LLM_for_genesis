@@ -22,9 +22,65 @@ def _load_cfg(base_config: Path, override_config: Path | None) -> dict:
     )
 
 
+def _print_generate_progress(update: dict[str, object]) -> None:
+    event = str(update.get("event", "batch_completed"))
+    if event == "batch_started":
+        print(
+            "[progress] "
+            f"{update.get('batch_label', '?')} started "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"timeout={int(update['timeout'])}s",
+            flush=True,
+        )
+        return
+    if event == "batch_retry":
+        print(
+            "[retry] "
+            f"{update.get('batch_label', '?')} "
+            f"attempt {int(update['attempt'])}/{int(update['max_retries'])} "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"timeout={int(update['timeout'])}s "
+            f"error={update['error']}",
+            flush=True,
+        )
+        return
+    if event == "batch_failed":
+        print(
+            "[failed] "
+            f"{update.get('batch_label', '?')} "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"error={update['error']}",
+            flush=True,
+        )
+        return
+
+    unique_samples = int(update["unique_samples"])
+    target_samples = int(update["target_samples"])
+    percent = 100.0 * unique_samples / max(1, target_samples)
+    print(
+        "[progress] "
+        f"{update.get('batch_label', '?')} "
+        f"round {int(update['round_idx'])}/{int(update['max_rounds'])} "
+        f"batch {int(update['batch_idx'])}/{int(update['batch_total'])} "
+        f"difficulty={update['difficulty']} "
+        f"accepted={int(update['accepted_count'])} "
+        f"dup={int(update['duplicate_count'])} "
+        f"invalid={int(update['invalid_count'])} "
+        f"total={unique_samples}/{target_samples} "
+        f"({percent:.1f}%)",
+        flush=True,
+    )
+
+
 def _run_data_generate(args: argparse.Namespace) -> None:
     cfg = _load_cfg(args.base_config, args.config)
-    outputs = run_generate_from_merged_config(cfg)
+    outputs = run_generate_from_merged_config(
+        cfg,
+        progress_callback=_print_generate_progress,
+    )
     print(f"[ok] alpaca  : {outputs['alpaca_path']}")
     print(f"[ok] sharegpt: {outputs['sharegpt_path']}")
     print(f"[ok] stats   : {outputs['stats_path']}")
@@ -54,6 +110,7 @@ def _run_data_split(args: argparse.Namespace) -> None:
         val_name=args.val_name,
         test_name=args.test_name,
         metadata_name=args.metadata_name,
+        preserve_existing_splits=args.preserve_existing_splits,
     )
     print(f"[split] train: {metadata['splits']['train']['num_samples']} -> {metadata['splits']['train']['path']}")
     print(f"[split] val  : {metadata['splits']['val']['num_samples']} -> {metadata['splits']['val']['path']}")
@@ -208,6 +265,11 @@ def build_parser() -> argparse.ArgumentParser:
     data_split_parser.add_argument("--val-name", type=str, default=None)
     data_split_parser.add_argument("--test-name", type=str, default=None)
     data_split_parser.add_argument("--metadata-name", type=str, default=None)
+    data_split_parser.add_argument(
+        "--preserve-existing-splits",
+        action="store_true",
+        help="仅对新增样本做切分并追加到现有 split，保留旧 train/val/test。",
+    )
     data_split_parser.set_defaults(handler=_run_data_split)
 
     finetune_parser = root_subparsers.add_parser("finetune", help="Model fine-tuning commands.")

@@ -11,11 +11,13 @@ dataset_prepare:
     alpaca_file: genesis_franka_toolcall_alpaca.json
     sharegpt_file: genesis_franka_toolcall_sharegpt.json
     stats_file: genesis_franka_toolcall_stats.json
+    progress_file: genesis_franka_toolcall_progress.json   # Batch 级持久化进度；存在时会自动续传
+    append_to_existing: false   # true 时按“新增样本数”追加到已有 Alpaca/ShareGPT，不覆盖旧数据
 
     # --- Generation parameters ---
     num_samples: 2000          # Total number of samples to generate
     seed: 42
-    batch_size: 20             # Number of samples per API call
+    batch_size: 8              # Number of samples per API call; smaller batches are more stable for hosted APIs
     state_context_ratio: 0.7   # Proportion of samples with scene state context
 
     # --- Difficulty distribution (must sum to 1.0) ---
@@ -33,7 +35,20 @@ dataset_prepare:
     api_key: ""                           # Reserved for compatibility; real key must come from env var
     api_key_env: "DEEPSEEK_API_KEY"   # Environment variable name for API key
     temperature: 0.9
-    max_tokens: 4096
-    timeout: 120
+    max_tokens: 2048
+    timeout: 300
     max_retries: 5
     sleep_seconds: 0.5
+
+  split:
+    input_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    out_dir: data_prepare/splits
+    train_ratio: 0.8
+    val_ratio: 0.1
+    test_ratio: 0.1
+    seed: 42
+    train_file: train.json
+    val_file: val.json
+    test_file: test.json
+    metadata_file: split_metadata.json
+    preserve_existing_splits: false   # true 时仅对新增样本切分并追加到现有 split

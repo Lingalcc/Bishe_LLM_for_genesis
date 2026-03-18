@@ -1,19 +1,20 @@
 dataset_prepare:
   generate:
-    num_samples: 4000
+    num_samples: 1000
     seed: 42
     batch_size: 20
     state_context_ratio: 0.7
     simple_ratio: 0.3
     medium_ratio: 0.4
     complex_ratio: 0.3
-    max_workers: 4
+    max_workers: 1
     out_dir: data_prepare
     alpaca_file: genesis_franka_toolcall_alpaca.json
     sharegpt_file: genesis_franka_toolcall_sharegpt.json
     stats_file: genesis_franka_toolcall_stats.json
-    api_base: https://api.deepseek.com/v1
-    model: deepseek-chat
+    append_to_existing: false
+    api_base: https://api.siliconflow.cn/v1
+    model: deepseek-ai/DeepSeek-V3
     api_key: ""
     api_key_env: DEEPSEEK_API_KEY
     temperature: 0.9
@@ -37,6 +38,7 @@ dataset_prepare:
     val_file: val.json
     test_file: test.json
     metadata_file: split_metadata.json
+    preserve_existing_splits: false
 
 finetune:
   train:

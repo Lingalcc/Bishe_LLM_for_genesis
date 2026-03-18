@@ -12,10 +12,11 @@ import random
 import threading
 import time
 import hashlib
+from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from src.data_core.api_client import call_chat_api, extract_json_array, resolve_api_key
 from src.data_core.format_utils import (
@@ -27,6 +28,8 @@ from src.data_core.format_utils import (
 from src.utils.secrets import redact_text
 
 logger = logging.getLogger(__name__)
+
+ProgressCallback = Callable[[dict[str, Any]], None]
 
 # ---------------------------------------------------------------------------
 # Action registry — every supported robot action with schema & value ranges
@@ -292,6 +295,8 @@ class GenerateDatasetConfig:
     alpaca_file: str = "genesis_franka_toolcall_alpaca.json"
     sharegpt_file: str = "genesis_franka_toolcall_sharegpt.json"
     stats_file: str = "genesis_franka_toolcall_stats.json"
+    progress_file: str = "genesis_franka_toolcall_progress.json"
+    append_to_existing: bool = False
 
     # Generation parameters
     num_samples: int = 4000
@@ -323,6 +328,72 @@ class GenerateDatasetConfig:
 def _sample_fingerprint(sample: dict[str, Any]) -> str:
     canonical = json.dumps(sample, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _atomic_write_json(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_name(f"{path.name}.tmp")
+    tmp_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    tmp_path.replace(path)
+
+
+def _build_runtime_paths(cfg: GenerateDatasetConfig) -> dict[str, Path]:
+    out_dir = cfg.out_dir
+    return {
+        "out_dir": out_dir,
+        "alpaca": out_dir / cfg.alpaca_file,
+        "sharegpt": out_dir / cfg.sharegpt_file,
+        "stats": out_dir / cfg.stats_file,
+        "progress": out_dir / cfg.progress_file,
+    }
+
+
+def _load_existing_alpaca_samples(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, list):
+        raise ValueError(f"alpaca dataset must be a JSON list: {path}")
+
+    restored: list[dict[str, Any]] = []
+    invalid_count = 0
+    for row in payload:
+        if not isinstance(row, dict):
+            invalid_count += 1
+            continue
+        sample = {
+            "instruction": row.get("instruction"),
+            "output": row.get("output"),
+        }
+        if validate_sample(sample):
+            restored.append(sample)
+        else:
+            invalid_count += 1
+
+    if invalid_count > 0:
+        logger.warning(
+            "Existing alpaca file %s contained %d invalid row(s); ignored them.",
+            path,
+            invalid_count,
+        )
+    return restored
+
+
+def _merge_unique_samples(*sample_groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for group in sample_groups:
+        for sample in group:
+            fp = _sample_fingerprint(sample)
+            if fp in seen:
+                continue
+            seen.add(fp)
+            merged.append(sample)
+    return merged
 
 
 # ---------------------------------------------------------------------------
@@ -405,7 +476,13 @@ class DatasetGenerator:
         return args
 
     def _generate_batch_from_args(
-        self, difficulty: str, batch_size: int, with_state: bool, seed_hint: int,
+        self,
+        difficulty: str,
+        batch_size: int,
+        with_state: bool,
+        seed_hint: int,
+        progress_callback: ProgressCallback | None = None,
+        batch_label: str | None = None,
     ) -> tuple[str, list[dict[str, Any]]]:
         """Thread-safe single batch generation (no shared mutable state)."""
         user_prompt = _build_generation_user_prompt(
@@ -414,6 +491,17 @@ class DatasetGenerator:
             with_state_context=with_state,
             seed_hint=seed_hint,
         )
+        if progress_callback is not None:
+            progress_callback(
+                {
+                    "event": "batch_started",
+                    "difficulty": difficulty,
+                    "requested_batch_size": batch_size,
+                    "batch_label": batch_label,
+                    "max_retries": self.cfg.max_retries,
+                    "timeout": self.cfg.timeout,
+                }
+            )
         last_err: Exception | None = None
         for attempt in range(self.cfg.max_retries):
             try:
@@ -437,6 +525,19 @@ class DatasetGenerator:
             except Exception as exc:
                 last_err = exc
                 logger.warning("API attempt %d failed: %s", attempt + 1, redact_text(str(exc)))
+                if progress_callback is not None:
+                    progress_callback(
+                        {
+                            "event": "batch_retry",
+                            "difficulty": difficulty,
+                            "requested_batch_size": batch_size,
+                            "batch_label": batch_label,
+                            "attempt": attempt + 1,
+                            "max_retries": self.cfg.max_retries,
+                            "timeout": self.cfg.timeout,
+                            "error": redact_text(str(exc)),
+                        }
+                    )
             time.sleep(min(30.0, self.cfg.sleep_seconds * (2 ** attempt)))
 
         logger.error(
@@ -444,9 +545,136 @@ class DatasetGenerator:
             self.cfg.max_retries,
             redact_text(str(last_err)) if last_err is not None else "unknown error",
         )
+        if progress_callback is not None:
+            progress_callback(
+                {
+                    "event": "batch_failed",
+                    "difficulty": difficulty,
+                    "requested_batch_size": batch_size,
+                    "batch_label": batch_label,
+                    "max_retries": self.cfg.max_retries,
+                    "timeout": self.cfg.timeout,
+                    "error": redact_text(str(last_err)) if last_err is not None else "unknown error",
+                }
+            )
         return difficulty, []
 
-    def generate_all(self) -> dict[str, Any]:
+    def _load_progress(self, progress_path: Path) -> dict[str, Any] | None:
+        if not progress_path.exists():
+            return None
+        try:
+            payload = json.loads(progress_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            logger.warning("Failed to read progress file %s: %s", progress_path, exc)
+            return None
+
+        if not isinstance(payload, dict):
+            logger.warning("Ignoring invalid progress payload in %s", progress_path)
+            return None
+
+        samples = payload.get("samples", [])
+        stats = payload.get("stats", {})
+        if not isinstance(samples, list) or not isinstance(stats, dict):
+            logger.warning("Ignoring malformed progress payload in %s", progress_path)
+            return None
+
+        valid_samples = [s for s in samples if isinstance(s, dict) and validate_sample(s)]
+        if len(valid_samples) != len(samples):
+            logger.warning(
+                "Progress file %s contained %d invalid samples; ignored them.",
+                progress_path,
+                len(samples) - len(valid_samples),
+            )
+
+        loaded = {
+            "samples": valid_samples,
+            "seen": {_sample_fingerprint(s) for s in valid_samples},
+            "api_calls": int(stats.get("api_calls", 0)),
+            "invalid_discarded": int(stats.get("invalid_discarded", 0)),
+            "duplicate_discarded": int(stats.get("duplicate_discarded", 0)),
+            "target_samples": int(stats.get("target_samples", len(valid_samples))),
+            "requested_new_samples": int(stats.get("requested_new_samples", 0)),
+            "existing_base_samples": int(stats.get("existing_base_samples", 0)),
+            "generation_mode": str(stats.get("generation_mode", "replace")),
+            "difficulty_distribution": {
+                "simple": int(stats.get("difficulty_distribution", {}).get("simple", 0)),
+                "medium": int(stats.get("difficulty_distribution", {}).get("medium", 0)),
+                "complex": int(stats.get("difficulty_distribution", {}).get("complex", 0)),
+            },
+            "dedup_rounds": int(stats.get("dedup_rounds", 0)),
+        }
+        logger.info(
+            "Loaded progress from %s: %d sample(s), %d api calls",
+            progress_path,
+            len(valid_samples),
+            loaded["api_calls"],
+        )
+        return loaded
+
+    def _persist_outputs(
+        self,
+        *,
+        runtime_paths: dict[str, Path],
+        collected: list[dict[str, Any]],
+        stats: dict[str, Any],
+        persist_count: int,
+    ) -> None:
+        samples = collected[:persist_count]
+        shuffled_samples = deepcopy(samples)
+        random.Random(self.cfg.seed).shuffle(shuffled_samples)
+
+        _atomic_write_json(runtime_paths["alpaca"], to_alpaca_format(shuffled_samples))
+        _atomic_write_json(runtime_paths["sharegpt"], to_sharegpt_format(shuffled_samples))
+        _atomic_write_json(runtime_paths["stats"], stats)
+        _atomic_write_json(
+            runtime_paths["progress"],
+            {
+                "samples": samples,
+                "stats": stats,
+            },
+        )
+
+    def _build_stats(
+        self,
+        *,
+        total_samples: int,
+        target: int,
+        requested_new_samples: int,
+        existing_base_samples: int,
+        total_api_calls: int,
+        total_invalid: int,
+        duplicate_discarded: int,
+        round_idx: int,
+        difficulty_counts: dict[str, int],
+        workers: int,
+        resumed_from_progress: bool,
+        progress_path: Path,
+    ) -> dict[str, Any]:
+        return {
+            "total_samples": total_samples,
+            "target_samples": target,
+            "requested_new_samples": requested_new_samples,
+            "existing_base_samples": existing_base_samples,
+            "generation_mode": "append" if self.cfg.append_to_existing else "replace",
+            "api_calls": total_api_calls,
+            "invalid_discarded": total_invalid,
+            "duplicate_discarded": duplicate_discarded,
+            "dedup_rounds": round_idx,
+            "target_reached": total_samples >= target,
+            "difficulty_distribution": difficulty_counts,
+            "state_context_ratio": self.cfg.state_context_ratio,
+            "max_workers": workers,
+            "model": self.cfg.model,
+            "seed": self.cfg.seed,
+            "resumed_from_progress": resumed_from_progress,
+            "progress_file": str(progress_path),
+        }
+
+    def generate_all(
+        self,
+        progress_callback: ProgressCallback | None = None,
+        runtime_paths: dict[str, Path] | None = None,
+    ) -> dict[str, Any]:
         """Run parallel generation with deduplication, refilling until target or max rounds."""
         all_samples: list[dict[str, Any]] = []
         total_api_calls = 0
@@ -456,6 +684,7 @@ class DatasetGenerator:
         target = self.cfg.num_samples
         workers = max(1, self.cfg.max_workers)
         max_rounds = max(1, int(self.cfg.dedup_max_rounds))
+        runtime_paths = runtime_paths or _build_runtime_paths(self.cfg)
 
         logger.info(
             "Starting generation: target=%d samples, max_workers=%d",
@@ -467,6 +696,79 @@ class DatasetGenerator:
         seen: set[str] = set()
         stats_invalid = 0
         stats_diff: dict[str, int] = {"simple": 0, "medium": 0, "complex": 0}
+        resumed_from_progress = False
+        requested_new_samples = self.cfg.num_samples
+        existing_base_samples = 0
+
+        if self.cfg.append_to_existing:
+            existing_samples = _load_existing_alpaca_samples(runtime_paths["alpaca"])
+            existing_base_samples = len(existing_samples)
+            collected = list(existing_samples)
+            seen = {_sample_fingerprint(sample) for sample in collected}
+            target = existing_base_samples + requested_new_samples
+            logger.info(
+                "Append mode enabled: existing=%d, requested_new=%d, planned_total=%d",
+                existing_base_samples,
+                requested_new_samples,
+                target,
+            )
+
+        loaded_progress = self._load_progress(runtime_paths["progress"])
+        if loaded_progress is not None:
+            progress_samples = list(loaded_progress["samples"])
+            if self.cfg.append_to_existing:
+                collected = _merge_unique_samples(collected, progress_samples)
+                seen = {_sample_fingerprint(sample) for sample in collected}
+                progress_target = int(loaded_progress.get("target_samples", 0))
+                progress_mode = str(loaded_progress.get("generation_mode", ""))
+                progress_requested_new = int(loaded_progress.get("requested_new_samples", 0))
+                progress_existing_base = int(loaded_progress.get("existing_base_samples", 0))
+                if progress_mode == "append" and progress_target >= len(collected):
+                    target = progress_target
+                    if progress_requested_new > 0:
+                        requested_new_samples = progress_requested_new
+                    if progress_existing_base > 0:
+                        existing_base_samples = progress_existing_base
+            else:
+                collected = progress_samples
+                seen = set(loaded_progress["seen"])
+            total_api_calls = loaded_progress["api_calls"]
+            stats_invalid = loaded_progress["invalid_discarded"]
+            duplicate_discarded = loaded_progress["duplicate_discarded"]
+            stats_diff = dict(loaded_progress["difficulty_distribution"])
+            round_idx = loaded_progress["dedup_rounds"]
+            resumed_from_progress = len(collected) > 0
+            if len(collected) >= target:
+                logger.info(
+                    "Progress already satisfies target: %d/%d sample(s).",
+                    len(collected),
+                    target,
+                )
+                all_samples = collected[:target]
+                self._rng.shuffle(all_samples)
+                stats = self._build_stats(
+                    total_samples=len(all_samples),
+                    target=target,
+                    requested_new_samples=requested_new_samples,
+                    existing_base_samples=existing_base_samples,
+                    total_api_calls=total_api_calls,
+                    total_invalid=stats_invalid,
+                    duplicate_discarded=duplicate_discarded,
+                    round_idx=round_idx,
+                    difficulty_counts=stats_diff,
+                    workers=workers,
+                    resumed_from_progress=resumed_from_progress,
+                    progress_path=runtime_paths["progress"],
+                )
+                self._persist_outputs(
+                    runtime_paths=runtime_paths,
+                    collected=collected,
+                    stats=stats,
+                    persist_count=target,
+                )
+                return {"samples": all_samples, "stats": stats}
+        else:
+            round_idx = 0
 
         def _on_result(difficulty: str, samples: list[dict[str, Any]], req_size: int) -> None:
             nonlocal stats_invalid, duplicate_discarded
@@ -482,7 +784,6 @@ class DatasetGenerator:
                     collected.append(s)
                     stats_diff[difficulty] += 1
 
-        round_idx = 0
         while len(collected) < target and round_idx < max_rounds:
             remaining = target - len(collected)
             batch_args = self._prepare_batch_args(remaining)
@@ -499,20 +800,37 @@ class DatasetGenerator:
             with ThreadPoolExecutor(max_workers=workers) as pool:
                 futures = {
                     pool.submit(
-                        self._generate_batch_from_args, diff, bsz, ws, sh,
+                        self._generate_batch_from_args,
+                        diff,
+                        bsz,
+                        ws,
+                        sh,
+                        progress_callback,
+                        f"r{round_idx}-b{idx}",
                     ): (diff, bsz)
-                    for diff, bsz, ws, sh in batch_args
+                    for idx, (diff, bsz, ws, sh) in enumerate(batch_args, 1)
                 }
                 done_count = 0
                 for future in as_completed(futures):
                     diff_req, bsz_req = futures[future]
                     done_count += 1
+                    unique_before = len(collected)
+                    duplicates_before = duplicate_discarded
+                    invalid_before = stats_invalid
                     try:
                         diff_ret, samples = future.result()
                         _on_result(diff_ret, samples, bsz_req)
                     except Exception as exc:
                         logger.error("Batch raised: %s", exc)
+                        diff_ret = diff_req
+                        samples = []
                         _on_result(diff_req, [], bsz_req)
+                    unique_after = len(collected)
+                    duplicates_after = duplicate_discarded
+                    invalid_after = stats_invalid
+                    accepted_count = unique_after - unique_before
+                    duplicate_count = duplicates_after - duplicates_before
+                    invalid_count = invalid_after - invalid_before
                     logger.info(
                         "Progress: round %d batch %d/%d unique_samples %d/%d",
                         round_idx,
@@ -521,6 +839,46 @@ class DatasetGenerator:
                         len(collected),
                         target,
                     )
+                    stats_snapshot = self._build_stats(
+                        total_samples=min(len(collected), target),
+                        target=target,
+                        requested_new_samples=requested_new_samples,
+                        existing_base_samples=existing_base_samples,
+                        total_api_calls=total_api_calls,
+                        total_invalid=stats_invalid,
+                        duplicate_discarded=duplicate_discarded,
+                        round_idx=round_idx,
+                        difficulty_counts=dict(stats_diff),
+                        workers=workers,
+                        resumed_from_progress=resumed_from_progress,
+                        progress_path=runtime_paths["progress"],
+                    )
+                    self._persist_outputs(
+                        runtime_paths=runtime_paths,
+                        collected=collected,
+                        stats=stats_snapshot,
+                        persist_count=target,
+                    )
+                    if progress_callback is not None:
+                        progress_callback(
+                            {
+                                "event": "batch_completed",
+                                "round_idx": round_idx,
+                                "max_rounds": max_rounds,
+                                "batch_idx": done_count,
+                                "batch_total": len(batch_args),
+                                "requested_batch_size": bsz_req,
+                                "difficulty": diff_ret,
+                                "returned_count": len(samples),
+                                "accepted_count": accepted_count,
+                                "duplicate_count": duplicate_count,
+                                "invalid_count": invalid_count,
+                                "unique_samples": unique_after,
+                                "target_samples": target,
+                                "remaining_samples": max(0, target - unique_after),
+                                "api_calls": total_api_calls,
+                            }
+                        )
 
         if len(collected) < target:
             logger.warning(
@@ -536,20 +894,26 @@ class DatasetGenerator:
         total_invalid = stats_invalid
         difficulty_counts = stats_diff
 
-        stats = {
-            "total_samples": len(all_samples),
-            "target_samples": target,
-            "api_calls": total_api_calls,
-            "invalid_discarded": total_invalid,
-            "duplicate_discarded": duplicate_discarded,
-            "dedup_rounds": round_idx,
-            "target_reached": len(all_samples) >= target,
-            "difficulty_distribution": difficulty_counts,
-            "state_context_ratio": self.cfg.state_context_ratio,
-            "max_workers": workers,
-            "model": self.cfg.model,
-            "seed": self.cfg.seed,
-        }
+        stats = self._build_stats(
+            total_samples=len(all_samples),
+            target=target,
+            requested_new_samples=requested_new_samples,
+            existing_base_samples=existing_base_samples,
+            total_api_calls=total_api_calls,
+            total_invalid=total_invalid,
+            duplicate_discarded=duplicate_discarded,
+            round_idx=round_idx,
+            difficulty_counts=difficulty_counts,
+            workers=workers,
+            resumed_from_progress=resumed_from_progress,
+            progress_path=runtime_paths["progress"],
+        )
+        self._persist_outputs(
+            runtime_paths=runtime_paths,
+            collected=collected,
+            stats=stats,
+            persist_count=target,
+        )
         return {"samples": all_samples, "stats": stats}
 
 
@@ -557,43 +921,38 @@ class DatasetGenerator:
 # Entry points
 # ---------------------------------------------------------------------------
 
-def run_generate_dataset(cfg: GenerateDatasetConfig) -> dict[str, Any]:
+def run_generate_dataset(
+    cfg: GenerateDatasetConfig,
+    progress_callback: ProgressCallback | None = None,
+) -> dict[str, Any]:
     """Generate dataset and write Alpaca + ShareGPT + stats files."""
-    out_dir = cfg.out_dir
-    out_dir.mkdir(parents=True, exist_ok=True)
+    runtime_paths = _build_runtime_paths(cfg)
+    runtime_paths["out_dir"].mkdir(parents=True, exist_ok=True)
 
     generator = DatasetGenerator(cfg)
-    result = generator.generate_all()
+    result = generator.generate_all(
+        progress_callback=progress_callback,
+        runtime_paths=runtime_paths,
+    )
     samples, stats = result["samples"], result["stats"]
-
-    alpaca_path = out_dir / cfg.alpaca_file
-    alpaca_path.write_text(
-        json.dumps(to_alpaca_format(samples), ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-    sharegpt_path = out_dir / cfg.sharegpt_file
-    sharegpt_path.write_text(
-        json.dumps(to_sharegpt_format(samples), ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-    stats_path = out_dir / cfg.stats_file
-    stats_path.write_text(
-        json.dumps(stats, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    alpaca_path = runtime_paths["alpaca"]
+    sharegpt_path = runtime_paths["sharegpt"]
+    stats_path = runtime_paths["stats"]
 
     logger.info("Generated %d samples → %s, %s", len(samples), alpaca_path, sharegpt_path)
     return {
         "alpaca_path": str(alpaca_path),
         "sharegpt_path": str(sharegpt_path),
         "stats_path": str(stats_path),
+        "progress_path": str(runtime_paths["progress"]),
         "total_samples": len(samples),
     }
 
 
-def run_generate_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
+def run_generate_from_merged_config(
+    config: dict[str, Any],
+    progress_callback: ProgressCallback | None = None,
+) -> dict[str, Any]:
     """Build :class:`GenerateDatasetConfig` from a merged YAML dict and run."""
     section = (
         config.get("dataset_prepare", {}).get("generate", {})
@@ -605,6 +964,10 @@ def run_generate_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
         alpaca_file=str(section.get("alpaca_file", GenerateDatasetConfig.alpaca_file)),
         sharegpt_file=str(section.get("sharegpt_file", GenerateDatasetConfig.sharegpt_file)),
         stats_file=str(section.get("stats_file", GenerateDatasetConfig.stats_file)),
+        progress_file=str(section.get("progress_file", GenerateDatasetConfig.progress_file)),
+        append_to_existing=bool(
+            section.get("append_to_existing", GenerateDatasetConfig.append_to_existing)
+        ),
         num_samples=int(section.get("num_samples", GenerateDatasetConfig.num_samples)),
         seed=int(section.get("seed", GenerateDatasetConfig.seed)),
         batch_size=int(section.get("batch_size", GenerateDatasetConfig.batch_size)),
@@ -624,4 +987,4 @@ def run_generate_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
         sleep_seconds=float(section.get("sleep_seconds", GenerateDatasetConfig.sleep_seconds)),
         dedup_max_rounds=int(section.get("dedup_max_rounds", GenerateDatasetConfig.dedup_max_rounds)),
     )
-    return run_generate_dataset(cfg)
+    return run_generate_dataset(cfg, progress_callback=progress_callback)
