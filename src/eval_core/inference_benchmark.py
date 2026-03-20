@@ -174,6 +174,11 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
     batch_rows: list[dict[str, Any]] = []
     latencies: list[float] = []
     peak_memory_values: list[float] = []
+    process_rss_values: list[float] = []
+    ttft_values: list[float] = []
+    throughput_tps_values: list[float] = []
+    decode_tps_values: list[float] = []
+    output_tokens_values: list[float] = []
     success_samples = 0
     failed_samples = 0
     error_rows: list[dict[str, Any]] = []
@@ -206,12 +211,32 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
         try:
             metrics = monitor.metrics
         except Exception:
-            metrics = {"latency_sec": 0.0, "peak_vram_mb": 0.0}
+            metrics = {
+                "latency_sec": 0.0,
+                "peak_vram_mb": 0.0,
+                "process_rss_mb": 0.0,
+                "ttft_sec": 0.0,
+                "throughput_tps": 0.0,
+                "decode_tps": 0.0,
+                "output_tokens": 0.0,
+                "total_tokens": 0.0,
+            }
 
         latency = float(metrics.get("latency_sec", 0.0))
         peak_mem = float(metrics.get("peak_vram_mb", 0.0))
+        process_rss = float(metrics.get("process_rss_mb", 0.0))
+        ttft_sec = float(metrics.get("ttft_sec", 0.0))
+        throughput_tps = float(metrics.get("throughput_tps", 0.0))
+        decode_tps = float(metrics.get("decode_tps", 0.0))
+        output_tokens = float(metrics.get("output_tokens", 0.0))
+        total_tokens = float(metrics.get("total_tokens", 0.0))
         latencies.append(latency)
         peak_memory_values.append(peak_mem)
+        process_rss_values.append(process_rss)
+        ttft_values.append(ttft_sec)
+        throughput_tps_values.append(throughput_tps)
+        decode_tps_values.append(decode_tps)
+        output_tokens_values.append(output_tokens)
 
         batch_rows.append(
             {
@@ -220,12 +245,21 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
                 "status": status,
                 "latency_sec": latency,
                 "peak_memory_mb": peak_mem,
+                "process_rss_mb": process_rss,
+                "ttft_sec": ttft_sec,
+                "throughput_tps": throughput_tps,
+                "decode_tps": decode_tps,
+                "output_tokens": output_tokens,
+                "total_tokens": total_tokens,
                 "error": error_msg,
             }
         )
 
     total_latency = float(sum(latencies))
     throughput = (success_samples / total_latency) if total_latency > 0 else 0.0
+    total_output_tokens = float(sum(output_tokens_values))
+    sample_throughput_sps = throughput
+    token_throughput_tps = (total_output_tokens / total_latency) if total_latency > 0 else 0.0
 
     result = {
         "backend": backend,
@@ -236,7 +270,17 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
         "p50_latency": _percentile(latencies, 50),
         "p95_latency": _percentile(latencies, 95),
         "throughput": throughput,
+        "sample_throughput_sps": sample_throughput_sps,
+        "token_throughput_tps": token_throughput_tps,
+        "avg_ttft_sec": _safe_mean(ttft_values),
+        "avg_throughput_tps": _safe_mean(throughput_tps_values),
+        "avg_decode_tps": _safe_mean(decode_tps_values),
+        "avg_output_tokens": _safe_mean(output_tokens_values),
+        "total_output_tokens": total_output_tokens,
         "peak_memory": max(peak_memory_values) if peak_memory_values else 0.0,
+        "avg_peak_memory": _safe_mean(peak_memory_values),
+        "avg_process_rss_mb": _safe_mean(process_rss_values),
+        "max_process_rss_mb": max(process_rss_values) if process_rss_values else 0.0,
         "errors": len(error_rows),
         "successful_samples": success_samples,
         "failed_samples": failed_samples,
@@ -255,7 +299,20 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
         with out_csv.open("w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(
                 f,
-                fieldnames=["batch_index", "batch_size", "status", "latency_sec", "peak_memory_mb", "error"],
+                fieldnames=[
+                    "batch_index",
+                    "batch_size",
+                    "status",
+                    "latency_sec",
+                    "peak_memory_mb",
+                    "process_rss_mb",
+                    "ttft_sec",
+                    "throughput_tps",
+                    "decode_tps",
+                    "output_tokens",
+                    "total_tokens",
+                    "error",
+                ],
             )
             writer.writeheader()
             writer.writerows(batch_rows)

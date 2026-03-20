@@ -1,6 +1,7 @@
 [submodule "LlamaFactory"]
 	path = LlamaFactory
 	url = https://github.com/Lingalcc/LlamaFactory.git
+	branch = for_bishe
 [submodule "third_party/Genesis"]
 	path = third_party/Genesis
 	url = https://github.com/Genesis-Embodied-AI/Genesis.git
