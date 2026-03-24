@@ -38,6 +38,80 @@ _METHOD_DEFAULT_CONFIGS: dict[str, Path] = {
 }
 
 
+def _raise_unsupported_method_error(method: str, *, config_path: Path | None = None) -> None:
+    location = f"配置文件: {config_path}\n" if config_path is not None else ""
+    if method == "adalora":
+        raise ValueError(
+            "检测到训练配置声明了 AdaLoRA，但当前仓库内置的 LlamaFactory 版本不支持 AdaLoRA 参数。\n"
+            f"{location}"
+            "当前训练器仅支持: lora、qlora、dora、galore。\n"
+            "可选处理方式：\n"
+            "1. 升级或替换到支持 AdaLoRA 的 LlamaFactory/训练器版本。\n"
+            "2. 将本实验基线改为当前已支持的 LoRA/QLoRA/DoRA/GaLore。\n"
+            "3. 保留 AdaLoRA 实验设计，但改用其它支持 AdaLoRA 的训练框架执行。"
+        )
+
+    raise ValueError(
+        f"Unsupported finetune_method={method!r}. "
+        f"Supported: {sorted(SUPPORTED_FINETUNE_METHODS)}"
+    )
+
+
+def _normalize_finetune_method(method: str, *, config_path: Path | None = None) -> str:
+    normalized = str(method).strip().lower()
+    if normalized not in SUPPORTED_FINETUNE_METHODS:
+        _raise_unsupported_method_error(normalized, config_path=config_path)
+    return normalized
+
+
+def _detect_declared_method_from_yaml(config_path: Path) -> str | None:
+    try:
+        data = _load_yaml_file(config_path)
+    except Exception:
+        return None
+
+    peft_type = str(data.get("peft_type", "")).strip().lower()
+    if peft_type == "adalora":
+        return "adalora"
+    if any(key in data for key in ("adalora_init_r", "adalora_tinit", "adalora_tfinal", "adalora_delta_t")):
+        return "adalora"
+
+    finetuning_type = str(data.get("finetuning_type", "")).strip().lower()
+    if not finetuning_type:
+        return None
+
+    if finetuning_type == "full" and bool(data.get("use_galore", False)):
+        return "galore"
+    if finetuning_type == "lora":
+        if bool(data.get("use_dora", False)):
+            return "dora"
+        quantization_bit = data.get("quantization_bit")
+        if quantization_bit not in (None, "", 0, "0"):
+            return "qlora"
+        return "lora"
+
+    return finetuning_type
+
+
+def _validate_config_method_compatibility(config_path: Path, finetune_method: str) -> None:
+    declared_method = _detect_declared_method_from_yaml(config_path)
+    if declared_method is None:
+        return
+
+    if declared_method not in SUPPORTED_FINETUNE_METHODS:
+        _raise_unsupported_method_error(declared_method, config_path=config_path)
+
+    if declared_method != finetune_method:
+        raise ValueError(
+            "训练方法与训练 YAML 不一致，继续执行会导致命令覆盖关系混乱。\n"
+            f"配置文件: {config_path}\n"
+            f"YAML 声明方法: {declared_method}\n"
+            f"当前解析方法: {finetune_method}\n"
+            "请统一两者：要么在 override 中设置正确的 finetune_method，"
+            "要么改用与该方法匹配的训练 YAML。"
+        )
+
+
 @dataclass(frozen=True)
 class FinetuneConfig:
     pipeline_config: Path = DEFAULT_PIPELINE_CONFIG
@@ -85,19 +159,14 @@ def _resolve_effective_settings(cfg: FinetuneConfig) -> tuple[Path, Path, str | 
 
     llamafactory_dir_raw = cfg.llamafactory_dir or section.get("llamafactory_dir") or DEFAULT_LLAMAFACTORY_DIR
     gpus_raw = cfg.gpus if cfg.gpus is not None else section.get("gpus")
-    finetune_method_raw = cfg.finetune_method or section.get("finetune_method") or "lora"
+    requested_method_raw = cfg.finetune_method or section.get("finetune_method") or "lora"
     dry_run = bool(cfg.dry_run or bool(section.get("dry_run", False)))
 
     llamafactory_dir = Path(str(llamafactory_dir_raw))
     if not llamafactory_dir.is_absolute() and cfg.llamafactory_dir is None:
         llamafactory_dir = REPO_ROOT / llamafactory_dir
     gpus = None if gpus_raw in (None, "") else str(gpus_raw)
-    finetune_method = str(finetune_method_raw).strip().lower()
-    if finetune_method not in SUPPORTED_FINETUNE_METHODS:
-        raise ValueError(
-            f"Unsupported finetune_method={finetune_method!r}. "
-            f"Supported: {sorted(SUPPORTED_FINETUNE_METHODS)}"
-        )
+    requested_method = _normalize_finetune_method(str(requested_method_raw))
 
     # Auto-select the method-appropriate base config when nothing is explicitly specified.
     # This prevents the "selected galore but config is still lora/qlora" class of bugs.
@@ -105,14 +174,29 @@ def _resolve_effective_settings(cfg: FinetuneConfig) -> tuple[Path, Path, str | 
     if explicit_config:
         config_raw = explicit_config
     else:
-        config_raw = _METHOD_DEFAULT_CONFIGS.get(finetune_method, DEFAULT_CONFIG)
+        config_raw = _METHOD_DEFAULT_CONFIGS.get(requested_method, DEFAULT_CONFIG)
         logger.debug(
             "No explicit config provided; auto-selected config for method=%s: %s",
-            finetune_method,
+            requested_method,
             config_raw,
         )
 
     config_path = Path(str(config_raw))
+    resolved_config_path = _resolve_config_path(config_path, llamafactory_dir)
+
+    explicit_method = cfg.finetune_method or section.get("finetune_method")
+    if explicit_config:
+        declared_method = _detect_declared_method_from_yaml(resolved_config_path)
+        if declared_method is None:
+            if explicit_method:
+                finetune_method = _normalize_finetune_method(str(explicit_method), config_path=resolved_config_path)
+            else:
+                finetune_method = requested_method
+        else:
+            finetune_method = _normalize_finetune_method(declared_method, config_path=resolved_config_path)
+    else:
+        finetune_method = requested_method
+
     return llamafactory_dir, config_path, gpus, dry_run, finetune_method
 
 
@@ -178,6 +262,43 @@ def _validate_method_requirements(finetune_method: str, *, dry_run: bool = False
                 "Install with: pip install bitsandbytes\n"
                 "bitsandbytes is mandatory for 4-bit NF4 quantization used by QLoRA."
             ) from None
+
+
+def _validate_cuda_runtime(gpus: str | None, *, dry_run: bool = False) -> None:
+    """Fail fast when the runtime cannot actually see CUDA devices.
+
+    LLaMA-Factory may still build a training command even when CUDA is unavailable,
+    which can silently degrade a supposed GPU fine-tuning run into an unusably slow
+    CPU/offload execution. We explicitly block that mode here.
+    """
+    if dry_run or gpus in (None, ""):
+        return
+
+    try:
+        import torch
+    except ImportError as exc:
+        raise RuntimeError(
+            "当前训练环境缺少 PyTorch，无法执行 GPU 训练前置检查。"
+        ) from exc
+
+    cuda_available = bool(torch.cuda.is_available())
+    device_count = int(torch.cuda.device_count()) if cuda_available else 0
+    visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    torch_cuda_version = getattr(torch.version, "cuda", None)
+
+    if cuda_available and device_count > 0:
+        return
+
+    raise RuntimeError(
+        "检测到本次微调配置要求使用 GPU，但当前 Python 训练环境看不到可用 CUDA 设备，"
+        "继续运行通常会退化成极慢的 CPU/offload 训练。\n"
+        f"请求的 gpus: {gpus}\n"
+        f"环境变量 CUDA_VISIBLE_DEVICES: {visible_devices or '<unset>'}\n"
+        f"torch.version.cuda: {torch_cuda_version}\n"
+        f"torch.cuda.is_available(): {cuda_available}\n"
+        f"torch.cuda.device_count(): {device_count}\n"
+        "请先确认当前终端/conda 环境能正常访问 GPU，再重新启动训练。"
+    )
 
 
 def _parse_gpu_indices(cuda_visible_devices: str | None) -> list[int] | None:
@@ -368,6 +489,7 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
     config_path = _resolve_config_path(config_raw, llamafactory_dir)
     if not config_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
+    _validate_config_method_compatibility(config_path, finetune_method)
 
     command_extra_args = list(cfg.extra_args)
     if command_extra_args and command_extra_args[0] == "--":
@@ -409,6 +531,7 @@ def run_finetune(cfg: FinetuneConfig) -> dict[str, Any]:
         _print_dry_run_summary(result)
         return result
 
+    _validate_cuda_runtime(gpus, dry_run=False)
     _validate_method_requirements(finetune_method, dry_run=False)
     _ensure_finetune_model_exists(config_path)
 

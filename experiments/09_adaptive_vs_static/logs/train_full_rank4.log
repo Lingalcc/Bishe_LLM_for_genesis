@@ -1,0 +1,275 @@
+
+===== 2026-03-24 09:14:38 | train_full_rank4 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/run_train.py --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_full_rank4_override.yaml output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/full_rank4
+
+[INFO|2026-03-24 09:14:48] llamafactory.hparams.parser:508 >> Process rank: 0, world size: 1, device: cuda:0, distributed training: False, compute dtype: torch.bfloat16
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,326 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,326 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,326 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,326 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,326 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,327 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,327 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2364] 2026-03-24 09:14:48,508 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[INFO|configuration_utils.py:763] 2026-03-24 09:14:48,508 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:839] 2026-03-24 09:14:48,509 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,510 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,510 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,510 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,510 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,510 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,510 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2093] 2026-03-24 09:14:48,510 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2364] 2026-03-24 09:14:48,661 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[INFO|2026-03-24 09:14:48] llamafactory.data.loader:144 >> Loading dataset /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_subset_600.json...
+Setting num_proc from 4 back to 1 for the train split to disable multiprocessing as it only contains one shard.
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 600 examples [00:00, 27431.68 examples/s]
+
+Converting format of dataset (num_proc=4):   0%|          | 0/600 [00:00<?, ? examples/s]
+Converting format of dataset (num_proc=4): 100%|██████████| 600/600 [00:00<00:00, 3770.02 examples/s]
+[INFO|2026-03-24 09:14:49] llamafactory.data.loader:144 >> Loading dataset /home/lin/Bishe_LLM_for_genesis/data_prepare/splits/val.json...
+
+Running tokenizer on dataset (num_proc=4):   0%|          | 0/600 [00:00<?, ? examples/s]
+Running tokenizer on dataset (num_proc=4):  25%|██▌       | 150/600 [00:00<00:01, 351.12 examples/s]
+Running tokenizer on dataset (num_proc=4):  75%|███████▌  | 450/600 [00:00<00:00, 985.21 examples/s]
+Running tokenizer on dataset (num_proc=4): 100%|██████████| 600/600 [00:00<00:00, 901.72 examples/s]
+[INFO|configuration_utils.py:763] 2026-03-24 09:14:51,031 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:839] 2026-03-24 09:14:51,032 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+training example:
+input_ids:
+[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 58, 24628, 29577, 60, 4913, 10499, 66582, 606, 3252, 1151, 23739, 2198, 5471, 3252, 1700, 2198, 2454, 22317, 966, 8899, 15, 13, 21, 20, 11, 15, 13, 16, 11, 15, 13, 15, 20, 60, 3417, 13989, 24157, 24628, 29577, 60, 96155, 241, 18158, 103452, 101913, 104165, 103540, 31914, 151645, 198, 151644, 77091, 198, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 20, 11, 220, 15, 13, 16, 11, 220, 15, 13, 17, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 66125, 5212, 1311, 788, 330, 5552, 1889, 93265, 497, 330, 3487, 788, 220, 15, 13, 15, 92, 13989, 151645, 198]
+inputs:
+<|im_start|>system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
+<|im_start|>user
+[STATE_CONTEXT]{"entities":[{"name":"red cube","category":"object","state":{"pos":[0.65,0.1,0.05]}}]}[/STATE_CONTEXT] 抓取桌子上的红色立方体<|im_end|>
+<|im_start|>assistant
+{"commands": [{"action": "move_ee", "pos": [0.65, 0.1, 0.25], "quat": [0, 1, 0, 0]}, {"action": "close_gripper", "position": 0.0}]}<|im_end|>
+
+label_ids:
+[-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 20, 11, 220, 15, 13, 16, 11, 220, 15, 13, 17, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 66125, 5212, 1311, 788, 330, 5552, 1889, 93265, 497, 330, 3487, 788, 220, 15, 13, 15, 92, 13989, 151645, 198]
+labels:
+{"commands": [{"action": "move_ee", "pos": [0.65, 0.1, 0.25], "quat": [0, 1, 0, 0]}, {"action": "close_gripper", "position": 0.0}]}<|im_end|>
+
+eval example:
+input_ids:
+[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 58, 24628, 29577, 60, 4913, 10499, 66582, 606, 3252, 1750, 2198, 5471, 3252, 1700, 2198, 2454, 22317, 966, 8899, 15, 13, 22, 11, 15, 13, 16, 11, 15, 13, 15, 17, 60, 3417, 13989, 24157, 24628, 29577, 60, 58230, 237, 63109, 29490, 108599, 99665, 44729, 151645, 198, 151644, 77091, 198, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 22, 11, 220, 15, 13, 16, 11, 220, 15, 13, 16, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 66125, 5212, 1311, 788, 330, 5552, 1889, 93265, 497, 330, 3487, 788, 220, 15, 13, 15, 16, 2137, 5212, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 22, 11, 220, 15, 13, 16, 11, 220, 15, 13, 17, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 13989, 13989, 151645, 198]
+inputs:
+<|im_start|>system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
+<|im_start|>user
+[STATE_CONTEXT]{"entities":[{"name":"plate","category":"object","state":{"pos":[0.7,0.1,0.02]}}]}[/STATE_CONTEXT] 小心地拿起盘子<|im_end|>
+<|im_start|>assistant
+{"commands": [{"action": "move_ee", "pos": [0.7, 0.1, 0.15], "quat": [0, 1, 0, 0]}, {"action": "close_gripper", "position": 0.01}, {"action": "move_ee", "pos": [0.7, 0.1, 0.25], "quat": [0, 1, 0, 0]}]}<|im_end|>
+
+label_ids:
+[-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 22, 11, 220, 15, 13, 16, 11, 220, 15, 13, 16, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 66125, 5212, 1311, 788, 330, 5552, 1889, 93265, 497, 330, 3487, 788, 220, 15, 13, 15, 16, 2137, 5212, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 22, 11, 220, 15, 13, 16, 11, 220, 15, 13, 17, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 13989, 13989, 151645, 198]
+labels:
+{"commands": [{"action": "move_ee", "pos": [0.7, 0.1, 0.15], "quat": [0, 1, 0, 0]}, {"action": "close_gripper", "position": 0.01}, {"action": "move_ee", "pos": [0.7, 0.1, 0.25], "quat": [0, 1, 0, 0]}]}<|im_end|>
+
+[INFO|2026-03-24 09:14:51] llamafactory.model.model_utils.kv_cache:144 >> KV cache is disabled during training.
+[WARNING|logging.py:328] 2026-03-24 09:14:51,164 >> `torch_dtype` is deprecated! Use `dtype` instead!
+[INFO|modeling_utils.py:1169] 2026-03-24 09:14:51,165 >> loading weights file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/model.safetensors.index.json
+[INFO|modeling_utils.py:1243] 2026-03-24 09:14:51,166 >> Will use dtype=torch.bfloat16 as defined in model's config object
+[INFO|modeling_utils.py:2341] 2026-03-24 09:14:51,166 >> Instantiating Qwen2ForCausalLM model under default dtype torch.bfloat16.
+[INFO|configuration_utils.py:986] 2026-03-24 09:14:51,167 >> Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "use_cache": false
+}
+
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.57s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  1.96s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.05s/it]
+[INFO|configuration_utils.py:939] 2026-03-24 09:14:55,352 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/generation_config.json
+[INFO|configuration_utils.py:986] 2026-03-24 09:14:55,352 >> Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "do_sample": true,
+  "eos_token_id": [
+    151645,
+    151643
+  ],
+  "pad_token_id": 151643,
+  "repetition_penalty": 1.05,
+  "temperature": 0.7,
+  "top_k": 20,
+  "top_p": 0.8
+}
+
+[INFO|dynamic_module_utils.py:423] 2026-03-24 09:14:55,353 >> Could not locate the custom_generate/generate.py inside /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct.
+[INFO|2026-03-24 09:14:55] llamafactory.model.model_utils.checkpointing:144 >> Gradient checkpointing enabled.
+[INFO|2026-03-24 09:14:55] llamafactory.model.model_utils.attention:144 >> Using torch SDPA for faster training and inference.
+[INFO|2026-03-24 09:14:55] llamafactory.model.adapter:144 >> Upcasting trainable params to float32.
+[INFO|2026-03-24 09:14:55] llamafactory.model.adapter:144 >> Fine-tuning method: LoRA
+[INFO|2026-03-24 09:14:55] llamafactory.model.model_utils.misc:144 >> Found linear modules: up_proj,gate_proj,down_proj,v_proj,k_proj,q_proj,o_proj
+[INFO|2026-03-24 09:14:55] llamafactory.model.loader:144 >> trainable params: 7,483,392 || all params: 3,093,422,080 || trainable%: 0.2419
+[WARNING|trainer.py:906] 2026-03-24 09:14:55,920 >> The model is already on multiple devices. Skipping the move to device specified in `args`.
+[INFO|trainer.py:749] 2026-03-24 09:14:55,922 >> Using auto half precision backend
+[WARNING|2026-03-24 09:14:55] llamafactory.train.callbacks:155 >> Previous trainer log in this folder will be deleted.
+[WARNING|trainer.py:982] 2026-03-24 09:14:55,923 >> The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+[INFO|trainer.py:2519] 2026-03-24 09:14:56,131 >> ***** Running training *****
+[INFO|trainer.py:2520] 2026-03-24 09:14:56,131 >>   Num examples = 600
+[INFO|trainer.py:2521] 2026-03-24 09:14:56,131 >>   Num Epochs = 5
+[INFO|trainer.py:2522] 2026-03-24 09:14:56,131 >>   Instantaneous batch size per device = 2
+[INFO|trainer.py:2525] 2026-03-24 09:14:56,131 >>   Total train batch size (w. parallel, distributed & accumulation) = 16
+[INFO|trainer.py:2526] 2026-03-24 09:14:56,131 >>   Gradient Accumulation steps = 8
+[INFO|trainer.py:2527] 2026-03-24 09:14:56,131 >>   Total optimization steps = 190
+[INFO|trainer.py:2528] 2026-03-24 09:14:56,133 >>   Number of trainable parameters = 7,483,392
+
+  0%|          | 0/190 [00:00<?, ?it/s]
+  1%|          | 1/190 [00:09<30:50,  9.79s/it]
+  1%|          | 2/190 [00:43<1:15:35, 24.13s/it]
+  2%|▏         | 3/190 [00:57<59:56, 19.23s/it]  
+  2%|▏         | 4/190 [01:14<57:37, 18.59s/it]
+  3%|▎         | 5/190 [01:30<54:28, 17.67s/it]
+                                               
+
+  3%|▎         | 5/190 [01:31<54:28, 17.67s/it]
+  3%|▎         | 6/190 [01:43<48:48, 15.91s/it]
+  4%|▎         | 7/190 [01:57<46:28, 15.24s/it]
+  4%|▍         | 8/190 [02:20<53:26, 17.62s/it]
+  5%|▍         | 9/190 [02:38<54:16, 17.99s/it]
+  5%|▌         | 10/190 [02:53<51:16, 17.09s/it]
+                                                
+
+  5%|▌         | 10/190 [02:53<51:16, 17.09s/it]
+  6%|▌         | 11/190 [03:05<46:17, 15.52s/it]
+  6%|▋         | 12/190 [03:20<45:27, 15.32s/it]
+  7%|▋         | 13/190 [03:37<46:31, 15.77s/it]

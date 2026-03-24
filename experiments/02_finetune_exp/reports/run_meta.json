@@ -1,0 +1,252 @@
+{
+  "timestamp": {
+    "utc": "2026-03-24T01:54:03.169353Z",
+    "epoch_sec": 1774317243
+  },
+  "git": {
+    "commit_hash": "c7bb3eefe804ccfe202a1d88289bf4595be44e4a",
+    "dirty": true,
+    "branch": "expeiences"
+  },
+  "runtime": {
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "python_executable": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "dependencies": {
+    "torch": "2.9.1",
+    "transformers": "4.57.1",
+    "datasets": "4.0.0",
+    "accelerate": "1.11.0",
+    "bitsandbytes": "0.49.2",
+    "vllm": null,
+    "pyyaml": "6.0.3",
+    "openai": "2.24.0",
+    "huggingface_hub": "0.36.0"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "gpu": {
+    "detected": true,
+    "count": 1,
+    "devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "total_memory_mb": 8187,
+        "compute_capability": "8.9"
+      }
+    ],
+    "source": "torch",
+    "cuda_version": "12.8"
+  },
+  "command": {
+    "argv": [
+      "experiments/02_finetune_exp/run_train.py",
+      "--base-config",
+      "configs/base.yaml",
+      "--config",
+      "experiments/09_adaptive_vs_static/.cache/train_static_override.yaml",
+      "output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/static_rank"
+    ],
+    "cli_args": {
+      "config": "experiments/09_adaptive_vs_static/.cache/train_static_override.yaml",
+      "base_config": "configs/base.yaml",
+      "dry_run": false,
+      "extra_args": [
+        "output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/static_rank"
+      ]
+    }
+  },
+  "random_seed": 42,
+  "config_snapshot": {
+    "dataset_prepare": {
+      "generate": {
+        "num_samples": 1000,
+        "seed": 42,
+        "batch_size": 20,
+        "state_context_ratio": 0.7,
+        "simple_ratio": 0.3,
+        "medium_ratio": 0.4,
+        "complex_ratio": 0.3,
+        "max_workers": 1,
+        "out_dir": "data_prepare",
+        "alpaca_file": "genesis_franka_toolcall_alpaca.json",
+        "sharegpt_file": "genesis_franka_toolcall_sharegpt.json",
+        "stats_file": "genesis_franka_toolcall_stats.json",
+        "append_to_existing": false,
+        "api_base": "https://api.siliconflow.cn/v1",
+        "model": "deepseek-ai/DeepSeek-V3",
+        "api_key": "[REDACTED]",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "temperature": 0.9,
+        "max_tokens": "[REDACTED]",
+        "timeout": 120,
+        "max_retries": 5,
+        "sleep_seconds": 0.5,
+        "dedup_max_rounds": 8
+      },
+      "calibration": {
+        "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+        "max_print_errors": 10,
+        "strict": false
+      },
+      "split": {
+        "input_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+        "out_dir": "data_prepare/splits",
+        "train_ratio": 0.8,
+        "val_ratio": 0.1,
+        "test_ratio": 0.1,
+        "seed": 42,
+        "train_file": "train.json",
+        "val_file": "val.json",
+        "test_file": "test.json",
+        "metadata_file": "split_metadata.json",
+        "preserve_existing_splits": false
+      }
+    },
+    "finetune": {
+      "train": {
+        "llamafactory_dir": "LlamaFactory",
+        "train_file": "experiments/09_adaptive_vs_static/.cache/train_subset_600.json",
+        "val_file": "data_prepare/splits/val.json",
+        "leakage_check": {
+          "enabled": true,
+          "strict": true
+        },
+        "gpus": "0",
+        "dry_run": false,
+        "finetune_method": "lora",
+        "config": "experiments/09_adaptive_vs_static/.cache/train_important_rank4_generated.yaml"
+      }
+    },
+    "test": {
+      "accuracy_eval": {
+        "test_file": "data_prepare/splits/test.json",
+        "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+        "leakage_check": {
+          "enabled": true,
+          "strict": true
+        },
+        "predictions_file": null,
+        "report_file": "experiments/03_eval_exp/reports/accuracy_report.json",
+        "num_samples": 200,
+        "seed": 42,
+        "mode": "api",
+        "api_base": "https://api.openai.com/v1",
+        "model": "gpt-5",
+        "api_key": "[REDACTED]",
+        "api_key_env": "OPENAI_API_KEY",
+        "temperature": 0.0,
+        "max_tokens": "[REDACTED]",
+        "timeout": 120,
+        "max_retries": 3,
+        "sleep_seconds": 0.0,
+        "model_path": "",
+        "backend": "transformers",
+        "quantization": null,
+        "max_new_tokens": "[REDACTED]",
+        "max_model_len": 4096,
+        "gpu_memory_utilization": 0.9,
+        "trust_remote_code": true,
+        "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。"
+      },
+      "regression": {
+        "target": "all"
+      }
+    },
+    "benchmark": {
+      "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+      "base_model_path": "model/Qwen_Qwen2.5-3B-Instruct",
+      "finetuned_model_path": "model/qwen2.5-3b-genesis-qlora",
+      "report_dir": "experiments/02_finetune_exp/reports",
+      "num_samples": 100,
+      "seed": 42,
+      "backend": "transformers",
+      "quantization": null,
+      "max_new_tokens": "[REDACTED]",
+      "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。只输出 JSON，不要输出解释。"
+    },
+    "app": {
+      "interactive": {
+        "enabled": true,
+        "show_viewer": true
+      },
+      "sim": {
+        "backend": "gpu",
+        "robot_type": "mjcf",
+        "robot_file": "xml/franka_emika_panda/panda.xml",
+        "genesis_repo": null,
+        "asset_root": null
+      },
+      "state_injection": {
+        "enable_instruction_to_action": true,
+        "enable_instruction_to_motion": true
+      },
+      "inference": {
+        "mode": "local",
+        "max_retries": 3,
+        "sleep_seconds": 0.0,
+        "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。",
+        "api": {
+          "api_base": "https://api.openai.com/v1",
+          "model": "gpt-5",
+          "api_key": "[REDACTED]",
+          "api_key_env": "OPENAI_API_KEY",
+          "timeout": 120,
+          "generation": {
+            "temperature": 0.0,
+            "max_tokens": "[REDACTED]",
+            "top_p": 1.0,
+            "frequency_penalty": 0.0,
+            "presence_penalty": 0.0
+          }
+        },
+        "local": {
+          "model_path": "output/qwen2.5-3b-genesis-qlora",
+          "backend": "auto",
+          "quantization": null,
+          "max_model_len": 4096,
+          "gpu_memory_utilization": 0.9,
+          "trust_remote_code": true,
+          "generation": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "max_new_tokens": "[REDACTED]"
+          }
+        }
+      }
+    }
+  },
+  "data_files": [
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_subset_600.json",
+      "exists": true,
+      "sha256": "9701f3c3612070f3c4eb21ac52622a04f924ab4bbc7e837437402e11122f7462",
+      "size_bytes": 214016
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/val.json",
+      "exists": true,
+      "sha256": "4b6f9c463a9d42b8dd3be4ebdee45ddb9cbc665f7f73d4578fd758935dc4c7a9",
+      "size_bytes": 72149
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "exists": true,
+      "sha256": "8ed9f9dcea3a8991d6b1fc53013bd7027ec70bf3bc81af40592fe7f766fe2275",
+      "size_bytes": 70795
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+      "exists": true,
+      "sha256": "19de947734a08ea2ae074d2d7e6c93afc4cd3e099a9c09c41aee0666d657d46c",
+      "size_bytes": 712112
+    }
+  ],
+  "extra": {
+    "entry": "experiments/02_finetune_exp/run_train.py",
+    "stage": "finetune"
+  }
+}

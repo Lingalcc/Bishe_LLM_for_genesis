@@ -160,6 +160,7 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
     cfg = InferenceBenchmarkConfig(
         backend=args.backend,
         model_path=args.model_path,
+        tokenizer_path=args.tokenizer_path,
         quantization=args.quantization,
         batch_size=args.batch_size,
         num_samples=args.num_samples,
@@ -172,6 +173,7 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
         max_model_len=args.max_model_len,
         gpu_memory_utilization=args.gpu_memory_utilization,
         trust_remote_code=not args.no_trust_remote_code,
+        use_flash_attention=args.use_flash_attention,
         output_json=str(args.output_json),
         output_csv=str(args.output_csv) if args.output_csv else None,
     )
@@ -184,6 +186,8 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
     print(f"[ok] p50_latency (s)  : {report['p50_latency']:.4f}")
     print(f"[ok] p95_latency (s)  : {report['p95_latency']:.4f}")
     print(f"[ok] throughput       : {report['throughput']:.4f} samples/s")
+    print(f"[ok] avg_ttft (s)     : {report.get('avg_ttft_sec', 0.0):.4f}")
+    print(f"[ok] avg_tpot (s)     : {report.get('avg_tpot_sec', 0.0):.6f}")
     print(f"[ok] peak_memory (MB) : {report['peak_memory']:.2f}")
     print(f"[ok] errors           : {report['errors']}")
     print(f"[ok] json report      : {args.output_json}")
@@ -313,8 +317,9 @@ def build_parser() -> argparse.ArgumentParser:
     eval_benchmark_parser = eval_subparsers.add_parser(
         "benchmark", help="Run local inference benchmark (HF/vLLM)."
     )
-    eval_benchmark_parser.add_argument("--backend", required=True, choices=["transformers", "vllm"])
+    eval_benchmark_parser.add_argument("--backend", required=True, choices=["transformers", "vllm", "llama.cpp", "exllamav2"])
     eval_benchmark_parser.add_argument("--model-path", required=True)
+    eval_benchmark_parser.add_argument("--tokenizer-path", default=None)
     eval_benchmark_parser.add_argument("--quantization", default=None)
     eval_benchmark_parser.add_argument("--batch-size", type=int, default=1)
     eval_benchmark_parser.add_argument("--num-samples", type=int, default=32)
@@ -330,6 +335,7 @@ def build_parser() -> argparse.ArgumentParser:
     eval_benchmark_parser.add_argument("--temperature", type=float, default=0.0)
     eval_benchmark_parser.add_argument("--max-model-len", type=int, default=4096)
     eval_benchmark_parser.add_argument("--gpu-memory-utilization", type=float, default=0.9)
+    eval_benchmark_parser.add_argument("--use-flash-attention", action="store_true")
     eval_benchmark_parser.add_argument("--no-trust-remote-code", action="store_true")
     eval_benchmark_parser.add_argument(
         "--output-json",

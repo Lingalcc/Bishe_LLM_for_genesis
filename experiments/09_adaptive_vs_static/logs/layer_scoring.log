@@ -1,0 +1,4 @@
+
+===== 2026-03-24 09:21:57 | layer_scoring | DRY RUN =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/run_layer_scoring.py --model-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --data-path /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_subset_600.json --output-path /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/reports/layer_scores.json --sample-size 100

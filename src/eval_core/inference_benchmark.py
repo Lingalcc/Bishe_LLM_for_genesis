@@ -112,6 +112,7 @@ def _generate_batch(engine: Any, prompts: list[str], use_chat: bool = False) -> 
 class InferenceBenchmarkConfig:
     backend: str
     model_path: str
+    tokenizer_path: str | None = None
     quantization: str | None = None
     batch_size: int = 1
     num_samples: int = 32
@@ -125,6 +126,7 @@ class InferenceBenchmarkConfig:
     max_model_len: int = 4096
     gpu_memory_utilization: float = 0.9
     trust_remote_code: bool = True
+    use_flash_attention: bool = False
 
     output_json: str = "experiments/03_eval_exp/reports/inference_benchmark.json"
     output_csv: str | None = None
@@ -153,13 +155,15 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
         engine_cfg: dict[str, Any] = {
             "backend": backend,
             "model_path": cfg.model_path,
+            "tokenizer_path": cfg.tokenizer_path,
             "quantization": cfg.quantization,
             "max_new_tokens": cfg.max_new_tokens,
+            "max_model_len": cfg.max_model_len,
             "temperature": cfg.temperature,
             "trust_remote_code": cfg.trust_remote_code,
+            "use_flash_attention": cfg.use_flash_attention,
         }
         if backend == "vllm":
-            engine_cfg["max_model_len"] = cfg.max_model_len
             engine_cfg["gpu_memory_utilization"] = cfg.gpu_memory_utilization
         engine = build_inference_engine(engine_cfg)
 
@@ -228,6 +232,7 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
         ttft_sec = float(metrics.get("ttft_sec", 0.0))
         throughput_tps = float(metrics.get("throughput_tps", 0.0))
         decode_tps = float(metrics.get("decode_tps", 0.0))
+        tpot_sec = (1.0 / decode_tps) if decode_tps > 0 else ((1.0 / throughput_tps) if throughput_tps > 0 else 0.0)
         output_tokens = float(metrics.get("output_tokens", 0.0))
         total_tokens = float(metrics.get("total_tokens", 0.0))
         latencies.append(latency)
@@ -249,6 +254,7 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
                 "ttft_sec": ttft_sec,
                 "throughput_tps": throughput_tps,
                 "decode_tps": decode_tps,
+                "tpot_sec": tpot_sec,
                 "output_tokens": output_tokens,
                 "total_tokens": total_tokens,
                 "error": error_msg,
@@ -275,6 +281,7 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
         "avg_ttft_sec": _safe_mean(ttft_values),
         "avg_throughput_tps": _safe_mean(throughput_tps_values),
         "avg_decode_tps": _safe_mean(decode_tps_values),
+        "avg_tpot_sec": _safe_mean([row["tpot_sec"] for row in batch_rows if float(row.get("tpot_sec", 0.0)) > 0]),
         "avg_output_tokens": _safe_mean(output_tokens_values),
         "total_output_tokens": total_output_tokens,
         "peak_memory": max(peak_memory_values) if peak_memory_values else 0.0,
@@ -309,6 +316,7 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
                     "ttft_sec",
                     "throughput_tps",
                     "decode_tps",
+                    "tpot_sec",
                     "output_tokens",
                     "total_tokens",
                     "error",
@@ -321,9 +329,10 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
 
 
 def parse_args(argv: list[str] | None = None) -> InferenceBenchmarkConfig:
-    parser = argparse.ArgumentParser(description="Run local inference benchmark for HF/vLLM.")
-    parser.add_argument("--backend", required=True, choices=["transformers", "vllm"])
+    parser = argparse.ArgumentParser(description="Run local inference benchmark for multiple local backends.")
+    parser.add_argument("--backend", required=True, choices=["transformers", "vllm", "llama.cpp", "exllamav2"])
     parser.add_argument("--model-path", required=True)
+    parser.add_argument("--tokenizer-path", type=str, default=None)
     parser.add_argument("--quantization", default=None)
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--num-samples", type=int, default=32)
@@ -335,6 +344,7 @@ def parse_args(argv: list[str] | None = None) -> InferenceBenchmarkConfig:
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--max-model-len", type=int, default=4096)
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.9)
+    parser.add_argument("--use-flash-attention", action="store_true")
     parser.add_argument("--trust-remote-code", action="store_true", default=True)
     parser.add_argument("--no-trust-remote-code", action="store_true")
     parser.add_argument("--output-json", type=str, default="experiments/03_eval_exp/reports/inference_benchmark.json")
@@ -343,6 +353,7 @@ def parse_args(argv: list[str] | None = None) -> InferenceBenchmarkConfig:
     return InferenceBenchmarkConfig(
         backend=ns.backend,
         model_path=ns.model_path,
+        tokenizer_path=ns.tokenizer_path,
         quantization=ns.quantization,
         batch_size=ns.batch_size,
         num_samples=ns.num_samples,
@@ -355,6 +366,7 @@ def parse_args(argv: list[str] | None = None) -> InferenceBenchmarkConfig:
         max_model_len=ns.max_model_len,
         gpu_memory_utilization=ns.gpu_memory_utilization,
         trust_remote_code=bool(ns.trust_remote_code and not ns.no_trust_remote_code),
+        use_flash_attention=bool(ns.use_flash_attention),
         output_json=ns.output_json,
         output_csv=ns.output_csv,
     )

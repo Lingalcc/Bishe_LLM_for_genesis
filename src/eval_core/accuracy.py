@@ -45,12 +45,14 @@ class AccuracyEvalConfig:
 
     # Local model settings (mode=local)
     model_path: str = ""
-    backend: str = "transformers"  # transformers | vllm
+    tokenizer_path: str | None = None
+    backend: str = "transformers"  # transformers | vllm | llama.cpp | exllamav2
     quantization: str | None = None
     max_new_tokens: int = 512
     max_model_len: int = 4096
     gpu_memory_utilization: float = 0.9
     trust_remote_code: bool = True
+    use_flash_attention: bool = False
 
     # System prompt
     system_prompt: str = DEFAULT_EVAL_SYSTEM_PROMPT
@@ -115,13 +117,15 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig, *, dataset_file: Path) -> 
     engine_cfg: dict[str, Any] = {
         "backend": cfg.backend,
         "model_path": cfg.model_path,
+        "tokenizer_path": cfg.tokenizer_path,
         "quantization": cfg.quantization,
         "max_new_tokens": cfg.max_new_tokens,
+        "max_model_len": cfg.max_model_len,
         "temperature": cfg.temperature,
         "trust_remote_code": cfg.trust_remote_code,
+        "use_flash_attention": cfg.use_flash_attention,
     }
     if cfg.backend == "vllm":
-        engine_cfg["max_model_len"] = cfg.max_model_len
         engine_cfg["gpu_memory_utilization"] = cfg.gpu_memory_utilization
     engine = build_inference_engine(engine_cfg)
 
@@ -272,12 +276,14 @@ def run_accuracy_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
         max_retries=int(section.get("max_retries", AccuracyEvalConfig.max_retries)),
         sleep_seconds=float(section.get("sleep_seconds", AccuracyEvalConfig.sleep_seconds)),
         model_path=str(section.get("model_path", AccuracyEvalConfig.model_path)),
+        tokenizer_path=str(section.get("tokenizer_path")) if section.get("tokenizer_path") else None,
         backend=str(section.get("backend", AccuracyEvalConfig.backend)),
         quantization=section.get("quantization", AccuracyEvalConfig.quantization),
         max_new_tokens=int(section.get("max_new_tokens", AccuracyEvalConfig.max_new_tokens)),
         max_model_len=int(section.get("max_model_len", AccuracyEvalConfig.max_model_len)),
         gpu_memory_utilization=float(section.get("gpu_memory_utilization", AccuracyEvalConfig.gpu_memory_utilization)),
         trust_remote_code=bool(section.get("trust_remote_code", AccuracyEvalConfig.trust_remote_code)),
+        use_flash_attention=bool(section.get("use_flash_attention", AccuracyEvalConfig.use_flash_attention)),
         system_prompt=str(section.get("system_prompt", AccuracyEvalConfig.system_prompt)),
     )
     return run_accuracy_eval(cfg)
