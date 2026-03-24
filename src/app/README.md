@@ -108,6 +108,8 @@ app:
       model_path: model/my_lora_merged_model
       backend: auto # auto | vllm | transformers
       quantization: null # null | awq | 4bit | 8bit
+      enable_prefix_caching: true
+      prefix_cache_max_entries: 4
       generation:
         temperature: 0.0
         top_p: 1.0
@@ -115,6 +117,8 @@ app:
 ```
 
 每次推理前都会采集场景中各物体状态（名字、类别、坐标/姿态等）并注入模型。
+当 `enable_prefix_caching=true` 时，本地引擎会把稳定前缀（system prompt、JSON 约束、以及未变化的场景状态）预填充为 KV Cache，
+后续只对用户的短指令后缀做增量计算，特别适合“同一场景下连续多轮控制”的交互过程。
 
 ## 交互命令
 

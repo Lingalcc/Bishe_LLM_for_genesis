@@ -115,6 +115,16 @@ def _render_chat_prompt(tokenizer: Any | None, messages: list[dict[str, str]]) -
     return _fallback_chat_prompt(messages)
 
 
+def _ensure_cuda_available(backend_name: str) -> None:
+    try:
+        import torch
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(f"{backend_name} GPU-only 推理需要可用的 torch + CUDA 环境。") from exc
+
+    if not torch.cuda.is_available():
+        raise RuntimeError(f"{backend_name} GPU-only 推理要求 CUDA 可用，当前环境未检测到可用 GPU。")
+
+
 class HFInferenceEngine:
     """
     基于 HuggingFace Transformers 的本地推理引擎。
@@ -135,6 +145,7 @@ class HFInferenceEngine:
         trust_remote_code: bool = True,
         tokenizer_path: str | None = None,
         use_flash_attention: bool = False,
+        require_gpu: bool = False,
     ) -> None:
         self.model_path = _resolve_model_path(model_path)
         self.base_model_path, self.adapter_path, self.adapter_config = _resolve_model_and_adapter_paths(self.model_path)
@@ -144,6 +155,10 @@ class HFInferenceEngine:
         self.trust_remote_code = bool(trust_remote_code)
         self.tokenizer_path = _resolve_tokenizer_path(self.model_path, tokenizer_path)
         self.use_flash_attention = bool(use_flash_attention)
+        self.require_gpu = bool(require_gpu)
+
+        if self.require_gpu:
+            _ensure_cuda_available("transformers")
 
         try:
             import torch
@@ -162,9 +177,12 @@ class HFInferenceEngine:
 
         model_kwargs: dict[str, Any] = {
             "trust_remote_code": self.trust_remote_code,
-            "device_map": "auto",
             "low_cpu_mem_usage": True,
         }
+        if self.require_gpu:
+            model_kwargs["device_map"] = {"": 0}
+        else:
+            model_kwargs["device_map"] = "auto"
         if self.use_flash_attention:
             model_kwargs["attn_implementation"] = "flash_attention_2"
 
@@ -201,7 +219,14 @@ class HFInferenceEngine:
                 from peft import PeftModel
             except ModuleNotFoundError as exc:
                 raise RuntimeError("检测到 LoRA adapter，但当前环境缺少 peft 依赖。") from exc
-            self._model = PeftModel.from_pretrained(self._model, self.adapter_path, is_trainable=False)
+            offload_dir = Path("/tmp/peft_offload") / Path(self.adapter_path).name
+            offload_dir.mkdir(parents=True, exist_ok=True)
+            self._model = PeftModel.from_pretrained(
+                self._model,
+                self.adapter_path,
+                is_trainable=False,
+                offload_dir=str(offload_dir),
+            )
         self._model.eval()
 
     def _input_device(self) -> Any:
@@ -405,17 +430,21 @@ class LlamaCppInferenceEngine:
         max_model_len: int = 4096,
         trust_remote_code: bool = True,
         tokenizer_path: str | None = None,
+        require_gpu: bool = False,
     ) -> None:
         self.model_path = _resolve_model_path(model_path)
         self.max_new_tokens = int(max_new_tokens)
         self.temperature = float(temperature)
         self.max_model_len = int(max_model_len)
         self.trust_remote_code = bool(trust_remote_code)
+        self.require_gpu = bool(require_gpu)
         self._chat_tokenizer = _load_chat_tokenizer(
             model_path=self.model_path,
             tokenizer_path=tokenizer_path,
             trust_remote_code=self.trust_remote_code,
         )
+        if self.require_gpu:
+            _ensure_cuda_available("llama.cpp")
 
         try:
             from llama_cpp import Llama
@@ -426,6 +455,7 @@ class LlamaCppInferenceEngine:
             model_path=self.model_path,
             n_ctx=self.max_model_len,
             n_gpu_layers=-1,
+            main_gpu=0,
             verbose=False,
         )
 
@@ -474,17 +504,21 @@ class ExLlamaV2InferenceEngine:
         max_model_len: int = 4096,
         trust_remote_code: bool = True,
         tokenizer_path: str | None = None,
+        require_gpu: bool = False,
     ) -> None:
         self.model_path = _resolve_model_path(model_path)
         self.max_new_tokens = int(max_new_tokens)
         self.temperature = float(temperature)
         self.max_model_len = int(max_model_len)
         self.trust_remote_code = bool(trust_remote_code)
+        self.require_gpu = bool(require_gpu)
         self._chat_tokenizer = _load_chat_tokenizer(
             model_path=self.model_path,
             tokenizer_path=tokenizer_path,
             trust_remote_code=self.trust_remote_code,
         )
+        if self.require_gpu:
+            _ensure_cuda_available("exllamav2")
 
         try:
             from exllamav2 import ExLlamaV2, ExLlamaV2Cache, ExLlamaV2Config, ExLlamaV2Tokenizer
@@ -573,6 +607,7 @@ def build_inference_engine(config: dict[str, Any]) -> Any:
         "temperature": float(config.get("temperature", 0.0)),
         "trust_remote_code": bool(config.get("trust_remote_code", True)),
         "tokenizer_path": config.get("tokenizer_path"),
+        "require_gpu": bool(config.get("require_gpu", False)),
     }
 
     if backend == "transformers":

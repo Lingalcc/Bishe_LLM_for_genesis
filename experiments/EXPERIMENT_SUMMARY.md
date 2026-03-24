@@ -1,10 +1,10 @@
 # 实验实施与结果汇总
 
-更新时间：2026-03-23
+更新时间：2026-03-24（已补充 Exp6 Prompt 消融结果）
 
 ## 统计口径
 
-- 统计范围：`experiments/01_data_exp` 到 `experiments/10_exp6_prompt`，以及与实验直接对应的 `data_prepare/` 数据产物。
+- 统计范围：`experiments/01_data_exp` 到 `experiments/11_exp7_prefix`，以及与实验直接对应的 `data_prepare/` 数据产物。
 - 判定标准：
   - 已完成并有结构化结果：仓库内存在 `csv/json/md/png` 等可直接引用的结果文件。
   - 已执行但结果不完整：存在部分训练报告或原始日志，但缺少完整对比结果。
@@ -23,8 +23,9 @@
 | 06 | Exp2 LoRA Rank 对比 | 已完成并有结构化结果 | `experiments/06_exp2_lora_rank/reports/*` | 在固定 600 条样本下，`rank=4` 的综合性价比最好。 |
 | 07 | Exp3 微调方法对比 | 已完成并有结构化结果 | `experiments/07_exp3_methods/reports/*` | DoRA 准确率最好，但训练代价很高；QLoRA 显存最省。 |
 | 08 | Exp4 量化推理对比 | 已完成并有结构化结果 | `experiments/08_exp4_inference/reports/*` | 本次结果中 `16bit` 最快，`4bit` 最省显存，`8bit` 表现最弱。 |
-| 09 | Exp5 推理引擎综合对比 | 已完成并有结构化结果 | `experiments/09_exp5_engine/reports/*` | 在当前 8GB 场景下，只有 `Transformers_FP16` 完成了完整跑通。 |
-| 10 | Exp6 Prompt 消融 | 已实现但未见结果 | 暂无 | Prompt 对照实验脚本、提示词与测试集已准备好，但尚无最终报告。 |
+| 09 | Exp5 推理引擎速度基准 | 已完成并已修订口径 | `experiments/09_exp5_engine/reports/*` | 当前仅统计速度与资源指标，并强制 GPU-only；现有结果显示 `Transformers_BNB_4bit` 端到端时延低于 `LlamaCPP_GGUF_Q4_K_M`，`ExLlamaV2` 已纳入统一基准框架。 |
+| 10 | Exp6 Prompt 消融 | 已完成并有结构化结果 | `experiments/10_exp6_prompt/reports/*` | 在正式测试集抽样 100 条的口径下，当前 Baseline Prompt 明显优于已尝试的 Optimized Prompt。 |
+| 11 | Exp7 Prefix Caching 对照 | 已实现但未见结果 | 暂无 | 已新增开关对照脚本，可直接比较 Prefix Cache 开/关下的延迟、吞吐与显存指标。 |
 
 ## 01 数据生成实验
 
@@ -231,68 +232,84 @@
 - `4bit` 的显存优势非常明显，峰值显存相对 `16bit` 节省约 `50.4%`，但速度略慢。
 - `8bit` 在当前环境下没有体现出应有优势，速度和吞吐都落后于 `4bit` 与 `16bit`。
 
-## 09 Exp5 推理引擎综合对比
+## 09 Exp5 推理引擎速度基准
 
-实验目标：在 `8GB VRAM` 约束下，比较多种本地推理引擎的实时性、显存与准确率。
+实验目标：在 `8GB VRAM` 约束下，比较不同本地部署栈的端到端速度与资源占用。
+
+修订后的实验口径：
+
+- 只统计速度与资源指标，不再统计准确率；
+- 所有方案都按 GPU-only 标准执行；
+- 不把结果写成“同构量化下的纯引擎优劣”；
+- 当前结果只解释为“部署栈整体表现”。
 
 结果文件：
 
-- `experiments/09_exp5_engine/reports/exp5_engine_inference_comparison.csv`
-- `experiments/09_exp5_engine/reports/exp5_engine_inference_summary.json`
-- `experiments/09_exp5_engine/reports/Transformers_FP16_benchmark.json`
-- `experiments/09_exp5_engine/reports/Transformers_FP16_accuracy.json`
+- `experiments/09_exp5_engine/reports/Transformers_4bit_benchmark.json`
+- `experiments/09_exp5_engine/reports/LlamaCPP_GGUF_Q4_benchmark.json`
+- `experiments/09_exp5_engine/reports/ExLlamaV2_EXL2_LocalAsset_benchmark.json`
+- `experiments/09_exp5_engine/reports/exp5_speed_report.md`
 
-汇总结果：
+当前可用结果：
 
-| 方案 | 状态 | TTFT(s) | TPOT(s) | Peak VRAM | Action Match Rate | 说明 |
-| --- | --- | ---: | ---: | --- | ---: | --- |
-| Transformers_FP16 | success | 4.0010 | 0.0203 | 7571 MB | 0.055 | 当前唯一完整成功跑通方案 |
-| Transformers_FP16_FA2 | oom | - | - | OOM | - | 显存溢出 |
-| Transformers_Int4_FA2 | partial_failed | - | - | 1449 MB | - | 部分流程失败，仅留下部分资源占用数据 |
-| vLLM_FP16 | oom | - | - | OOM | - | 显存溢出 |
-| vLLM_AWQ_4bit | model_missing | - | - | - | - | 缺少量化模型 |
-| LlamaCPP_GGUF_Q4 | model_missing | - | - | - | - | 缺少 GGUF 模型 |
-| ExLlamaV2_4bpw | dependency_missing | - | - | - | - | 缺少依赖环境 |
+| 方案 | Avg Latency(s) | P50(s) | P95(s) | Sample Throughput(samples/s) | Avg RSS(MB) | 说明 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Transformers_BNB_4bit | 5.5530 | 5.7369 | 6.6024 | 0.1801 | 1788.28 | 当前部署栈下平均时延更低 |
+| LlamaCPP_GGUF_Q4_K_M | 7.0241 | 7.2612 | 8.7073 | 0.1424 | 4272.85 | 当前部署栈下尾部时延更高 |
 
 补充说明：
 
-- `Transformers_FP16_benchmark.json` 显示：
-  - `avg_latency=4.0010 s`
-  - `p95_latency=4.4645 s`
-  - `token_throughput_tps=49.0860`
-  - `peak_memory=6036 MB`
-- `Transformers_FP16_accuracy.json` 显示基座模型在当前任务上的效果较弱：
-  - `parse_ok_rate=0.065`
-  - `exact_match_rate=0.000`
-  - `action_match_rate=0.055`
+- `Transformers_BNB_4bit` 对应 `bitsandbytes 4bit` 运行时量化；
+- `LlamaCPP_GGUF_Q4_K_M` 对应 `GGUF Q4_K_M` 量化模型；
+- `ExLlamaV2_EXL2_LocalAsset` 已纳入同一套 GPU-only benchmark，但当前本地 EXL2 资产 README 标注 `Bits 8.0`；
+- 因此当前结果不适合直接写成“某引擎在严格同构 4bit 条件下一定更快或更慢”。
 
 结论：
 
-- 在当前硬件与模型准备条件下，真正可稳定落地的方案仍然是 `Transformers_FP16`。
-- 该实验也说明，端侧引擎对模型格式、依赖和显存条件非常敏感，工程可用性和理论性能同样重要。
+- 在当前仓库现有资产与默认运行参数下，`Transformers_BNB_4bit` 的端到端时延与尾部时延都优于 `LlamaCPP_GGUF_Q4_K_M`。
+- 这个结论只能代表“当前部署栈 + 当前参数”的整体表现，不能直接外推为引擎上限差异。
 
 ## 10 Exp6 Prompt 消融
 
 实验目标：比较 Baseline Prompt 与 Optimized Prompt 在空间推理和工具调用上的差异。
 
-当前状态：
+结果文件：
 
-- 已有脚本：`experiments/10_exp6_prompt/run_exp6_prompt_ablation.py`
-- 已有测试集：`experiments/10_exp6_prompt/data/spatial_state_context_cases.json`
-- 已有两套系统提示词：
-  - `prompts/baseline_system_prompt.txt`
-  - `prompts/optimized_system_prompt.txt`
-- 当前 `reports/` 下只有 `.gitkeep`，未见 `baseline_accuracy.json`、`optimized_accuracy.json`、`prompt_ablation_summary.json` 等目标产物
+- `experiments/10_exp6_prompt/reports/baseline_accuracy.json`
+- `experiments/10_exp6_prompt/reports/optimized_accuracy.json`
+- `experiments/10_exp6_prompt/reports/prompt_ablation_summary.json`
+- `experiments/10_exp6_prompt/reports/prompt_ablation_summary.md`
+
+当前实验口径：
+
+- 默认测试集已从手工 7 条高难样本切换为 `data_prepare/splits/test.json`
+- 运行时按固定随机种子 `seed=42` 从正式测试集抽样 `100` 条
+- 模型与推理参数保持一致：`output/qwen2.5-3b-genesis-lora-rank-4`、`local + transformers`
+
+当前可直接引用的对比结果：
+
+| Variant | Parse OK | Exact Match | Action Match | 平均延迟(s) | 平均吞吐(tokens/s) | 峰值显存(MB) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline | 1.000 | 0.370 | 0.690 | 4.8227 | 17.2702 | 6082 |
+| Optimized（当前留存版本） | 0.940 | 0.290 | 0.560 | 19.0999 | 4.7898 | 6294 |
+
+补充说明：
+
+- 当前 `prompt_ablation_summary.json` 只保留了最新一次单独重跑的 `optimized` 结果；但 `baseline_accuracy.json` 仍保留了同一测试集、同一随机种子的基线报告，因此两者仍可用于横向比较。
+- 从 `baseline_accuracy.json` 与 `optimized_accuracy.json` 看，Prompt 优化并未在通用测试集上带来收益，反而在 `exact_match_rate`、`action_match_rate`、延迟和显存上都出现退化。
+- 这说明先前偏重空间关系规则、few-shot 和固定模板的 Prompt 设计更适合小规模定向样本，不一定能迁移到混合分布的正式测试集。
 
 结论：
 
-- 这是一个已经设计完整、但尚未落下结果数据的实验。
-- 后续如果补跑成功，建议优先记录 `exact_match_rate`、`parse_ok_rate` 和 `action_match_rate` 三个指标，便于与 03 号评测体系保持一致。
+- Exp6 已经完成并产出结构化结果。
+- 在当前“正式测试集抽样 100 条”的口径下，Baseline Prompt 明显优于当前保留的 Optimized Prompt。
+- 当前证据表明，Prompt 工程如果过度强调空间规则和模板，可能会削弱模型在通用控制任务上的泛化能力。
+- 后续更合理的方向不是继续无约束堆叠规则，而是将评测切分为“空间关系子集”和“通用控制子集”，分别观察 Prompt 收益。
 
 ## 当前阶段建议
 
 如果后续要继续完善实验资产，建议优先做三件事：
 
-1. 为 `03_eval_exp`、`04_sim_exp`、`10_exp6_prompt` 补齐标准化 `reports/` 产物。
+1. 为 `03_eval_exp`、`04_sim_exp` 补齐标准化 `reports/` 产物，减少“能力已实现但结果未沉淀”的目录。
 2. 为 `02_finetune_exp` 增加“微调前后准确率对比”的结构化摘要，避免只有训练日志。
-3. 在 `09_exp5_engine` 中补全可运行的 AWQ、GGUF、EXL2 模型，以完成更公平的引擎对比。
+3. 在 `10_exp6_prompt` 中把评测拆分为“空间关系子集”和“通用控制子集”，避免单一 Prompt 在混合分布上掩盖真实收益。

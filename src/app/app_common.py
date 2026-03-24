@@ -166,12 +166,19 @@ def _resolve_api_key(api_cfg: dict[str, Any]) -> str:
         raise RuntimeError(str(exc)) from exc
 
 
-def _build_local_prompt(system_prompt: str, user_prompt: str) -> str:
-    return (
-        f"{system_prompt}\n\n"
-        "请严格输出 JSON，不要附带解释。\n"
-        f"用户输入：\n{user_prompt}\n"
-    )
+def _build_local_prompt_prefix(system_prompt: str, scene_state: dict[str, Any] | None = None) -> str:
+    prefix = f"{system_prompt}\n\n请严格输出 JSON，不要附带解释。\n"
+    if scene_state:
+        return f"{prefix}{build_state_context_text(scene_state)}\n用户指令: "
+    return f"{prefix}用户输入：\n"
+
+
+def _build_local_prompt(
+    system_prompt: str,
+    user_prompt: str,
+    scene_state: dict[str, Any] | None = None,
+) -> str:
+    return f"{_build_local_prompt_prefix(system_prompt, scene_state)}{user_prompt}\n"
 
 
 def _get_local_engine(local_cfg: dict[str, Any]) -> LocalLLMEngine:
@@ -204,6 +211,8 @@ def _get_local_engine(local_cfg: dict[str, Any]) -> LocalLLMEngine:
         default_temperature=float(gen_cfg.get("temperature", 0.0)),
         default_top_p=float(gen_cfg.get("top_p", 1.0)),
         default_max_new_tokens=int(gen_cfg.get("max_new_tokens", 512)),
+        enable_prefix_caching=bool(local_cfg.get("enable_prefix_caching", False)),
+        prefix_cache_max_entries=int(local_cfg.get("prefix_cache_max_entries", 4)),
     )
     _LOCAL_ENGINE_CACHE[key] = engine
     return engine
@@ -224,14 +233,16 @@ def preload_local_engine(cfg: dict[str, Any], *, warmup: bool = False) -> LocalL
         gen_cfg = local_cfg.get("generation", {})
         if not isinstance(gen_cfg, dict):
             gen_cfg = {}
-        engine.generate(
-            _build_local_prompt(
-                str(inf_cfg.get("system_prompt", DEFAULT_APP_SYSTEM_PROMPT)),
-                "输出一个最短 JSON：{\"commands\":[{\"action\":\"wait\"}]}",
-            ),
+        system_prompt = str(inf_cfg.get("system_prompt", DEFAULT_APP_SYSTEM_PROMPT))
+        prefix_prompt = _build_local_prompt_prefix(system_prompt)
+        engine.warm_prefix(prefix_prompt, cache_key="app::default_prompt_prefix")
+        engine.generate_with_prefix(
+            prefix_prompt,
+            "输出一个最短 JSON：{\"commands\":[{\"action\":\"wait\"}]}\n",
             temperature=float(gen_cfg.get("temperature", 0.0)),
             top_p=float(gen_cfg.get("top_p", 1.0)),
             max_new_tokens=min(64, int(gen_cfg.get("max_new_tokens", 128))),
+            cache_key="app::default_prompt_prefix",
         )
     return engine
 
@@ -250,12 +261,11 @@ def predict_actions_from_instruction(
     if max_retries <= 0:
         raise ValueError("app.inference.max_retries must be > 0")
 
-    prompt_text = inject_state_into_instruction(instruction, scene_state)
-
     last_err: Exception | None = None
     for i in range(max_retries):
         try:
             if mode == "api":
+                prompt_text = inject_state_into_instruction(instruction, scene_state)
                 api_cfg = inf_cfg.get("api", {})
                 if not isinstance(api_cfg, dict):
                     raise TypeError("app.inference.api must be a mapping object")
@@ -300,8 +310,10 @@ def predict_actions_from_instruction(
                     gen_cfg = {}
 
                 engine = _get_local_engine(local_cfg)
-                raw = engine.generate(
-                    _build_local_prompt(system_prompt, prompt_text),
+                prefix_prompt = _build_local_prompt_prefix(system_prompt, scene_state)
+                raw = engine.generate_with_prefix(
+                    prefix_prompt,
+                    f"{instruction}\n",
                     temperature=(
                         float(gen_cfg["temperature"]) if gen_cfg.get("temperature") is not None else None
                     ),

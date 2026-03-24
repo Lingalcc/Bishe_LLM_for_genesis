@@ -162,6 +162,7 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
         model_path=args.model_path,
         tokenizer_path=args.tokenizer_path,
         quantization=args.quantization,
+        require_gpu=bool(args.require_gpu),
         batch_size=args.batch_size,
         num_samples=args.num_samples,
         prompt=args.prompt,
@@ -321,6 +322,7 @@ def build_parser() -> argparse.ArgumentParser:
     eval_benchmark_parser.add_argument("--model-path", required=True)
     eval_benchmark_parser.add_argument("--tokenizer-path", default=None)
     eval_benchmark_parser.add_argument("--quantization", default=None)
+    eval_benchmark_parser.add_argument("--require-gpu", action="store_true")
     eval_benchmark_parser.add_argument("--batch-size", type=int, default=1)
     eval_benchmark_parser.add_argument("--num-samples", type=int, default=32)
     eval_benchmark_parser.add_argument(

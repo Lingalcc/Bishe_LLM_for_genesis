@@ -1,0 +1,2022 @@
+{
+  "mode": "local",
+  "model_path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct-GGUF/qwen2.5-3b-instruct-q4_k_m.gguf",
+  "backend": "llama.cpp",
+  "quantization": "gguf_q4_k_m",
+  "dataset_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+  "seed": 42,
+  "num_samples_evaluated": 200,
+  "num_valid_rows_in_dataset": 200,
+  "parse_ok": 10,
+  "parse_ok_rate": 0.05,
+  "exact_match": 0,
+  "exact_match_rate": 0.0,
+  "action_match": 9,
+  "action_match_rate": 0.045,
+  "avg_latency_sec": 4.7999556846900235,
+  "avg_throughput_tps": 14.265337950643241,
+  "avg_peak_vram_mb": 0.0,
+  "max_peak_vram_mb": 0.0,
+  "details": [
+    {
+      "dataset_index": 163,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_entity",
+      "latency_sec": 7.7996744120000585,
+      "throughput_tps": 4.230945839127387,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 28,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 1.528935496000031,
+      "throughput_tps": 16.351245729727957,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 6,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_target",
+      "latency_sec": 4.227800789999947,
+      "throughput_tps": 19.86848580914359,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 189,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.06451016300025,
+      "throughput_tps": 12.055573251127084,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 70,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 6.482250892000138,
+      "throughput_tps": 14.038333522743578,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 62,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: joint_trajectory",
+      "latency_sec": 1.6251479219999965,
+      "throughput_tps": 20.305843888591006,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 57,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.432758012000249,
+      "throughput_tps": 13.992114344647188,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 35,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.087945579999996,
+      "throughput_tps": 13.787454332044858,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 188,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.842069131999779,
+      "throughput_tps": 14.53697972832449,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 26,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.1583955639998749,
+      "throughput_tps": 12.948944614571763,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 173,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: pick_up",
+      "latency_sec": 6.167269533000308,
+      "throughput_tps": 14.268875314938438,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 139,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.648139848000028,
+      "throughput_tps": 13.885892107654538,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 22,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.475592246999895,
+      "throughput_tps": 12.62448651159154,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 151,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: grab",
+      "latency_sec": 8.21138305500017,
+      "throughput_tps": 13.517820232781444,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 108,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_object",
+      "latency_sec": 1.91962700699969,
+      "throughput_tps": 13.02336334550436,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 8,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.9946147499999825,
+      "throughput_tps": 12.613585462222131,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 7,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_arm",
+      "latency_sec": 4.24320277400011,
+      "throughput_tps": 19.796367148584874,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 23,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.801788471000236,
+      "throughput_tps": 12.287088520521607,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 55,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_speed",
+      "latency_sec": 1.4126570570001604,
+      "throughput_tps": 19.112919067091692,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 59,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_state",
+      "latency_sec": 1.4041750410001441,
+      "throughput_tps": 17.80404812080507,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 129,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_arm",
+      "latency_sec": 7.069106336999994,
+      "throughput_tps": 11.741229519433677,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 154,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: pause",
+      "latency_sec": 1.0216127639996557,
+      "throughput_tps": 18.59804484589075,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 197,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.151344935999987,
+      "throughput_tps": 14.682552853999294,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 143,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 1.3722456179998517,
+      "throughput_tps": 18.21831286766237,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 50,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.006292566999946,
+      "throughput_tps": 10.786425139424054,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 166,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_initial_pose",
+      "latency_sec": 5.590572833999886,
+      "throughput_tps": 28.798480009213897,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 191,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_entity",
+      "latency_sec": 8.644780185999934,
+      "throughput_tps": 20.012076221460248,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 107,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.843093390999911,
+      "throughput_tps": 13.862520172065693,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 56,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 1.9527419460000601,
+      "throughput_tps": 8.705707395092478,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 114,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_joints",
+      "latency_sec": 3.552515772999868,
+      "throughput_tps": 16.326458123231014,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 150,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.8802493200000754,
+      "throughput_tps": 14.432062319129255,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 71,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.794393722000223,
+      "throughput_tps": 24.11990036753684,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 1,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.6699403990000974,
+      "throughput_tps": 19.891331210689252,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 40,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_entity",
+      "latency_sec": 2.8284564700002193,
+      "throughput_tps": 10.960041396711896,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 185,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.345865903000231,
+      "throughput_tps": 11.597746955306919,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 87,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector_to",
+      "latency_sec": 4.824612051999793,
+      "throughput_tps": 10.778068669468686,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 168,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_object",
+      "latency_sec": 3.797537431999899,
+      "throughput_tps": 8.689841928067894,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 39,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.62660490899998,
+      "throughput_tps": 14.554313659150152,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 181,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_arm",
+      "latency_sec": 3.29504076000012,
+      "throughput_tps": 15.477805500651272,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 86,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.63153936100025,
+      "throughput_tps": 14.675938195688005,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 190,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.418191280999963,
+      "throughput_tps": 13.660891771318793,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 182,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: grab",
+      "latency_sec": 6.651025030000255,
+      "throughput_tps": 14.584218156219489,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 97,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 1.471107743000175,
+      "throughput_tps": 15.634476882769873,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 24,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_jaw_opening",
+      "latency_sec": 2.5999525790002735,
+      "throughput_tps": 6.538580794630028,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 91,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.838251864000085,
+      "throughput_tps": 14.288900375146044,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 88,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_object",
+      "latency_sec": 2.45531853600005,
+      "throughput_tps": 10.181978278357075,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 67,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 1.172224728999936,
+      "throughput_tps": 19.620811121790673,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 11,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.647154295999826,
+      "throughput_tps": 13.983504908453272,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 117,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.506294405000062,
+      "throughput_tps": 13.536621116524488,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 137,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 6.740982340999835,
+      "throughput_tps": 7.862355561687903,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 31,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.804694217999895,
+      "throughput_tps": 15.247234122965558,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 96,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 9.171567483999752,
+      "throughput_tps": 12.211653045718682,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 20,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 4.574712188999911,
+      "throughput_tps": 15.957288018147151,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 141,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 5.6716912399997454,
+      "throughput_tps": 8.81571261273423,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 75,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector_to",
+      "latency_sec": 5.872356917000161,
+      "throughput_tps": 12.77170326328071,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 92,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 4.368066719000126,
+      "throughput_tps": 14.422856621205877,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 49,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 4.780418780000218,
+      "throughput_tps": 11.923641551754885,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 17,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.298686966999867,
+      "throughput_tps": 13.134607972736386,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 152,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 6.217027499999858,
+      "throughput_tps": 15.119765836648163,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 58,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector",
+      "latency_sec": 6.968494645999726,
+      "throughput_tps": 11.336738278955277,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 74,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_speed",
+      "latency_sec": 4.176921973999924,
+      "throughput_tps": 7.9005545723417905,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 147,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.521189966000293,
+      "throughput_tps": 13.026349658074995,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 180,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: reset_to_initial_pose",
+      "latency_sec": 1.5864367050003239,
+      "throughput_tps": 15.758586473196166,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 25,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_object",
+      "latency_sec": 3.225578892000158,
+      "throughput_tps": 17.361224721208046,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 157,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.6188292339998043,
+      "throughput_tps": 14.092955677720923,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 199,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 2.0421676529999786,
+      "throughput_tps": 12.241894030235265,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 116,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.85358785399967,
+      "throughput_tps": 12.096382158839473,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 93,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 6.68815055999994,
+      "throughput_tps": 15.250852845633444,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 41,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.9794851329997982,
+      "throughput_tps": 12.061861873024977,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 94,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 2.1992264030000115,
+      "throughput_tps": 15.459981725219322,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 90,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: get_arm_state",
+      "latency_sec": 0.6298347290003221,
+      "throughput_tps": 14.289462910825607,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 53,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.493217575000017,
+      "throughput_tps": 22.328984188738836,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 68,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_object",
+      "latency_sec": 3.0220690569999533,
+      "throughput_tps": 8.27247806998091,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 89,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.528327471000011,
+      "throughput_tps": 13.747376652102062,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 119,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: apply_force",
+      "latency_sec": 2.3520996860002015,
+      "throughput_tps": 19.131842186724455,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 164,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 3.8268043940001917,
+      "throughput_tps": 11.759158652204095,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 82,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_object",
+      "latency_sec": 2.7959348250001312,
+      "throughput_tps": 8.941553206626992,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 9,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: reset_arm_to_initial_pose",
+      "latency_sec": 1.9701563240000723,
+      "throughput_tps": 22.33325318605448,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 77,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.118283830999644,
+      "throughput_tps": 23.157603739120642,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 81,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.605940457000088,
+      "throughput_tps": 11.723990030728912,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 21,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector_to_object",
+      "latency_sec": 5.080998228000226,
+      "throughput_tps": 16.33537275069412,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 127,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector_to",
+      "latency_sec": 4.160865390999788,
+      "throughput_tps": 11.295727110438115,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 132,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 4.827995179000027,
+      "throughput_tps": 10.977641450540418,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 149,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: lift",
+      "latency_sec": 7.842407229999935,
+      "throughput_tps": 16.06649544007434,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 138,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.694756160999987,
+      "throughput_tps": 15.123256153281654,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 169,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_entity",
+      "latency_sec": 2.0159707450002315,
+      "throughput_tps": 12.400973606388881,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 48,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.368426255000031,
+      "throughput_tps": 13.97057469684839,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 34,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 8.034556823999992,
+      "throughput_tps": 14.313172775937556,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 120,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.647236891000375,
+      "throughput_tps": 14.166219966350388,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 178,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 7.279634024000188,
+      "throughput_tps": 15.522758373216412,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 134,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: query_state",
+      "latency_sec": 10.726465658000052,
+      "throughput_tps": 10.348236179473858,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 198,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_object",
+      "latency_sec": 3.075886264000019,
+      "throughput_tps": 10.72861515922417,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 124,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_arm",
+      "latency_sec": 3.585857417999705,
+      "throughput_tps": 23.425359741954725,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 131,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "command index=0 must be object",
+      "latency_sec": 3.7561789549999958,
+      "throughput_tps": 19.7008717866053,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 98,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move",
+      "latency_sec": 1.7864388439998038,
+      "throughput_tps": 26.30932492195919,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 99,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 2.5785919049999393,
+      "throughput_tps": 15.51234219049522,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 183,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_positions",
+      "latency_sec": 4.243973976000234,
+      "throughput_tps": 17.436487692542798,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 29,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.026941087999603,
+      "throughput_tps": 14.373252704862537,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 4,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.851414769999792,
+      "throughput_tps": 19.473363550507454,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 174,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.1286271110002417,
+      "throughput_tps": 7.974290101913096,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 51,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_end_effector_pose",
+      "latency_sec": 4.210179001000142,
+      "throughput_tps": 13.538616763434394,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 112,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.070374380999965,
+      "throughput_tps": 14.850698752553159,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 184,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_positions",
+      "latency_sec": 3.0937270670001453,
+      "throughput_tps": 20.04055259474416,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 27,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 4.1831486010000845,
+      "throughput_tps": 12.191773437789706,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 72,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_joints",
+      "latency_sec": 3.695959271999982,
+      "throughput_tps": 12.175458842556266,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 155,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: precise_pick",
+      "latency_sec": 7.83376700000008,
+      "throughput_tps": 13.403513277839247,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 100,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 3.462593998999637,
+      "throughput_tps": 15.595244494619037,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 148,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.8848854510001729,
+      "throughput_tps": 10.170807972746566,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 83,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_entity",
+      "latency_sec": 2.5395870160000413,
+      "throughput_tps": 12.99423874515488,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 63,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: apply_force",
+      "latency_sec": 2.5428467249998903,
+      "throughput_tps": 12.97758125787209,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 175,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.003036814999632,
+      "throughput_tps": 13.369924751496338,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 123,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_gripper",
+      "latency_sec": 7.26169352099987,
+      "throughput_tps": 15.698817317245195,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 140,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_force_torque_sensor_value",
+      "latency_sec": 7.405970561000231,
+      "throughput_tps": 12.42240962777669,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 18,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.440012379000109,
+      "throughput_tps": 12.096754066435496,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 33,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.723956550000366,
+      "throughput_tps": 14.241405850476305,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 142,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.656313682000018,
+      "throughput_tps": 12.129874662275412,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 133,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.435955491000186,
+      "throughput_tps": 14.792987953348314,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 109,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector",
+      "latency_sec": 6.060384141000213,
+      "throughput_tps": 15.675573988338153,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 118,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_angle",
+      "latency_sec": 1.6515901449997727,
+      "throughput_tps": 15.74240442080355,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 85,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_object",
+      "latency_sec": 3.8801230719996056,
+      "throughput_tps": 14.174808112892144,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 196,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: grasp",
+      "latency_sec": 5.337446773000011,
+      "throughput_tps": 11.616040896863456,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 54,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 0.39250511900036145,
+      "throughput_tps": 5.095474945890217,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 79,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 8.001879688999907,
+      "throughput_tps": 14.37162322723862,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 104,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_entity",
+      "latency_sec": 6.3454032700001335,
+      "throughput_tps": 13.39552371743872,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 46,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_state",
+      "latency_sec": 2.4469090879997566,
+      "throughput_tps": 26.972804312052382,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 165,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.268061429000227,
+      "throughput_tps": 13.54610158158235,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 84,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.212467137000203,
+      "throughput_tps": 13.637801909172769,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 65,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 3.619305971000358,
+      "throughput_tps": 16.301467870563233,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 179,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.4475713080000787,
+      "throughput_tps": 13.922844725101449,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 146,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 6.111546469000132,
+      "throughput_tps": 14.889848332428352,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 177,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 8.780181256000105,
+      "throughput_tps": 15.375536798599136,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 14,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.652870099000211,
+      "throughput_tps": 12.03558208341837,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 19,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_gripper_open_distance",
+      "latency_sec": 2.057911079000405,
+      "throughput_tps": 7.288944674560959,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 115,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.734856903000036,
+      "throughput_tps": 13.187057146517908,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 78,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_all_joints_to_initial_position",
+      "latency_sec": 0.992979999000454,
+      "throughput_tps": 9.063626668270773,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 135,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 6.270194025000819,
+      "throughput_tps": 11.961352344274578,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 176,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 5.38070729500032,
+      "throughput_tps": 17.283973072910754,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 156,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.3663649070003885,
+      "throughput_tps": 12.112482309059512,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 38,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_jaw_open",
+      "latency_sec": 4.5014583319998565,
+      "throughput_tps": 12.662563062019213,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 102,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 3.918272910000269,
+      "throughput_tps": 15.057654572610144,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 80,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_arm_to_object",
+      "latency_sec": 2.689571449000141,
+      "throughput_tps": 17.84670937737839,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 16,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_entity",
+      "latency_sec": 3.4947897649999504,
+      "throughput_tps": 15.73771348160074,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 192,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.311699431999841,
+      "throughput_tps": 14.087012322910573,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 161,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 7.667069281999829,
+      "throughput_tps": 12.912365384831565,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 0,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.9316561450004883,
+      "throughput_tps": 16.10036071837656,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 43,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.789039591000801,
+      "throughput_tps": 11.40627175448141,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 145,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 5.343560842000443,
+      "throughput_tps": 13.848443423411453,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 103,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.737608865999391,
+      "throughput_tps": 13.768801925162178,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 95,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.678595585999574,
+      "throughput_tps": 14.407672374129287,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 105,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 6.496390405999591,
+      "throughput_tps": 14.931368642872494,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 113,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 8.171187853999982,
+      "throughput_tps": 14.196222394179246,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 73,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: reset_and_close_gripper",
+      "latency_sec": 0.8173507159999645,
+      "throughput_tps": 11.011185068810034,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 106,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.7531636539997635,
+      "throughput_tps": 13.800817933824987,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 125,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 0.4705148000002737,
+      "throughput_tps": 14.877321606027968,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 52,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "command index=0 missing valid 'action'",
+      "latency_sec": 8.679244032999122,
+      "throughput_tps": 12.789132276724777,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 160,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 4.0145818329992835,
+      "throughput_tps": 23.663734842596483,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 144,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.9560765340002035,
+      "throughput_tps": 12.71166810435648,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 10,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 4.779886236000493,
+      "throughput_tps": 11.924970006753549,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 60,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.363058237000587,
+      "throughput_tps": 13.511803552922224,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 171,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: rotate",
+      "latency_sec": 7.104603821000637,
+      "throughput_tps": 11.964073175867574,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 172,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_arm",
+      "latency_sec": 2.2856477730001643,
+      "throughput_tps": 20.56309837202402,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 32,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_location",
+      "latency_sec": 3.42480905299999,
+      "throughput_tps": 13.431405747922184,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 195,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 4.994313359000444,
+      "throughput_tps": 13.615485275359143,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 61,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.180209961000401,
+      "throughput_tps": 14.623527803547768,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 69,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 6.866356231000282,
+      "throughput_tps": 13.253026341562713,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 153,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_left_edge_and_lift",
+      "latency_sec": 2.668037307999839,
+      "throughput_tps": 9.37018381453664,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 36,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: reset",
+      "latency_sec": 2.34704678900016,
+      "throughput_tps": 7.243144908603201,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 12,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_entity",
+      "latency_sec": 3.5275083310007176,
+      "throughput_tps": 7.087155480340924,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 122,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 8.173636901000464,
+      "throughput_tps": 13.947279697003209,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 37,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: grab",
+      "latency_sec": 8.046662870000546,
+      "throughput_tps": 14.540189130601922,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 194,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 6.286339849999422,
+      "throughput_tps": 12.407856059517236,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 5,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 3.7791597759996876,
+      "throughput_tps": 20.11029025093177,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 110,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector_to_entity",
+      "latency_sec": 1.6431434320002154,
+      "throughput_tps": 10.346023158371345,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 47,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 4.036931990000085,
+      "throughput_tps": 14.119633459566607,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 162,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 5.626630658000067,
+      "throughput_tps": 14.573552981198542,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 186,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector",
+      "latency_sec": 6.115954381999472,
+      "throughput_tps": 12.099501627709556,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 126,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move",
+      "latency_sec": 5.570954852999421,
+      "throughput_tps": 12.026663609367965,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 42,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.6938751190000403,
+      "throughput_tps": 10.036158987939887,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 15,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_positions",
+      "latency_sec": 2.5296973059994343,
+      "throughput_tps": 15.812168477681473,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 159,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 6.469302213999981,
+      "throughput_tps": 14.066432049359236,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 3,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.5754398969993417,
+      "throughput_tps": 5.712690161739481,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 30,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.335737682999934,
+      "throughput_tps": 13.49557526156172,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 130,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: pause",
+      "latency_sec": 1.1026309839999158,
+      "throughput_tps": 15.417669416771348,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 45,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "command index=0 must be object",
+      "latency_sec": 8.681078763999722,
+      "throughput_tps": 16.011834908862998,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 167,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_target",
+      "latency_sec": 2.7696419059993787,
+      "throughput_tps": 18.413932822697348,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 158,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_angles",
+      "latency_sec": 3.1025126929998805,
+      "throughput_tps": 19.01684403519772,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 76,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.950114745999599,
+      "throughput_tps": 12.452650453858618,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 128,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_end_effector_right",
+      "latency_sec": 3.4049637849993815,
+      "throughput_tps": 6.754844236912839,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 170,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 10.446040143000573,
+      "throughput_tps": 17.23140994442856,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 136,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.498917300999892,
+      "throughput_tps": 10.001968931229264,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 44,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to",
+      "latency_sec": 4.147547489999852,
+      "throughput_tps": 17.3596565617631,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 64,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: grasp",
+      "latency_sec": 5.8812788719997116,
+      "throughput_tps": 15.132763117852093,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 2,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: set_joint_position",
+      "latency_sec": 1.5135537890000705,
+      "throughput_tps": 18.499507717197286,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 13,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: move_to_pose",
+      "latency_sec": 4.833026550999421,
+      "throughput_tps": 14.276768246955214,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 121,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 2.618049937000251,
+      "throughput_tps": 23.299784751200548,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 111,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: reset_joint_position",
+      "latency_sec": 1.4097767089997433,
+      "throughput_tps": 6.3839897074095004,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 193,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 3.376600264999979,
+      "throughput_tps": 21.323222871926312,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 101,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "unsupported action: grasp",
+      "latency_sec": 2.6666015210003025,
+      "throughput_tps": 17.6254305826576,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 187,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 7.070361953000429,
+      "throughput_tps": 17.679434352997177,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 66,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "payload must be command object, command list, or {'commands':[...]} format",
+      "latency_sec": 5.614227253000536,
+      "throughput_tps": 14.961987859523504,
+      "peak_vram_mb": 0.0
+    }
+  ]
+}

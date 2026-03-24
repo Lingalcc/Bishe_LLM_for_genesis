@@ -114,6 +114,7 @@ class InferenceBenchmarkConfig:
     model_path: str
     tokenizer_path: str | None = None
     quantization: str | None = None
+    require_gpu: bool = False
     batch_size: int = 1
     num_samples: int = 32
     prompt: str = "Generate one short JSON action for robot arm control."
@@ -157,6 +158,7 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
             "model_path": cfg.model_path,
             "tokenizer_path": cfg.tokenizer_path,
             "quantization": cfg.quantization,
+            "require_gpu": cfg.require_gpu,
             "max_new_tokens": cfg.max_new_tokens,
             "max_model_len": cfg.max_model_len,
             "temperature": cfg.temperature,
@@ -334,6 +336,7 @@ def parse_args(argv: list[str] | None = None) -> InferenceBenchmarkConfig:
     parser.add_argument("--model-path", required=True)
     parser.add_argument("--tokenizer-path", type=str, default=None)
     parser.add_argument("--quantization", default=None)
+    parser.add_argument("--require-gpu", action="store_true")
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--num-samples", type=int, default=32)
     parser.add_argument("--prompt", type=str, default=InferenceBenchmarkConfig.prompt)
@@ -355,6 +358,7 @@ def parse_args(argv: list[str] | None = None) -> InferenceBenchmarkConfig:
         model_path=ns.model_path,
         tokenizer_path=ns.tokenizer_path,
         quantization=ns.quantization,
+        require_gpu=bool(ns.require_gpu),
         batch_size=ns.batch_size,
         num_samples=ns.num_samples,
         prompt=ns.prompt,

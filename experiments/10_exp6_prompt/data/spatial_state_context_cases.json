@@ -1,0 +1,37 @@
+[
+  {
+    "case_id": "exp6_case_01_right_of",
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"red_cube\",\"category\":\"object\",\"state\":{\"pos\":[0.42,-0.18,0.05]}},{\"name\":\"blue_cylinder\",\"category\":\"object\",\"state\":{\"pos\":[0.58,0.12,0.05]}}]}[/STATE_CONTEXT] 将桌子上的红色方块移动到蓝色圆柱体右侧 5 厘米处",
+    "output": "{\"commands\":[{\"action\":\"open_gripper\",\"position\":0.04},{\"action\":\"move_ee\",\"pos\":[0.42,-0.18,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.42,-0.18,0.05],\"quat\":[0,1,0,0]},{\"action\":\"close_gripper\",\"position\":0.0},{\"action\":\"move_ee\",\"pos\":[0.58,0.17,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.58,0.17,0.05],\"quat\":[0,1,0,0]},{\"action\":\"open_gripper\",\"position\":0.04}]}"
+  },
+  {
+    "case_id": "exp6_case_02_left_of",
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"green_block\",\"category\":\"object\",\"state\":{\"pos\":[0.36,0.24,0.05]}},{\"name\":\"yellow_box\",\"category\":\"object\",\"state\":{\"pos\":[0.62,-0.05,0.05]}}]}[/STATE_CONTEXT] 把绿色方块移动到黄色盒子左侧 8 厘米处",
+    "output": "{\"commands\":[{\"action\":\"open_gripper\",\"position\":0.04},{\"action\":\"move_ee\",\"pos\":[0.36,0.24,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.36,0.24,0.05],\"quat\":[0,1,0,0]},{\"action\":\"close_gripper\",\"position\":0.0},{\"action\":\"move_ee\",\"pos\":[0.62,-0.13,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.62,-0.13,0.05],\"quat\":[0,1,0,0]},{\"action\":\"open_gripper\",\"position\":0.04}]}"
+  },
+  {
+    "case_id": "exp6_case_03_front_of",
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"bottle\",\"category\":\"object\",\"state\":{\"pos\":[0.35,-0.15,0.10]}},{\"name\":\"white_cup\",\"category\":\"object\",\"state\":{\"pos\":[0.50,0.10,0.10]}}]}[/STATE_CONTEXT] 将瓶子移动到白色杯子前方 10 厘米处",
+    "output": "{\"commands\":[{\"action\":\"open_gripper\",\"position\":0.04},{\"action\":\"move_ee\",\"pos\":[0.35,-0.15,0.2],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.35,-0.15,0.1],\"quat\":[0,1,0,0]},{\"action\":\"close_gripper\",\"position\":0.0},{\"action\":\"move_ee\",\"pos\":[0.6,0.1,0.2],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.6,0.1,0.1],\"quat\":[0,1,0,0]},{\"action\":\"open_gripper\",\"position\":0.04}]}"
+  },
+  {
+    "case_id": "exp6_case_04_behind",
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"silver_gear\",\"category\":\"object\",\"state\":{\"pos\":[0.31,0.05,0.02]}},{\"name\":\"black_box\",\"category\":\"object\",\"state\":{\"pos\":[0.48,0.22,0.04]}}]}[/STATE_CONTEXT] 把银色齿轮移动到黑色盒子后方 6 厘米处",
+    "output": "{\"commands\":[{\"action\":\"open_gripper\",\"position\":0.04},{\"action\":\"move_ee\",\"pos\":[0.31,0.05,0.12],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.31,0.05,0.02],\"quat\":[0,1,0,0]},{\"action\":\"close_gripper\",\"position\":0.0},{\"action\":\"move_ee\",\"pos\":[0.42,0.22,0.12],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.42,0.22,0.02],\"quat\":[0,1,0,0]},{\"action\":\"open_gripper\",\"position\":0.04}]}"
+  },
+  {
+    "case_id": "exp6_case_05_right_front",
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"orange_cube\",\"category\":\"object\",\"state\":{\"pos\":[0.40,-0.22,0.05]}},{\"name\":\"blue_box\",\"category\":\"object\",\"state\":{\"pos\":[0.55,-0.10,0.05]}}]}[/STATE_CONTEXT] 将橙色方块移动到蓝色盒子右前方 5 厘米处",
+    "output": "{\"commands\":[{\"action\":\"open_gripper\",\"position\":0.04},{\"action\":\"move_ee\",\"pos\":[0.4,-0.22,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.4,-0.22,0.05],\"quat\":[0,1,0,0]},{\"action\":\"close_gripper\",\"position\":0.0},{\"action\":\"move_ee\",\"pos\":[0.6,-0.05,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.6,-0.05,0.05],\"quat\":[0,1,0,0]},{\"action\":\"open_gripper\",\"position\":0.04}]}"
+  },
+  {
+    "case_id": "exp6_case_06_left_behind",
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"white_cup\",\"category\":\"object\",\"state\":{\"pos\":[0.30,0.18,0.05]}},{\"name\":\"green_plate\",\"category\":\"object\",\"state\":{\"pos\":[0.52,0.18,0.05]}}]}[/STATE_CONTEXT] 把白色杯子移动到绿色盘子左后方 7 厘米处",
+    "output": "{\"commands\":[{\"action\":\"open_gripper\",\"position\":0.04},{\"action\":\"move_ee\",\"pos\":[0.3,0.18,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.3,0.18,0.05],\"quat\":[0,1,0,0]},{\"action\":\"close_gripper\",\"position\":0.0},{\"action\":\"move_ee\",\"pos\":[0.45,0.11,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.45,0.11,0.05],\"quat\":[0,1,0,0]},{\"action\":\"open_gripper\",\"position\":0.04}]}"
+  },
+  {
+    "case_id": "exp6_case_07_above",
+    "instruction": "[STATE_CONTEXT]{\"entities\":[{\"name\":\"purple_block\",\"category\":\"object\",\"state\":{\"pos\":[0.41,-0.12,0.05]}},{\"name\":\"steel_cylinder\",\"category\":\"object\",\"state\":{\"pos\":[0.60,0.05,0.08]}}]}[/STATE_CONTEXT] 将紫色方块移动到钢色圆柱体上方 10 厘米处",
+    "output": "{\"commands\":[{\"action\":\"open_gripper\",\"position\":0.04},{\"action\":\"move_ee\",\"pos\":[0.41,-0.12,0.15],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.41,-0.12,0.05],\"quat\":[0,1,0,0]},{\"action\":\"close_gripper\",\"position\":0.0},{\"action\":\"move_ee\",\"pos\":[0.6,0.05,0.28],\"quat\":[0,1,0,0]},{\"action\":\"move_ee\",\"pos\":[0.6,0.05,0.18],\"quat\":[0,1,0,0]},{\"action\":\"open_gripper\",\"position\":0.04}]}"
+  }
+]

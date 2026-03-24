@@ -1,0 +1,21 @@
+$ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval benchmark --backend llama.cpp --model-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct-GGUF/qwen2.5-3b-instruct-q4_k_m.gguf --batch-size 1 --num-samples 200 --max-new-tokens 128 --max-model-len 4096 --gpu-memory-utilization 0.9 --output-json /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/LlamaCPP_GGUF_Q4_benchmark.json --use-chat --tokenizer-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --prompts-file /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/prompts/default_prompts.json --quantization gguf_q4_k_m
+
+[stdout]
+[ok] backend          : llama.cpp
+[ok] quantization     : gguf_q4_k_m
+[ok] batch_size       : 1
+[ok] num_samples      : 200
+[ok] avg_latency (s)  : 7.0241
+[ok] p50_latency (s)  : 7.2612
+[ok] p95_latency (s)  : 8.7073
+[ok] throughput       : 0.1424 samples/s
+[ok] avg_ttft (s)     : 7.0241
+[ok] avg_tpot (s)     : 0.038787
+[ok] peak_memory (MB) : 0.00
+[ok] errors           : 0
+[ok] json report      : /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/LlamaCPP_GGUF_Q4_benchmark.json
+
+
+[stderr]
+llama_context: n_ctx_per_seq (4096) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+
