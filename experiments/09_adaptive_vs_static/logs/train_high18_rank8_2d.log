@@ -1,0 +1,4 @@
+
+===== 2026-03-25 15:48:43 | train_high18_rank8_2d | DRY RUN =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/run_train.py --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_high18_rank8_2d_override.yaml --dry-run output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/high18_rank8_2d

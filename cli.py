@@ -22,9 +22,65 @@ def _load_cfg(base_config: Path, override_config: Path | None) -> dict:
     )
 
 
+def _print_generate_progress(update: dict[str, object]) -> None:
+    event = str(update.get("event", "batch_completed"))
+    if event == "batch_started":
+        print(
+            "[progress] "
+            f"{update.get('batch_label', '?')} started "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"timeout={int(update['timeout'])}s",
+            flush=True,
+        )
+        return
+    if event == "batch_retry":
+        print(
+            "[retry] "
+            f"{update.get('batch_label', '?')} "
+            f"attempt {int(update['attempt'])}/{int(update['max_retries'])} "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"timeout={int(update['timeout'])}s "
+            f"error={update['error']}",
+            flush=True,
+        )
+        return
+    if event == "batch_failed":
+        print(
+            "[failed] "
+            f"{update.get('batch_label', '?')} "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"error={update['error']}",
+            flush=True,
+        )
+        return
+
+    unique_samples = int(update["unique_samples"])
+    target_samples = int(update["target_samples"])
+    percent = 100.0 * unique_samples / max(1, target_samples)
+    print(
+        "[progress] "
+        f"{update.get('batch_label', '?')} "
+        f"round {int(update['round_idx'])}/{int(update['max_rounds'])} "
+        f"batch {int(update['batch_idx'])}/{int(update['batch_total'])} "
+        f"difficulty={update['difficulty']} "
+        f"accepted={int(update['accepted_count'])} "
+        f"dup={int(update['duplicate_count'])} "
+        f"invalid={int(update['invalid_count'])} "
+        f"total={unique_samples}/{target_samples} "
+        f"({percent:.1f}%)",
+        flush=True,
+    )
+
+
 def _run_data_generate(args: argparse.Namespace) -> None:
     cfg = _load_cfg(args.base_config, args.config)
-    outputs = run_generate_from_merged_config(cfg)
+    outputs = run_generate_from_merged_config(
+        cfg,
+        progress_callback=_print_generate_progress,
+    )
     print(f"[ok] alpaca  : {outputs['alpaca_path']}")
     print(f"[ok] sharegpt: {outputs['sharegpt_path']}")
     print(f"[ok] stats   : {outputs['stats_path']}")
@@ -54,6 +110,7 @@ def _run_data_split(args: argparse.Namespace) -> None:
         val_name=args.val_name,
         test_name=args.test_name,
         metadata_name=args.metadata_name,
+        preserve_existing_splits=args.preserve_existing_splits,
     )
     print(f"[split] train: {metadata['splits']['train']['num_samples']} -> {metadata['splits']['train']['path']}")
     print(f"[split] val  : {metadata['splits']['val']['num_samples']} -> {metadata['splits']['val']['path']}")
@@ -103,7 +160,9 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
     cfg = InferenceBenchmarkConfig(
         backend=args.backend,
         model_path=args.model_path,
+        tokenizer_path=args.tokenizer_path,
         quantization=args.quantization,
+        require_gpu=bool(args.require_gpu),
         batch_size=args.batch_size,
         num_samples=args.num_samples,
         prompt=args.prompt,
@@ -115,6 +174,7 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
         max_model_len=args.max_model_len,
         gpu_memory_utilization=args.gpu_memory_utilization,
         trust_remote_code=not args.no_trust_remote_code,
+        use_flash_attention=args.use_flash_attention,
         output_json=str(args.output_json),
         output_csv=str(args.output_csv) if args.output_csv else None,
     )
@@ -127,6 +187,8 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
     print(f"[ok] p50_latency (s)  : {report['p50_latency']:.4f}")
     print(f"[ok] p95_latency (s)  : {report['p95_latency']:.4f}")
     print(f"[ok] throughput       : {report['throughput']:.4f} samples/s")
+    print(f"[ok] avg_ttft (s)     : {report.get('avg_ttft_sec', 0.0):.4f}")
+    print(f"[ok] avg_tpot (s)     : {report.get('avg_tpot_sec', 0.0):.6f}")
     print(f"[ok] peak_memory (MB) : {report['peak_memory']:.2f}")
     print(f"[ok] errors           : {report['errors']}")
     print(f"[ok] json report      : {args.output_json}")
@@ -208,6 +270,11 @@ def build_parser() -> argparse.ArgumentParser:
     data_split_parser.add_argument("--val-name", type=str, default=None)
     data_split_parser.add_argument("--test-name", type=str, default=None)
     data_split_parser.add_argument("--metadata-name", type=str, default=None)
+    data_split_parser.add_argument(
+        "--preserve-existing-splits",
+        action="store_true",
+        help="仅对新增样本做切分并追加到现有 split，保留旧 train/val/test。",
+    )
     data_split_parser.set_defaults(handler=_run_data_split)
 
     finetune_parser = root_subparsers.add_parser("finetune", help="Model fine-tuning commands.")
@@ -251,9 +318,11 @@ def build_parser() -> argparse.ArgumentParser:
     eval_benchmark_parser = eval_subparsers.add_parser(
         "benchmark", help="Run local inference benchmark (HF/vLLM)."
     )
-    eval_benchmark_parser.add_argument("--backend", required=True, choices=["transformers", "vllm"])
+    eval_benchmark_parser.add_argument("--backend", required=True, choices=["transformers", "vllm", "llama.cpp", "exllamav2"])
     eval_benchmark_parser.add_argument("--model-path", required=True)
+    eval_benchmark_parser.add_argument("--tokenizer-path", default=None)
     eval_benchmark_parser.add_argument("--quantization", default=None)
+    eval_benchmark_parser.add_argument("--require-gpu", action="store_true")
     eval_benchmark_parser.add_argument("--batch-size", type=int, default=1)
     eval_benchmark_parser.add_argument("--num-samples", type=int, default=32)
     eval_benchmark_parser.add_argument(
@@ -268,6 +337,7 @@ def build_parser() -> argparse.ArgumentParser:
     eval_benchmark_parser.add_argument("--temperature", type=float, default=0.0)
     eval_benchmark_parser.add_argument("--max-model-len", type=int, default=4096)
     eval_benchmark_parser.add_argument("--gpu-memory-utilization", type=float, default=0.9)
+    eval_benchmark_parser.add_argument("--use-flash-attention", action="store_true")
     eval_benchmark_parser.add_argument("--no-trust-remote-code", action="store_true")
     eval_benchmark_parser.add_argument(
         "--output-json",

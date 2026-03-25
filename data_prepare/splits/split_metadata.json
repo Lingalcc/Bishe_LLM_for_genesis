@@ -1,5 +1,5 @@
 {
-  "created_at_utc": "2026-03-13T13:19:59.940530+00:00",
+  "created_at_utc": "2026-03-17T07:41:54.675835+00:00",
   "seed": 42,
   "ratios": {
     "train": 0.8,
@@ -8,27 +8,27 @@
   },
   "source": {
     "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
-    "num_samples": 625,
-    "sha256": "2c5fefcac3d63cf7f16e695e78d80930520d4a1c3a242d8cc9aec1f06d3e116d"
+    "num_samples": 2000,
+    "sha256": "19de947734a08ea2ae074d2d7e6c93afc4cd3e099a9c09c41aee0666d657d46c"
   },
   "splits": {
     "train": {
       "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/train.json",
-      "num_samples": 500,
-      "sha256": "9e72dada141637188f9fe71ffc3d2c8390043a93ac449fcc594e55ce9b8818e6",
-      "sample_set_sha256": "22ec1367ad435aa7cdb2de9fd6d5718e3187c0b64af8d0a7417b7781bfbac4fe"
+      "num_samples": 1600,
+      "sha256": "948b122c16580b53aec2148debc35f423954bacddf8de29ea64e8727d59943af",
+      "sample_set_sha256": "20e12139bace5db623459e9fa6098765e5f660fb7b02b326b72dfe2627de1962"
     },
     "val": {
       "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/val.json",
-      "num_samples": 62,
-      "sha256": "d8940f4f17a2c6019cf5267f941774555da1e538aa815b6abdae98c80020c3ac",
-      "sample_set_sha256": "78e7cc1a0678808990a3422494e8fb22f1f8bcdcbc67863883cdaeb161eefa31"
+      "num_samples": 200,
+      "sha256": "4b6f9c463a9d42b8dd3be4ebdee45ddb9cbc665f7f73d4578fd758935dc4c7a9",
+      "sample_set_sha256": "e1a76c5ce6777fff596d45f8fe60f219e3cdd18e0fa2a3700f1100ef23e118db"
     },
     "test": {
       "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
-      "num_samples": 63,
-      "sha256": "35367bd0e760ed3589076330b857b3309d97552953d44451ba1867e90d5f56d8",
-      "sample_set_sha256": "767f840fb9aac0e81832b9ee9350724910f15c42191a164675320414d62fb173"
+      "num_samples": 200,
+      "sha256": "8ed9f9dcea3a8991d6b1fc53013bd7027ec70bf3bc81af40592fe7f766fe2275",
+      "sample_set_sha256": "75f1d2a01e784e424d7b7eeca05adaa0b5f35b7f34ad732975ec770b4056bad9"
     }
   },
   "overlap": {

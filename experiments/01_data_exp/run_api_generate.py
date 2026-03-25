@@ -51,6 +51,60 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _print_progress(update: dict[str, object]) -> None:
+    """Render progress events to stdout."""
+    event = str(update.get("event", "batch_completed"))
+    if event == "batch_started":
+        print(
+            "[progress] "
+            f"{update.get('batch_label', '?')} started "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"timeout={int(update['timeout'])}s",
+            flush=True,
+        )
+        return
+    if event == "batch_retry":
+        print(
+            "[retry] "
+            f"{update.get('batch_label', '?')} "
+            f"attempt {int(update['attempt'])}/{int(update['max_retries'])} "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"timeout={int(update['timeout'])}s "
+            f"error={update['error']}",
+            flush=True,
+        )
+        return
+    if event == "batch_failed":
+        print(
+            "[failed] "
+            f"{update.get('batch_label', '?')} "
+            f"difficulty={update['difficulty']} "
+            f"request={int(update['requested_batch_size'])} "
+            f"error={update['error']}",
+            flush=True,
+        )
+        return
+
+    unique_samples = int(update["unique_samples"])
+    target_samples = int(update["target_samples"])
+    percent = 100.0 * unique_samples / max(1, target_samples)
+    print(
+        "[progress] "
+        f"{update.get('batch_label', '?')} "
+        f"round {int(update['round_idx'])}/{int(update['max_rounds'])} "
+        f"batch {int(update['batch_idx'])}/{int(update['batch_total'])} "
+        f"difficulty={update['difficulty']} "
+        f"accepted={int(update['accepted_count'])} "
+        f"dup={int(update['duplicate_count'])} "
+        f"invalid={int(update['invalid_count'])} "
+        f"total={unique_samples}/{target_samples} "
+        f"({percent:.1f}%)",
+        flush=True,
+    )
+
+
 def print_action_summary() -> None:
     """Print all supported robot actions."""
     print("=" * 60)
@@ -95,7 +149,7 @@ def run_demo(cfg: GenerateDatasetConfig) -> None:
         sleep_seconds=cfg.sleep_seconds,
     )
 
-    result = run_generate_dataset(demo_cfg)
+    result = run_generate_dataset(demo_cfg, progress_callback=_print_progress)
     print(f"\n✅ Demo 生成完成: {result['total_samples']} 条样本\n")
 
     # Print a few samples
@@ -194,7 +248,10 @@ def main() -> None:
     # Full generation
     print_action_summary()
     logger.info("Starting full dataset generation...")
-    result = run_generate_from_merged_config(merged_config)
+    result = run_generate_from_merged_config(
+        merged_config,
+        progress_callback=_print_progress,
+    )
 
     print(f"\n✅ 数据集生成完成!")
     print(f"   总样本数 : {result['total_samples']}")

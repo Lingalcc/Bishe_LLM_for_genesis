@@ -1,0 +1,34 @@
+test:
+  accuracy_eval:
+    mode: local
+    test_file: data_prepare/splits/test.json
+    dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    report_file: experiments/10_exp6_prompt/reports/placeholder_accuracy.json
+    num_samples: 100
+    seed: 42
+    leakage_check:
+      enabled: true
+      strict: true
+
+    model_path: output/qwen2.5-3b-genesis-lora-rank-4
+    backend: transformers
+    quantization: null
+    max_new_tokens: 512
+    max_model_len: 4096
+    gpu_memory_utilization: 0.9
+    trust_remote_code: true
+    temperature: 0.0
+    system_prompt: ""
+
+prompt_experiment:
+  summary_json: experiments/10_exp6_prompt/reports/prompt_ablation_summary.json
+  summary_md: experiments/10_exp6_prompt/reports/prompt_ablation_summary.md
+  variants:
+    - name: baseline
+      label: Baseline
+      prompt_file: experiments/10_exp6_prompt/prompts/baseline_system_prompt.txt
+      report_file: experiments/10_exp6_prompt/reports/baseline_accuracy.json
+    - name: optimized
+      label: Optimized
+      prompt_file: experiments/10_exp6_prompt/prompts/optimized_system_prompt.txt
+      report_file: experiments/10_exp6_prompt/reports/optimized_accuracy.json

@@ -1,0 +1,16 @@
+
+===== 2026-03-24 09:21:57 | train_important_rank4 | DRY RUN =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/run_train.py --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_important_rank4_override.yaml --dry-run output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/important_rank4
+
+===== 2026-03-24 19:28:43 | train_important_rank4 | DRY RUN =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/run_train.py --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_important_rank4_override.yaml --dry-run output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/important_rank4
+
+===== 2026-03-24 19:31:53 | train_important_rank4 | DRY RUN =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/run_train.py --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_important_rank4_override.yaml --dry-run output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/important_rank4
+
+===== 2026-03-25 15:48:43 | train_important_rank4 | DRY RUN =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/run_train.py --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/.cache/train_important_rank4_override.yaml --dry-run output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/important_rank4

@@ -1,0 +1,28 @@
+{
+  "experiment": "exp6_prompt_ablation",
+  "dataset_file": "data_prepare/splits/test.json",
+  "mode": "local",
+  "model": "output/qwen2.5-3b-genesis-lora-rank-4",
+  "variants": [
+    {
+      "name": "optimized",
+      "label": "Optimized",
+      "prompt_file": "experiments/10_exp6_prompt/prompts/optimized_system_prompt.txt",
+      "prompt_sha256": "17ad10cad28746f8f8a3106427fa88f300969d80338147c5241b82b517a53864",
+      "report_file": "experiments/10_exp6_prompt/reports/optimized_accuracy.json",
+      "num_samples_evaluated": 100,
+      "parse_ok": 94,
+      "parse_ok_rate": 0.94,
+      "exact_match": 29,
+      "exact_match_rate": 0.29,
+      "action_match": 56,
+      "action_match_rate": 0.56
+    }
+  ],
+  "best_variant": {
+    "name": "optimized",
+    "label": "Optimized",
+    "exact_match_rate": 0.29
+  },
+  "delta_optimized_vs_baseline": null
+}

@@ -24,6 +24,7 @@ class SplitDatasetConfig:
     val_name: str = "val.json"
     test_name: str = "test.json"
     metadata_name: str = "split_metadata.json"
+    preserve_existing_splits: bool = False
 
 
 def _validate_ratios(train_ratio: float, val_ratio: float, test_ratio: float) -> None:
@@ -44,6 +45,12 @@ def _load_rows(path: Path) -> list[Any]:
 def _write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _load_optional_rows(path: Path) -> list[Any]:
+    if not path.exists():
+        return []
+    return _load_rows(path)
 
 
 def _split_indices(
@@ -131,6 +138,39 @@ def run_split_dataset(cfg: SplitDatasetConfig) -> dict[str, Any]:
     test_file = (out_dir / cfg.test_name).resolve()
     metadata_file = (out_dir / cfg.metadata_name).resolve()
 
+    mode = "replace"
+    existing_train_rows: list[Any] = []
+    existing_val_rows: list[Any] = []
+    existing_test_rows: list[Any] = []
+    existing_seen: set[str] = set()
+    new_rows = rows
+    new_source_rows = len(rows)
+
+    if cfg.preserve_existing_splits:
+        mode = "append"
+        existing_train_rows = _load_optional_rows(train_file)
+        existing_val_rows = _load_optional_rows(val_file)
+        existing_test_rows = _load_optional_rows(test_file)
+
+        for existing_row in existing_train_rows + existing_val_rows + existing_test_rows:
+            existing_seen.add(_sample_fingerprint(existing_row))
+
+        new_rows = [
+            row for row in rows
+            if _sample_fingerprint(row) not in existing_seen
+        ]
+        new_source_rows = len(new_rows)
+
+        train_idx, val_idx, test_idx = _split_indices_grouped_by_fingerprint(
+            new_rows,
+            train_ratio=cfg.train_ratio,
+            val_ratio=cfg.val_ratio,
+            seed=cfg.seed,
+        )
+        train_rows = existing_train_rows + [new_rows[i] for i in train_idx]
+        val_rows = existing_val_rows + [new_rows[i] for i in val_idx]
+        test_rows = existing_test_rows + [new_rows[i] for i in test_idx]
+
     _write_json(train_file, train_rows)
     _write_json(val_file, val_rows)
     _write_json(test_file, test_rows)
@@ -152,6 +192,8 @@ def run_split_dataset(cfg: SplitDatasetConfig) -> dict[str, Any]:
             "num_samples": len(rows),
             "sha256": sha256_file(input_file),
         },
+        "mode": mode,
+        "new_rows_considered": new_source_rows,
         "splits": {
             "train": {
                 "path": str(train_file),
@@ -179,6 +221,19 @@ def run_split_dataset(cfg: SplitDatasetConfig) -> dict[str, Any]:
         },
     }
 
+    if cfg.preserve_existing_splits:
+        metadata["preserved_existing_splits"] = True
+        metadata["existing_before_append"] = {
+            "train": len(existing_train_rows),
+            "val": len(existing_val_rows),
+            "test": len(existing_test_rows),
+        }
+        metadata["appended_counts"] = {
+            "train": len(train_rows) - len(existing_train_rows),
+            "val": len(val_rows) - len(existing_val_rows),
+            "test": len(test_rows) - len(existing_test_rows),
+        }
+
     # Use stable set hash to identify split membership independent of row ordering.
     for split_name, fp_set in (("train", train_fp), ("val", val_fp), ("test", test_fp)):
         joined = "\n".join(sorted(fp_set))
@@ -204,6 +259,7 @@ def run_split_from_merged_config(
     val_name: str | None = None,
     test_name: str | None = None,
     metadata_name: str | None = None,
+    preserve_existing_splits: bool | None = None,
 ) -> dict[str, Any]:
     """Build :class:`SplitDatasetConfig` from merged config and optional CLI overrides."""
     section = (
@@ -233,6 +289,14 @@ def run_split_from_merged_config(
             or section.get("metadata_name")
             or section.get("metadata_file", SplitDatasetConfig.metadata_name)
         ),
+        preserve_existing_splits=bool(
+            preserve_existing_splits
+            if preserve_existing_splits is not None
+            else section.get(
+                "preserve_existing_splits",
+                SplitDatasetConfig.preserve_existing_splits,
+            )
+        ),
     )
     return run_split_dataset(cfg)
 
@@ -249,6 +313,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--val-name", type=str, default="val.json", help="Validation file name.")
     parser.add_argument("--test-name", type=str, default="test.json", help="Test file name.")
     parser.add_argument("--metadata-name", type=str, default="split_metadata.json", help="Metadata file name.")
+    parser.add_argument(
+        "--preserve-existing-splits",
+        action="store_true",
+        help="仅对新增样本做切分并追加到现有 train/val/test，保留旧数据不覆盖。",
+    )
     return parser
 
 
@@ -265,6 +334,7 @@ def main() -> None:
         val_name=args.val_name,
         test_name=args.test_name,
         metadata_name=args.metadata_name,
+        preserve_existing_splits=args.preserve_existing_splits,
     )
     metadata = run_split_dataset(cfg)
     print(f"[split] train: {metadata['splits']['train']['num_samples']} -> {metadata['splits']['train']['path']}")

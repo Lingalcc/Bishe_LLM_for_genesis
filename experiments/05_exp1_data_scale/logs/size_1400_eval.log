@@ -1,0 +1,21 @@
+
+===== 2026-03-18 04:15:41 | stage=eval/size_1400 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python cli.py eval accuracy --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/eval_override.yaml
+
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.51s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.75s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.87s/it]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[ok] evaluated samples : 200
+[ok] parse ok          : 200 (1.0000)
+[ok] exact match       : 74 (0.3700)
+[ok] action match      : 141 (0.7050)
+[ok] avg latency (sec) : 3.267
+[ok] avg throughput    : 25.5 tokens/s
+[ok] peak VRAM (MB)    : 6198
+
+===== 2026-03-18 04:27:44 | stage=eval/size_1400 finished in 723.2s =====

@@ -9,7 +9,7 @@ stage: sft
 do_train: true
 finetuning_type: full
 use_galore: true
-galore_layerwise: false   # true requires non-DDP (single GPU); false is safe for all setups
+galore_layerwise: true   # 单卡优先使用 layerwise 以降低显存压力
 galore_target: all
 galore_rank: 16
 galore_scale: 2.0
@@ -17,7 +17,7 @@ galore_scale: 2.0
 ### dataset
 dataset: genesis_franka_toolcall
 template: qwen
-cutoff_len: 1024
+cutoff_len: 512
 max_samples: 625
 preprocessing_num_workers: 4
 dataloader_num_workers: 2
@@ -34,12 +34,13 @@ report_to: none
 ### train
 # GaLore uses a much lower LR than LoRA-based methods.
 per_device_train_batch_size: 1
-gradient_accumulation_steps: 8
+gradient_accumulation_steps: 1
 learning_rate: 1.0e-5
+optim: adamw_torch
 num_train_epochs: 5.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
-bf16: true
+pure_bf16: true
 ddp_timeout: 180000000
 max_grad_norm: 1.0
 
