@@ -6,8 +6,8 @@
     "size": 600
   },
   "selection_strategy": {
-    "important_top_k": null,
-    "important_ratio": 0.5,
+    "important_top_k": 18,
+    "important_ratio": 0.0,
     "preview_only": true,
     "module_types": [
       "q_proj",

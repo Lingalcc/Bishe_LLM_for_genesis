@@ -173,6 +173,20 @@ python experiments/09_adaptive_vs_static/run_pipeline.py
 3. 训练静态高层 LoRA 模型
 4. 调用现有评测脚本比较两个模型
 
+如果你想在不影响原有 `important_rank4 / high18_rank8` 设定的前提下，额外补充“筛层 + 筛模块”的二维过滤分支，可以启用：
+
+```bash
+python experiments/09_adaptive_vs_static/run_pipeline.py \
+  --enable-high18-rank8-2d \
+  --high-layer-2d-module-types q_proj,k_proj,v_proj,o_proj,down_proj
+```
+
+这会额外生成一个独立分支 `high18_rank8_2d`：
+
+- 层维度：仍使用 `layer_scores` 排名后的 Top-18 层
+- 模块维度：默认只保留 `q_proj,k_proj,v_proj,o_proj,down_proj`
+- 兼容性：不会覆盖原有 `high18_rank8` 的配置、日志、模型输出与汇总结果
+
 
 ### 5.4 指定 GPU
 
@@ -231,6 +245,10 @@ python experiments/09_adaptive_vs_static/run_pipeline.py \
   [`reports/accuracy_report_adalora.json`](/home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/reports/accuracy_report_adalora.json)
 - Static Rank 评测报告：
   [`reports/accuracy_report_static_rank.json`](/home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/reports/accuracy_report_static_rank.json)
+- 二维过滤补充报告（启用 `--enable-high18-rank8-2d` 后生成）：
+  [`reports/high18_rank8_2d_layers.json`](/home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/reports/high18_rank8_2d_layers.json)
+  [`reports/comparison_summary_2d.json`](/home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/reports/comparison_summary_2d.json)
+  [`reports/comparison_summary_2d.md`](/home/lin/Bishe_LLM_for_genesis/experiments/09_adaptive_vs_static/reports/comparison_summary_2d.md)
 
 
 ## 7. 当前静态方法的默认假设

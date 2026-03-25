@@ -4,6 +4,9 @@ from __future__ import annotations
 import copy
 import hashlib
 import inspect
+import os
+import sys
+import time
 from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,6 +61,18 @@ class LocalLLMEngine:
 
         self._validate_init_args()
         self._initialize_backend()
+
+    def _prefix_profile_enabled(self) -> bool:
+        value = os.getenv("LLM_GENESIS_PREFIX_PROFILE", "").strip().lower()
+        return value in {"1", "true", "yes", "on"}
+
+    def _emit_prefix_profile(self, **payload: Any) -> None:
+        if not self._prefix_profile_enabled():
+            return
+        parts = ["[prefix-profile]"]
+        for key, value in payload.items():
+            parts.append(f"{key}={value}")
+        print(" ".join(parts), file=sys.stderr, flush=True)
 
     def generate(
         self,
@@ -154,9 +169,16 @@ class LocalLLMEngine:
         if not isinstance(prefix_prompt, str) or not prefix_prompt:
             return False
 
+        started_at = time.perf_counter()
         self._get_or_create_transformers_prefix_cache(
             prefix_prompt=prefix_prompt,
             cache_key=cache_key,
+        )
+        self._emit_prefix_profile(
+            stage="warm_prefix",
+            cache_key=cache_key or "-",
+            prefix_chars=len(prefix_prompt),
+            elapsed_ms=f"{(time.perf_counter() - started_at) * 1000:.2f}",
         )
         return True
 
@@ -395,10 +417,12 @@ class LocalLLMEngine:
             raise RuntimeError("transformers backend is not initialized.")
 
         full_prompt = f"{prefix_prompt}{suffix_prompt}"
+        tokenize_started_at = time.perf_counter()
         inputs, prefix_token_count = self._tokenize_with_prefix_boundary(
             prompt=full_prompt,
             prefix_prompt=prefix_prompt,
         )
+        tokenize_elapsed_ms = (time.perf_counter() - tokenize_started_at) * 1000
 
         if prefix_token_count is None or prefix_token_count <= 0:
             return self._generate_transformers_from_inputs(
@@ -418,12 +442,14 @@ class LocalLLMEngine:
                 max_new_tokens=max_new_tokens,
             )
 
+        cache_started_at = time.perf_counter()
         entry = self._get_or_create_transformers_prefix_cache(
             prefix_prompt=prefix_prompt,
             cache_key=cache_key,
             prefix_input_ids=inputs["input_ids"][:, :prefix_token_count],
             prefix_attention_mask=inputs["attention_mask"][:, :prefix_token_count],
         )
+        cache_elapsed_ms = (time.perf_counter() - cache_started_at) * 1000
 
         import torch
 
@@ -445,18 +471,39 @@ class LocalLLMEngine:
             max_new_tokens=max_new_tokens,
         )
 
+        deepcopy_started_at = time.perf_counter()
+        past_key_values = copy.deepcopy(entry.past_key_values)
+        deepcopy_elapsed_ms = (time.perf_counter() - deepcopy_started_at) * 1000
+
+        generate_started_at = time.perf_counter()
         with torch.no_grad():
             generated_ids = self._hf_model.generate(
                 input_ids=suffix_input_ids,
                 attention_mask=full_attention_mask,
-                past_key_values=copy.deepcopy(entry.past_key_values),
+                past_key_values=past_key_values,
                 cache_position=cache_position,
                 **generate_kwargs,
             )
+        generate_elapsed_ms = (time.perf_counter() - generate_started_at) * 1000
 
         suffix_len = suffix_input_ids.shape[-1]
+        decode_started_at = time.perf_counter()
         new_token_ids = generated_ids[0][suffix_len:]
         text = self._tokenizer.decode(new_token_ids, skip_special_tokens=True).strip()
+        decode_elapsed_ms = (time.perf_counter() - decode_started_at) * 1000
+        self._emit_prefix_profile(
+            stage="generate_with_prefix",
+            cache_key=cache_key or "-",
+            cache_type=type(entry.past_key_values).__name__,
+            prefix_chars=len(prefix_prompt),
+            prefix_tokens=prefix_token_count,
+            suffix_tokens=int(suffix_input_ids.shape[-1]),
+            tokenize_ms=f"{tokenize_elapsed_ms:.2f}",
+            cache_lookup_ms=f"{cache_elapsed_ms:.2f}",
+            deepcopy_ms=f"{deepcopy_elapsed_ms:.2f}",
+            generate_ms=f"{generate_elapsed_ms:.2f}",
+            decode_ms=f"{decode_elapsed_ms:.2f}",
+        )
         if not text:
             raise RuntimeError("transformers generated empty text.")
         return text

@@ -1,10 +1,10 @@
 {
   "timestamp": {
-    "utc": "2026-03-24T01:54:03.169353Z",
-    "epoch_sec": 1774317243
+    "utc": "2026-03-24T18:04:22.755954Z",
+    "epoch_sec": 1774375462
   },
   "git": {
-    "commit_hash": "c7bb3eefe804ccfe202a1d88289bf4595be44e4a",
+    "commit_hash": "51fcfba532de4c001a867bdc430840c7e9a48706",
     "dirty": true,
     "branch": "expeiences"
   },
@@ -47,15 +47,15 @@
       "--base-config",
       "configs/base.yaml",
       "--config",
-      "experiments/09_adaptive_vs_static/.cache/train_static_override.yaml",
-      "output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/static_rank"
+      "experiments/09_adaptive_vs_static/.cache/train_high18_rank8_override.yaml",
+      "output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/high18_rank8"
     ],
     "cli_args": {
-      "config": "experiments/09_adaptive_vs_static/.cache/train_static_override.yaml",
+      "config": "experiments/09_adaptive_vs_static/.cache/train_high18_rank8_override.yaml",
       "base_config": "configs/base.yaml",
       "dry_run": false,
       "extra_args": [
-        "output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/static_rank"
+        "output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp11_exp7_adarank/high18_rank8"
       ]
     }
   },
@@ -118,7 +118,7 @@
         "gpus": "0",
         "dry_run": false,
         "finetune_method": "lora",
-        "config": "experiments/09_adaptive_vs_static/.cache/train_important_rank4_generated.yaml"
+        "config": "experiments/09_adaptive_vs_static/.cache/train_high18_rank8_generated.yaml"
       }
     },
     "test": {
@@ -210,6 +210,8 @@
           "max_model_len": 4096,
           "gpu_memory_utilization": 0.9,
           "trust_remote_code": true,
+          "enable_prefix_caching": true,
+          "prefix_cache_max_entries": 4,
           "generation": {
             "temperature": 0.0,
             "top_p": 1.0,
