@@ -1,6 +1,6 @@
 # 实验09 Exp5：本地部署栈速度基准
 
-本实验用于在 `8GB VRAM` 消费级显卡、`Batch Size = 1` 的具身智能场景下，对多种本地部署方案进行统一的**速度与资源占用**评测。
+本实验用于在 `8GB VRAM` 消费级显卡、`Batch Size = 1` 的具身智能场景下，对三种本地推理引擎进行统一的**速度与资源占用**评测。
 
 本次修订后的口径有两点：
 
@@ -21,14 +21,13 @@
 
 - `Transformers_BNB_4bit`
 - `LlamaCPP_GGUF_Q4_K_M`
-- `ExLlamaV2_EXL2_LocalAsset`
 
 说明：
 
 - 三组都属于当前仓库可直接复现的 GPU 本地部署方案；
 - benchmark 统一使用相同的 prompts、batch size、num samples、max_new_tokens、max_model_len；
+- `Transformers_BNB_4bit` 与 `vLLM_BNB_4bit` 共享同一基座模型与运行时 4bit 设定；
 - `Transformers_BNB_4bit` 与 `LlamaCPP_GGUF_Q4_K_M` 都属于 `4bit` GPU 部署方案，但量化格式不同；
-- 当前本地 `ExLlamaV2_EXL2_LocalAsset` 的 README 标注 `Bits 8.0`，因此它可以纳入同一套 GPU 基准，但不应写成“严格同构 4bit 主结论”；
 - 若后续要研究“纯引擎差异”，需要进一步统一模型格式、量化格式和关键运行参数。
 
 ## 核心指标
@@ -84,9 +83,8 @@ python experiments/09_exp5_engine/run_exp5_engine_benchmark.py \
 
 说明：
 
-- 当前仓库已存在 `model/Qwen_Qwen2.5-3B-Instruct`，因此 `Transformers_BNB_4bit` 可以直接复用该基础模型并通过 `bitsandbytes` 以运行时 `4bit` 方式加载；
+- 当前仓库已存在 `model/Qwen_Qwen2.5-3B-Instruct`，因此 `Transformers_BNB_4bit` 与 `vLLM_BNB_4bit` 都可以直接复用该基础模型并通过 `bitsandbytes` 以运行时 `4bit` 方式加载；
 - `model/Qwen_Qwen2.5-3B-Instruct-GGUF` 可用于 `LlamaCPP_GGUF_Q4_K_M`；
-- `model/Qwen_Qwen2.5-3B-Instruct-EXL2-4bpw` 可用于 `ExLlamaV2_EXL2_LocalAsset`，但其自带 README 标注 `Bits 8.0`；
 - 当前实验不再把 `accuracy` 纳入结论，因此也不再生成 `<CaseName>_accuracy.json`；
 - 当前脚本会向 benchmark CLI 显式传入 `--require-gpu`，并把子进程 `CUDA_VISIBLE_DEVICES` 绑定到指定 GPU；
 - 若后续补齐更统一的模型资产，再扩展到同构量化的严格对比会更合适。

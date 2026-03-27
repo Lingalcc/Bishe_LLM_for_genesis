@@ -7,6 +7,8 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+from src.eval_core.performance_monitor import estimate_tokens_from_text
+
 
 def _resolve_model_path(model_path: str | Path) -> str:
     """将模型路径规范化为绝对路径字符串。"""
@@ -113,6 +115,66 @@ def _render_chat_prompt(tokenizer: Any | None, messages: list[dict[str, str]]) -
     if tokenizer is not None and hasattr(tokenizer, "apply_chat_template"):
         return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     return _fallback_chat_prompt(messages)
+
+
+def _count_tokens_with_tokenizer(tokenizer: Any | None, text: str) -> int | None:
+    if tokenizer is None:
+        return None
+    if not text:
+        return 0
+
+    try:
+        if hasattr(tokenizer, "encode"):
+            token_ids = tokenizer.encode(text, add_special_tokens=False)
+            if isinstance(token_ids, list):
+                return len(token_ids)
+    except TypeError:
+        pass
+    except Exception:
+        return None
+
+    try:
+        encoded = tokenizer(
+            text,
+            add_special_tokens=False,
+            return_attention_mask=False,
+            return_token_type_ids=False,
+        )
+    except TypeError:
+        try:
+            encoded = tokenizer(text, add_special_tokens=False)
+        except Exception:
+            return None
+    except Exception:
+        return None
+
+    input_ids = None
+    if isinstance(encoded, dict):
+        input_ids = encoded.get("input_ids")
+    else:
+        input_ids = getattr(encoded, "input_ids", None)
+
+    if isinstance(input_ids, list):
+        if input_ids and isinstance(input_ids[0], list):
+            return len(input_ids[0])
+        return len(input_ids)
+    return None
+
+
+def _count_tokens_with_llama_cpp_engine(engine: Any, text: str) -> int | None:
+    if not text or engine is None or not hasattr(engine, "tokenize"):
+        return 0 if not text else None
+    raw = text.encode("utf-8")
+    for kwargs in ({"add_bos": False, "special": False}, {"add_bos": False}, {}):
+        try:
+            token_ids = engine.tokenize(raw, **kwargs)
+            if isinstance(token_ids, list):
+                return len(token_ids)
+        except TypeError:
+            continue
+        except Exception:
+            return None
+    return None
 
 
 def _ensure_cuda_available(backend_name: str) -> None:
@@ -229,6 +291,10 @@ class HFInferenceEngine:
             )
         self._model.eval()
 
+    @property
+    def token_count_method(self) -> str:
+        return "tokenizer_exact"
+
     def _input_device(self) -> Any:
         if hasattr(self._model, "device") and self._model.device is not None:
             return self._model.device
@@ -283,6 +349,12 @@ class HFInferenceEngine:
         inputs = self._tokenizer(prompts, return_tensors="pt", padding=True)
         return self._generate_from_tensors(inputs["input_ids"], inputs["attention_mask"])
 
+    def render_prompt_for_metrics(self, prompt: str) -> str:
+        return str(prompt)
+
+    def render_batch_for_metrics(self, prompts: list[str]) -> list[str]:
+        return [self.render_prompt_for_metrics(prompt) for prompt in prompts]
+
     def generate_chat(self, messages: list[dict[str, str]]) -> str:
         text = _render_chat_prompt(self._tokenizer, messages)
         return self.generate(text)
@@ -292,6 +364,20 @@ class HFInferenceEngine:
             raise ValueError("messages_batch 必须是非空列表。")
         prompts = [_render_chat_prompt(self._tokenizer, msgs) for msgs in messages_batch]
         return self.generate_batch(prompts)
+
+    def render_chat_for_metrics(self, messages: list[dict[str, str]]) -> str:
+        return _render_chat_prompt(self._tokenizer, messages)
+
+    def render_chat_batch_for_metrics(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        if not isinstance(messages_batch, list) or not messages_batch:
+            raise ValueError("messages_batch 必须是非空列表。")
+        return [self.render_chat_for_metrics(messages) for messages in messages_batch]
+
+    def count_tokens(self, text: str) -> int:
+        count = _count_tokens_with_tokenizer(self._tokenizer, str(text))
+        if count is not None:
+            return count
+        return estimate_tokens_from_text(str(text))
 
 
 class VLLMInferenceEngine:
@@ -308,6 +394,7 @@ class VLLMInferenceEngine:
         trust_remote_code: bool = True,
         quantization: str | None = None,
         tokenizer_path: str | None = None,
+        require_gpu: bool = False,
     ) -> None:
         self.model_path = _resolve_model_path(model_path)
         self.base_model_path, self.adapter_path, self.adapter_config = _resolve_model_and_adapter_paths(self.model_path)
@@ -318,6 +405,10 @@ class VLLMInferenceEngine:
         self.trust_remote_code = bool(trust_remote_code)
         self.quantization = _normalize_quantization(quantization)
         self.tokenizer_path = _resolve_tokenizer_path(self.model_path, tokenizer_path)
+        self.require_gpu = bool(require_gpu)
+
+        # 当前项目里的 vLLM 接入默认视为 GPU-only，本地无 CUDA 时尽早给出清晰错误。
+        _ensure_cuda_available("vllm")
 
         try:
             from vllm import LLM, SamplingParams
@@ -368,6 +459,10 @@ class VLLMInferenceEngine:
             )
         self._engine = LLM(**llm_kwargs)
 
+    @property
+    def token_count_method(self) -> str:
+        return "tokenizer_exact"
+
     def _sampling_params(self) -> Any:
         return self._SamplingParams(
             temperature=self.temperature,
@@ -405,6 +500,12 @@ class VLLMInferenceEngine:
     def generate_batch(self, prompts: list[str]) -> list[str]:
         return self._generate_many(prompts)
 
+    def render_prompt_for_metrics(self, prompt: str) -> str:
+        return str(prompt)
+
+    def render_batch_for_metrics(self, prompts: list[str]) -> list[str]:
+        return [self.render_prompt_for_metrics(prompt) for prompt in prompts]
+
     def generate_chat(self, messages: list[dict[str, str]]) -> str:
         tokenizer = self._engine.get_tokenizer()
         text = _render_chat_prompt(tokenizer, messages)
@@ -416,6 +517,23 @@ class VLLMInferenceEngine:
         tokenizer = self._engine.get_tokenizer()
         prompts = [_render_chat_prompt(tokenizer, msgs) for msgs in messages_batch]
         return self._generate_many(prompts)
+
+    def render_chat_for_metrics(self, messages: list[dict[str, str]]) -> str:
+        tokenizer = self._engine.get_tokenizer()
+        return _render_chat_prompt(tokenizer, messages)
+
+    def render_chat_batch_for_metrics(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        if not isinstance(messages_batch, list) or not messages_batch:
+            raise ValueError("messages_batch 必须是非空列表。")
+        tokenizer = self._engine.get_tokenizer()
+        return [_render_chat_prompt(tokenizer, messages) for messages in messages_batch]
+
+    def count_tokens(self, text: str) -> int:
+        tokenizer = self._engine.get_tokenizer()
+        count = _count_tokens_with_tokenizer(tokenizer, str(text))
+        if count is not None:
+            return count
+        return estimate_tokens_from_text(str(text))
 
 
 class LlamaCppInferenceEngine:
@@ -459,6 +577,11 @@ class LlamaCppInferenceEngine:
             verbose=False,
         )
 
+    @property
+    def token_count_method(self) -> str:
+        tokenizer_exact = self._chat_tokenizer is not None or hasattr(self._engine, "tokenize")
+        return "tokenizer_exact" if tokenizer_exact else "heuristic_estimate"
+
     def _completion(self, prompt: str) -> str:
         response = self._engine(
             prompt,
@@ -482,6 +605,12 @@ class LlamaCppInferenceEngine:
             raise ValueError("prompts 必须是非空字符串列表。")
         return [self.generate(str(prompt)) for prompt in prompts]
 
+    def render_prompt_for_metrics(self, prompt: str) -> str:
+        return str(prompt)
+
+    def render_batch_for_metrics(self, prompts: list[str]) -> list[str]:
+        return [self.render_prompt_for_metrics(prompt) for prompt in prompts]
+
     def generate_chat(self, messages: list[dict[str, str]]) -> str:
         prompt = _render_chat_prompt(self._chat_tokenizer, messages)
         return self.generate(prompt)
@@ -490,6 +619,23 @@ class LlamaCppInferenceEngine:
         if not isinstance(messages_batch, list) or not messages_batch:
             raise ValueError("messages_batch 必须是非空列表。")
         return [self.generate_chat(messages) for messages in messages_batch]
+
+    def render_chat_for_metrics(self, messages: list[dict[str, str]]) -> str:
+        return _render_chat_prompt(self._chat_tokenizer, messages)
+
+    def render_chat_batch_for_metrics(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        if not isinstance(messages_batch, list) or not messages_batch:
+            raise ValueError("messages_batch 必须是非空列表。")
+        return [self.render_chat_for_metrics(messages) for messages in messages_batch]
+
+    def count_tokens(self, text: str) -> int:
+        normalized = str(text)
+        count = _count_tokens_with_tokenizer(self._chat_tokenizer, normalized)
+        if count is None:
+            count = _count_tokens_with_llama_cpp_engine(self._engine, normalized)
+        if count is not None:
+            return count
+        return estimate_tokens_from_text(normalized)
 
 
 class ExLlamaV2InferenceEngine:
@@ -542,6 +688,10 @@ class ExLlamaV2InferenceEngine:
         self._generator = ExLlamaV2BaseGenerator(self._model, self._cache, self._tokenizer)
         self._sampler_settings = ExLlamaV2Sampler.Settings()
 
+    @property
+    def token_count_method(self) -> str:
+        return "tokenizer_exact"
+
     def _make_settings(self) -> Any:
         settings = self._sampler_settings.clone() if hasattr(self._sampler_settings, "clone") else self._sampler_settings
         settings.temperature = self.temperature
@@ -570,6 +720,12 @@ class ExLlamaV2InferenceEngine:
             raise ValueError("prompts 必须是非空字符串列表。")
         return [self.generate(str(prompt)) for prompt in prompts]
 
+    def render_prompt_for_metrics(self, prompt: str) -> str:
+        return str(prompt)
+
+    def render_batch_for_metrics(self, prompts: list[str]) -> list[str]:
+        return [self.render_prompt_for_metrics(prompt) for prompt in prompts]
+
     def generate_chat(self, messages: list[dict[str, str]]) -> str:
         prompt = _render_chat_prompt(self._chat_tokenizer, messages)
         return self.generate(prompt)
@@ -578,6 +734,23 @@ class ExLlamaV2InferenceEngine:
         if not isinstance(messages_batch, list) or not messages_batch:
             raise ValueError("messages_batch 必须是非空列表。")
         return [self.generate_chat(messages) for messages in messages_batch]
+
+    def render_chat_for_metrics(self, messages: list[dict[str, str]]) -> str:
+        return _render_chat_prompt(self._chat_tokenizer, messages)
+
+    def render_chat_batch_for_metrics(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        if not isinstance(messages_batch, list) or not messages_batch:
+            raise ValueError("messages_batch 必须是非空列表。")
+        return [self.render_chat_for_metrics(messages) for messages in messages_batch]
+
+    def count_tokens(self, text: str) -> int:
+        normalized = str(text)
+        count = _count_tokens_with_tokenizer(self._tokenizer, normalized)
+        if count is None:
+            count = _count_tokens_with_tokenizer(self._chat_tokenizer, normalized)
+        if count is not None:
+            return count
+        return estimate_tokens_from_text(normalized)
 
 
 def build_inference_engine(config: dict[str, Any]) -> Any:

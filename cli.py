@@ -156,6 +156,12 @@ def _run_eval_accuracy(args: argparse.Namespace) -> None:
         print(f"[ok] peak VRAM (MB)    : {report.get('max_peak_vram_mb', 0):.0f}")
 
 
+def _format_optional_metric(value: object, *, digits: int) -> str:
+    if isinstance(value, (int, float)):
+        return f"{float(value):.{digits}f}"
+    return "N/A"
+
+
 def _run_eval_benchmark(args: argparse.Namespace) -> None:
     cfg = InferenceBenchmarkConfig(
         backend=args.backend,
@@ -169,6 +175,8 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
         prompts_file=str(args.prompts_file) if args.prompts_file else None,
         use_chat=args.use_chat,
         warmup_batches=args.warmup_batches,
+        shuffle_prompts=not args.no_shuffle_prompts,
+        random_seed=args.random_seed,
         max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,
         max_model_len=args.max_model_len,
@@ -187,8 +195,14 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
     print(f"[ok] p50_latency (s)  : {report['p50_latency']:.4f}")
     print(f"[ok] p95_latency (s)  : {report['p95_latency']:.4f}")
     print(f"[ok] throughput       : {report['throughput']:.4f} samples/s")
-    print(f"[ok] avg_ttft (s)     : {report.get('avg_ttft_sec', 0.0):.4f}")
-    print(f"[ok] avg_tpot (s)     : {report.get('avg_tpot_sec', 0.0):.6f}")
+    print(f"[ok] token_count      : {report.get('token_count_method', 'unknown')}")
+    print(f"[ok] prompt_sampling  : {report.get('prompt_sampling_strategy', 'unknown')}")
+    print(f"[ok] avg_ttft (s)     : {_format_optional_metric(report.get('avg_ttft_sec'), digits=4)}")
+    print(f"[ok] avg_tpot (s)     : {_format_optional_metric(report.get('avg_tpot_sec'), digits=6)}")
+    print(
+        f"[ok] avg sec/output tok: "
+        f"{_format_optional_metric(report.get('avg_e2e_time_per_output_token_sec'), digits=6)}"
+    )
     print(f"[ok] peak_memory (MB) : {report['peak_memory']:.2f}")
     print(f"[ok] errors           : {report['errors']}")
     print(f"[ok] json report      : {args.output_json}")
@@ -333,6 +347,8 @@ def build_parser() -> argparse.ArgumentParser:
     eval_benchmark_parser.add_argument("--prompts-file", type=Path, default=None)
     eval_benchmark_parser.add_argument("--use-chat", action="store_true")
     eval_benchmark_parser.add_argument("--warmup-batches", type=int, default=1)
+    eval_benchmark_parser.add_argument("--no-shuffle-prompts", action="store_true")
+    eval_benchmark_parser.add_argument("--random-seed", type=int, default=42)
     eval_benchmark_parser.add_argument("--max-new-tokens", type=int, default=128)
     eval_benchmark_parser.add_argument("--temperature", type=float, default=0.0)
     eval_benchmark_parser.add_argument("--max-model-len", type=int, default=4096)

@@ -105,7 +105,7 @@ Bishe_LLM_for_genesis/
 ### eval
 
 - `python cli.py eval accuracy [--base-config ...] [--config ...]`
-- `python cli.py eval benchmark --backend {transformers,vllm} --model-path <path> [其他可选参数]`
+- `python cli.py eval benchmark --backend {transformers,vllm,llama.cpp,exllamav2} --model-path <path> [其他可选参数]`
 
 ### app
 
@@ -144,10 +144,12 @@ python cli.py eval accuracy --config experiments/03_eval_exp/configs/accuracy.ya
 
 ```bash
 python cli.py eval benchmark \
-  --backend transformers \
+  --backend vllm \
   --model-path model/Qwen_Qwen2.5-3B-Instruct \
   --num-samples 32 \
   --batch-size 1 \
+  --quantization 4bit \
+  --require-gpu \
   --output-json experiments/03_eval_exp/reports/inference_benchmark.json
 ```
 
