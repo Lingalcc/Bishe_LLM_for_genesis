@@ -1,0 +1,30 @@
+$ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval benchmark --backend transformers --model-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --batch-size 1 --num-samples 200 --max-new-tokens 128 --max-model-len 2048 --gpu-memory-utilization 0.8 --output-json /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/Transformers_BNB_4bit_benchmark.json --require-gpu --use-chat --tokenizer-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --prompts-file /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/prompts/default_prompts.json --quantization 4bit
+
+[stdout]
+[ok] backend          : transformers
+[ok] quantization     : 4bit
+[ok] batch_size       : 1
+[ok] num_samples      : 200
+[ok] avg_latency (s)  : 4.9635
+[ok] p50_latency (s)  : 5.3031
+[ok] p95_latency (s)  : 5.6315
+[ok] throughput       : 0.2015 samples/s
+[ok] token_count      : tokenizer_exact
+[ok] prompt_sampling  : cycle_shuffle
+[ok] avg_ttft (s)     : N/A
+[ok] avg_tpot (s)     : N/A
+[ok] avg sec/output tok: 0.042546
+[ok] peak_memory (MB) : 3006.00
+[ok] errors           : 0
+[ok] json report      : /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/Transformers_BNB_4bit_benchmark.json
+
+
+[stderr]
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:04<00:04,  4.46s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:07<00:00,  3.37s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:07<00:00,  3.54s/it]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+

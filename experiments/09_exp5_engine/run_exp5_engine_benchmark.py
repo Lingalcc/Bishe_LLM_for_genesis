@@ -29,12 +29,14 @@ MAX_MODEL_LEN = 4096
 GPU_MEMORY_UTILIZATION = 0.9
 POST_RUN_SLEEP_SECONDS = 15
 VRAM_LIMIT_MB = 8192
+VRAM_POLL_INTERVAL_SEC = 0.2
 
 
-# Exp5 修订后的实验口径：
-# 1. 只评测推理速度与资源占用，不再统计准确率；
-# 2. 结论解释层级限定为“本地部署栈”端到端表现，不将结果表述为纯引擎优劣；
-# 3. 默认矩阵纳入当前仓库可复现的 GPU 本地部署方案，并强制 GPU-only 运行。
+# Exp5 当前实验口径：
+# 1. 只评测三种推理引擎的速度与资源占用，不统计准确率；
+# 2. 对比对象收敛为 transformers / vllm / llama.cpp；
+# 3. 结论解释层级限定为“本地部署栈”端到端表现，不直接外推为纯引擎上限；
+# 4. 默认矩阵强制 GPU-only 运行。
 test_configs: list[dict[str, Any]] = [
     {
         "name": "Transformers_BNB_4bit",
@@ -45,20 +47,20 @@ test_configs: list[dict[str, Any]] = [
         "quant_note": "运行时 4bit（bitsandbytes NF4）",
     },
     {
+        "name": "vLLM_BNB_4bit",
+        "backend": "vllm",
+        "quant": "4bit",
+        "artifact_key": "base_fp16",
+        "stack_label": "vLLM + bitsandbytes 4bit",
+        "quant_note": "运行时 4bit（vLLM bitsandbytes）",
+    },
+    {
         "name": "LlamaCPP_GGUF_Q4_K_M",
         "backend": "llama.cpp",
         "quant": "gguf_q4_k_m",
         "artifact_key": "llamacpp_gguf_q4",
         "stack_label": "llama.cpp + GGUF Q4_K_M",
         "quant_note": "离线量化 GGUF Q4_K_M",
-    },
-    {
-        "name": "ExLlamaV2_EXL2_LocalAsset",
-        "backend": "exllamav2",
-        "quant": "exl2_local_asset",
-        "artifact_key": "exllamav2_local_asset",
-        "stack_label": "ExLlamaV2 + EXL2 local asset",
-        "quant_note": "本地 EXL2 资产 README 标注 Bits 8.0",
     },
 ]
 
@@ -77,13 +79,6 @@ MODEL_ARTIFACTS: dict[str, dict[str, Any]] = {
         "allow_patterns": ["*Q4_K_M*.gguf", "*.gguf"],
         "download_hint": "若官方 GGUF 仓库失效，请在 MODEL_ARTIFACTS['llamacpp_gguf_q4'] 中替换为新的可用仓库 ID。",
     },
-    "exllamav2_local_asset": {
-        "model_path": REPO_ROOT / "model" / "Qwen_Qwen2.5-3B-Instruct-EXL2-4bpw",
-        "tokenizer_path": REPO_ROOT / "model" / "Qwen_Qwen2.5-3B-Instruct",
-        "hf_repo_id": None,
-        "allow_patterns": None,
-        "download_hint": "当前仓库仅发现本地 EXL2 资产；其 README 标注 Bits 8.0，如需严格同构 4bit 对比，请替换为真实 4bpw EXL2 模型。",
-    },
 }
 
 
@@ -92,18 +87,18 @@ BACKEND_DEPENDENCIES: dict[str, list[dict[str, str]]] = {
         {"import_name": "transformers", "pip_name": "transformers"},
         {"import_name": "torch", "pip_name": "torch"},
     ],
+    "vllm": [
+        {"import_name": "vllm", "pip_name": "vllm"},
+        {"import_name": "torch", "pip_name": "torch"},
+    ],
     "llama.cpp": [
         {"import_name": "llama_cpp", "pip_name": "llama-cpp-python"},
-    ],
-    "exllamav2": [
-        {"import_name": "ninja", "pip_name": "ninja"},
-        {"import_name": "exllamav2", "pip_name": "exllamav2"},
     ],
 }
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="实验09 Exp5：本地部署栈速度与资源基准。")
+    parser = argparse.ArgumentParser(description="实验09 Exp5：三种本地推理引擎速度与资源基准。")
     parser.add_argument("--gpu-id", type=int, default=None, help="nvidia-smi 监控的物理 GPU 编号，默认自动推断。")
     parser.add_argument("--results-dir", type=Path, default=RESULTS_DIR)
     parser.add_argument("--num-samples", type=int, default=NUM_SAMPLES)
@@ -113,6 +108,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--gpu-memory-utilization", type=float, default=GPU_MEMORY_UTILIZATION)
     parser.add_argument("--benchmark-prompts-file", type=Path, default=DEFAULT_BENCHMARK_PROMPTS)
     parser.add_argument("--sleep-seconds", type=int, default=POST_RUN_SLEEP_SECONDS)
+    parser.add_argument("--vram-poll-interval", type=float, default=VRAM_POLL_INTERVAL_SEC)
     parser.add_argument("--auto-install-deps", action="store_true", help="缺少后端依赖时自动执行 pip install。")
     parser.add_argument("--auto-download-missing-models", action="store_true", help="缺少模型资产时尝试从 Hugging Face 下载。")
     parser.add_argument("--hf-token", type=str, default=os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_TOKEN") or "")
@@ -206,7 +202,7 @@ def ensure_backend_dependencies(
 ) -> tuple[bool, str | None]:
     deps = list(BACKEND_DEPENDENCIES.get(backend, []))
     quant_text = quantization.strip().lower()
-    if backend == "transformers" and "4bit" in quant_text:
+    if backend in {"transformers", "vllm"} and "4bit" in quant_text:
         deps.append({"import_name": "bitsandbytes", "pip_name": "bitsandbytes"})
 
     for dep in deps:
@@ -637,13 +633,14 @@ def write_markdown_report(df: pd.DataFrame, *, output_path: Path) -> None:
         "",
         "## 口径修正",
         "",
-        "- 本报告只统计推理速度与资源占用，不再统计准确率。",
+        "- 本报告只统计三种推理引擎的速度与资源占用，不再统计准确率。",
         "- 参与方案均为未针对当前任务微调的基座模型，因此不使用 Action Match Rate、Exact Match 等任务指标。",
         "- 当前结果仅解释为“本地部署栈”的端到端表现，不将其写成同构量化下的纯推理引擎优劣结论。",
         "- Exp5 在执行层面强制 GPU-only：子进程会绑定 `CUDA_VISIBLE_DEVICES`，并向 benchmark CLI 显式传入 `--require-gpu`。",
+        "- 当前实验矩阵固定为三种引擎：`transformers`、`vllm`、`llama.cpp`。",
         "- 三组方案统一使用相同的 prompts、batch size、num samples、max_new_tokens 和 max_model_len。",
+        "- `vLLM_BNB_4bit` 与 `Transformers_BNB_4bit` 共享同一基座模型与 bitsandbytes 4bit 设定，适合观察不同部署栈的端到端差异。",
         "- `Transformers_BNB_4bit` 与 `LlamaCPP_GGUF_Q4_K_M` 同属 4bit 部署方案，但底层量化格式分别为 `bitsandbytes 4bit` 与 `GGUF Q4_K_M`，属于不同实现路径。",
-        "- `ExLlamaV2_EXL2_LocalAsset` 已纳入同一套 GPU-only 基准，但当前本地 EXL2 资产 README 标注 `Bits 8.0`，因此不应把它写成严格同构 4bit 主结论。",
         "",
         "## 统计指标",
         "",
@@ -684,7 +681,7 @@ def write_markdown_report(df: pd.DataFrame, *, output_path: Path) -> None:
             "",
             "- 如果关注交互响应，优先看 `Avg Latency` 与 `P95 Latency`。",
             "- 如果关注端侧落地约束，优先看 `Peak VRAM` 是否接近 `8GB` 上限。",
-            "- 如果需要进一步追究“为什么某个部署栈更慢”，应继续下钻具体运行参数，例如 `llama.cpp` 的 `n_batch`、线程数、Flash Attention、GPU offload 策略，或 ExLlamaV2 的缓存/切分策略，而不是仅凭当前报告直接归因到引擎本身。",
+            "- 如果需要进一步追究“为什么某个部署栈更慢”，应继续下钻具体运行参数，例如 `llama.cpp` 的 `n_batch`、线程数、GPU offload 策略，或 `vllm` 的 `gpu_memory_utilization` 与 `max_model_len`，而不是仅凭当前报告直接归因到引擎本身。",
             "",
         ]
     )
@@ -708,7 +705,7 @@ def run_single_config(
 
     stop_event = threading.Event()
     stop_event.gpu_id = gpu_id
-    stop_event.poll_interval_sec = 0.5
+    stop_event.poll_interval_sec = max(0.05, float(args.vram_poll_interval))
     monitor_thread = threading.Thread(target=monitor_vram, args=(stop_event,), daemon=True)
     monitor_thread.start()
 
@@ -821,14 +818,15 @@ def main(argv: list[str] | None = None) -> int:
             "include_resource_metrics": True,
             "notes": [
                 "不统计准确率，因为参与方案均为未针对当前任务微调的基座模型。",
+                "当前 Exp5 只比较三种引擎：transformers、vllm、llama.cpp。",
                 "仅保留平均/分位延迟、样本吞吐、显存与进程 RSS 等速度与资源指标。",
                 "所有子进程均强制 GPU-only 执行；若无法在 GPU 上初始化，将直接失败而不是退回 CPU。",
             ],
         },
         "fairness_notes": [
             "三组方案统一使用相同的 prompts、batch size、num samples、max_new_tokens 与 max_model_len。",
+            "vLLM_BNB_4bit 与 Transformers_BNB_4bit 共用同一基座模型和 bitsandbytes 4bit 设定，可直接观察部署栈差异。",
             "Transformers_BNB_4bit 与 LlamaCPP_GGUF_Q4_K_M 都属于 4bit GPU 部署方案，但量化格式不同。",
-            "ExLlamaV2_EXL2_LocalAsset 已纳入统一 GPU-only 基准，但本地 EXL2 资产 README 标注 Bits 8.0，因此不纳入严格同构 4bit 主结论。",
             "当前结果反映部署栈整体表现，而不是同构量化条件下的纯引擎上限。",
         ],
         "rows": rows,

@@ -1,0 +1,99 @@
+{
+  "results_csv": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/exp5_engine_speed_comparison.csv",
+  "results_markdown": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/exp5_speed_report.md",
+  "num_cases": 3,
+  "comparison_scope": "本地部署栈端到端速度与资源对比，不解释为纯引擎优劣",
+  "execution_policy": {
+    "require_gpu": true,
+    "cuda_visible_devices_bound_to_requested_gpu": true
+  },
+  "metric_policy": {
+    "include_accuracy_metrics": false,
+    "include_speed_metrics": true,
+    "include_resource_metrics": true,
+    "notes": [
+      "不统计准确率，因为参与方案均为未针对当前任务微调的基座模型。",
+      "当前 Exp5 只比较三种引擎：transformers、vllm、llama.cpp。",
+      "仅保留平均/分位延迟、样本吞吐、显存与进程 RSS 等速度与资源指标。",
+      "所有子进程均强制 GPU-only 执行；若无法在 GPU 上初始化，将直接失败而不是退回 CPU。"
+    ]
+  },
+  "fairness_notes": [
+    "三组方案统一使用相同的 prompts、batch size、num samples、max_new_tokens 与 max_model_len。",
+    "vLLM_BNB_4bit 与 Transformers_BNB_4bit 共用同一基座模型和 bitsandbytes 4bit 设定，可直接观察部署栈差异。",
+    "Transformers_BNB_4bit 与 LlamaCPP_GGUF_Q4_K_M 都属于 4bit GPU 部署方案，但量化格式不同。",
+    "当前结果反映部署栈整体表现，而不是同构量化条件下的纯引擎上限。"
+  ],
+  "rows": [
+    {
+      "Name": "Transformers_BNB_4bit",
+      "Stack Label": "Transformers + bitsandbytes 4bit",
+      "Backend": "transformers",
+      "Quantization": "4bit",
+      "Quantization Note": "运行时 4bit（bitsandbytes NF4）",
+      "Comparison Scope": "deployment_stack_only",
+      "Execution Policy": "gpu_only",
+      "Batch Size": 1,
+      "Num Samples": 200,
+      "Avg Latency (s)": 4.963480755925,
+      "P50 Latency (s)": 5.303102948000003,
+      "P95 Latency (s)": 5.631493071050011,
+      "Sample Throughput (samples/s)": 0.20147151750438066,
+      "Peak VRAM (MB)": 4546.0,
+      "Avg Process RSS (MB)": 1789.75984375,
+      "Max Process RSS (MB)": 1789.80859375,
+      "Status": "success",
+      "Benchmark Status": "success",
+      "Benchmark Report": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/Transformers_BNB_4bit_benchmark.json",
+      "Model Path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct",
+      "Tokenizer Path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct"
+    },
+    {
+      "Name": "vLLM_BNB_4bit",
+      "Stack Label": "vLLM + bitsandbytes 4bit",
+      "Backend": "vllm",
+      "Quantization": "4bit",
+      "Quantization Note": "运行时 4bit（vLLM bitsandbytes）",
+      "Comparison Scope": "deployment_stack_only",
+      "Execution Policy": "gpu_only",
+      "Batch Size": 1,
+      "Num Samples": 200,
+      "Avg Latency (s)": 1.4559279199399975,
+      "P50 Latency (s)": 1.5971657185001504,
+      "P95 Latency (s)": 1.620916528550083,
+      "Sample Throughput (samples/s)": 0.6868471895512606,
+      "Peak VRAM (MB)": 7910.0,
+      "Avg Process RSS (MB)": 1145.85421875,
+      "Max Process RSS (MB)": 1145.91796875,
+      "Status": "success",
+      "Benchmark Status": "success",
+      "Benchmark Report": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/vLLM_BNB_4bit_benchmark.json",
+      "Model Path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct",
+      "Tokenizer Path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct"
+    },
+    {
+      "Name": "LlamaCPP_GGUF_Q4_K_M",
+      "Stack Label": "llama.cpp + GGUF Q4_K_M",
+      "Backend": "llama.cpp",
+      "Quantization": "gguf_q4_k_m",
+      "Quantization Note": "离线量化 GGUF Q4_K_M",
+      "Comparison Scope": "deployment_stack_only",
+      "Execution Policy": "gpu_only",
+      "Batch Size": 1,
+      "Num Samples": 200,
+      "Avg Latency (s)": 6.856868652060012,
+      "P50 Latency (s)": 7.346188095499997,
+      "P95 Latency (s)": 8.05969218700004,
+      "Sample Throughput (samples/s)": 0.14583916518505421,
+      "Peak VRAM (MB)": 507.0,
+      "Avg Process RSS (MB)": 4204.841640625,
+      "Max Process RSS (MB)": 4208.64453125,
+      "Status": "success",
+      "Benchmark Status": "success",
+      "Benchmark Report": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/LlamaCPP_GGUF_Q4_K_M_benchmark.json",
+      "Model Path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct-GGUF/qwen2.5-3b-instruct-q4_k_m.gguf",
+      "Tokenizer Path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct"
+    }
+  ],
+  "generated_at": "2026-03-26 00:46:50"
+}

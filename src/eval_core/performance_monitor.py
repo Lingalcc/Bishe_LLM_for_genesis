@@ -316,12 +316,9 @@ class TimeAndMemoryTracker(ContextDecorator):
         end_snapshot = memory_summary["end"]
 
         latency_sec = max(0.0, self._t_end - self._t_start)
-        ttft_source = "manual_first_token"
-        if self._t_first_token is None:
-            # 非流式模式通常无法观测首 token，退化处理为 latency。
-            self._t_first_token = self._t_end
-            ttft_source = "fallback_equals_latency"
-        ttft_sec = max(0.0, self._t_first_token - self._t_start)
+        ttft_available = self._t_first_token is not None
+        ttft_source = "manual_first_token" if ttft_available else "unavailable_non_streaming"
+        ttft_sec = max(0.0, self._t_first_token - self._t_start) if ttft_available and self._t_first_token is not None else None
 
         in_tokens = self._resolve_input_tokens()
         out_tokens = self._resolve_output_tokens()
@@ -329,12 +326,19 @@ class TimeAndMemoryTracker(ContextDecorator):
 
         # 常见推理吞吐定义：输出 token / 总耗时
         throughput_tps = (out_tokens / latency_sec) if latency_sec > 0 else 0.0
-        decode_time_sec = max(0.0, latency_sec - ttft_sec)
-        decode_tps = (out_tokens / decode_time_sec) if decode_time_sec > 0 else 0.0
+        decode_time_sec = (
+            max(0.0, latency_sec - ttft_sec) if ttft_sec is not None else None
+        )
+        decode_tps = (
+            (out_tokens / decode_time_sec)
+            if decode_time_sec is not None and decode_time_sec > 0
+            else None
+        )
 
         # 顶层扁平字段：兼容旧调用方，也便于日志系统直接采集
         metrics: dict[str, Any] = {
             "ttft_sec": ttft_sec,
+            "ttft_available": ttft_available,
             "latency_sec": latency_sec,
             "throughput_tps": throughput_tps,
             "decode_tps": decode_tps,

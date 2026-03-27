@@ -1,6 +1,6 @@
 # 实验实施与结果汇总
 
-更新时间：2026-03-24（已补充 Exp6 Prompt 消融结果）
+更新时间：2026-03-27（已同步 Exp5 推理引擎速度基准正式汇总结果）
 
 ## 统计口径
 
@@ -23,7 +23,7 @@
 | 06 | Exp2 LoRA Rank 对比 | 已完成并有结构化结果 | `experiments/06_exp2_lora_rank/reports/*` | 在固定 600 条样本下，`rank=4` 的综合性价比最好。 |
 | 07 | Exp3 微调方法对比 | 已完成并有结构化结果 | `experiments/07_exp3_methods/reports/*` | DoRA 准确率最好，但训练代价很高；QLoRA 显存最省。 |
 | 08 | Exp4 量化推理对比 | 已完成并有结构化结果 | `experiments/08_exp4_inference/reports/*` | 本次结果中 `16bit` 最快，`4bit` 最省显存，`8bit` 表现最弱。 |
-| 09 | Exp5 推理引擎速度基准 | 已完成并已修订口径 | `experiments/09_exp5_engine/reports/*` | 当前仅统计速度与资源指标，并强制 GPU-only；现有结果显示 `Transformers_BNB_4bit` 端到端时延低于 `LlamaCPP_GGUF_Q4_K_M`，`ExLlamaV2` 已纳入统一基准框架。 |
+| 09 | Exp5 推理引擎速度基准 | 已完成并已修订口径 | `experiments/09_exp5_engine/reports/*` | 当前仅统计速度与资源指标，并强制 GPU-only；实验矩阵已重写为 `Transformers_BNB_4bit`、`vLLM_BNB_4bit`、`LlamaCPP_GGUF_Q4_K_M` 三引擎对比。 |
 | 10 | Exp6 Prompt 消融 | 已完成并有结构化结果 | `experiments/10_exp6_prompt/reports/*` | 在正式测试集抽样 100 条的口径下，当前 Baseline Prompt 明显优于已尝试的 Optimized Prompt。 |
 | 11 | Exp7 Prefix Caching 对照 | 已实现但未见结果 | 暂无 | 已新增开关对照脚本，可直接比较 Prefix Cache 开/关下的延迟、吞吐与显存指标。 |
 
@@ -245,29 +245,42 @@
 
 结果文件：
 
-- `experiments/09_exp5_engine/reports/Transformers_4bit_benchmark.json`
-- `experiments/09_exp5_engine/reports/LlamaCPP_GGUF_Q4_benchmark.json`
-- `experiments/09_exp5_engine/reports/ExLlamaV2_EXL2_LocalAsset_benchmark.json`
+- `experiments/09_exp5_engine/reports/Transformers_BNB_4bit_benchmark.json`
+- `experiments/09_exp5_engine/reports/vLLM_BNB_4bit_benchmark.json`
+- `experiments/09_exp5_engine/reports/LlamaCPP_GGUF_Q4_K_M_benchmark.json`
 - `experiments/09_exp5_engine/reports/exp5_speed_report.md`
 
-当前可用结果：
+当前脚本口径：
 
-| 方案 | Avg Latency(s) | P50(s) | P95(s) | Sample Throughput(samples/s) | Avg RSS(MB) | 说明 |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Transformers_BNB_4bit | 5.5530 | 5.7369 | 6.6024 | 0.1801 | 1788.28 | 当前部署栈下平均时延更低 |
-| LlamaCPP_GGUF_Q4_K_M | 7.0241 | 7.2612 | 8.7073 | 0.1424 | 4272.85 | 当前部署栈下尾部时延更高 |
+| 方案 | Backend | 量化路径 | 说明 |
+| --- | --- | --- | --- |
+| Transformers_BNB_4bit | transformers | bitsandbytes 4bit | 基座模型运行时量化 |
+| vLLM_BNB_4bit | vllm | bitsandbytes 4bit | 与 transformers 共享同一基座模型 |
+| LlamaCPP_GGUF_Q4_K_M | llama.cpp | GGUF Q4_K_M | 独立 GGUF 量化资产 |
+
+当前正式汇总结果（生成时间：`2026-03-26 00:46:50`）：
+
+| 方案 | Avg Latency(s) | P50(s) | P95(s) | Sample Throughput(samples/s) | Peak VRAM(MB) | Avg RSS(MB) | 说明 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Transformers_BNB_4bit | 4.9635 | 5.3031 | 5.6315 | 0.2015 | 4546.0 | 1789.76 | 速度居中，显存压力明显低于 vLLM |
+| vLLM_BNB_4bit | 1.4559 | 1.5972 | 1.6209 | 0.6868 | 7910.0 | 1145.85 | 当前三组中最快，但已接近 8GB 显存上限 |
+| LlamaCPP_GGUF_Q4_K_M | 6.8569 | 7.3462 | 8.0597 | 0.1458 | 507.0 | 4204.84 | 显存最省，但主存占用最高且速度最慢 |
 
 补充说明：
 
 - `Transformers_BNB_4bit` 对应 `bitsandbytes 4bit` 运行时量化；
+- `vLLM_BNB_4bit` 对应与 Transformers 共用基座模型的 `bitsandbytes 4bit` 运行时量化；
 - `LlamaCPP_GGUF_Q4_K_M` 对应 `GGUF Q4_K_M` 量化模型；
-- `ExLlamaV2_EXL2_LocalAsset` 已纳入同一套 GPU-only benchmark，但当前本地 EXL2 资产 README 标注 `Bits 8.0`；
-- 因此当前结果不适合直接写成“某引擎在严格同构 4bit 条件下一定更快或更慢”。
+- `Peak VRAM` 取自主脚本通过 `nvidia-smi` 采样得到的峰值显存，不完全等同于各 benchmark JSON 内部的 `peak_memory` 字段；
+- 当前脚本已重写为严格三引擎对比，不再把 ExLlamaV2 纳入 Exp5 主矩阵；
+- 尽管三组统一了 prompts、batch size、num samples、max_new_tokens 和 max_model_len，但 `bitsandbytes 4bit` 与 `GGUF Q4_K_M` 仍不是完全同构量化，因此当前结果不适合直接写成“某引擎在严格同构 4bit 条件下一定更快或更慢”。
 
 结论：
 
-- 在当前仓库现有资产与默认运行参数下，`Transformers_BNB_4bit` 的端到端时延与尾部时延都优于 `LlamaCPP_GGUF_Q4_K_M`。
-- 这个结论只能代表“当前部署栈 + 当前参数”的整体表现，不能直接外推为引擎上限差异。
+- 在当前仓库留存的正式结果中，`vLLM_BNB_4bit` 是端到端速度最快的部署栈，平均延迟约为 `Transformers_BNB_4bit` 的 `1/3.41`、`LlamaCPP_GGUF_Q4_K_M` 的 `1/4.71`。
+- `Transformers_BNB_4bit` 是当前更稳妥的折中方案，速度明显慢于 `vLLM`，但显存占用只有 `4546 MB`，对 8GB 显卡更友好。
+- `LlamaCPP_GGUF_Q4_K_M` 的优势在于显存占用极低，但其主存占用最高、尾部时延最大，更适合“显存极紧但能接受更慢响应”的场景。
+- 这个结论只能代表“当前部署栈 + 当前参数”的整体表现，不能直接外推为引擎理论上限差异。
 
 ## 10 Exp6 Prompt 消融
 

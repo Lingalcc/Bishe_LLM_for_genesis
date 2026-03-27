@@ -50,6 +50,12 @@ def _safe_mean(values: list[float]) -> float:
     return float(sum(values) / len(values)) if values else 0.0
 
 
+def _optional_float(value: Any, default: float | None = 0.0) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    return default
+
+
 def _ensure_dirs(reports_dir: Path) -> None:
     reports_dir.mkdir(parents=True, exist_ok=True)
     (EXPERIMENT_DIR / "logs").mkdir(parents=True, exist_ok=True)
@@ -237,9 +243,16 @@ def _summarize_case(case: QuantizationCase, benchmark_result: dict[str, Any], lo
         "sample_throughput_sps": float(benchmark_result.get("sample_throughput_sps", benchmark_result.get("throughput", 0.0))),
         "token_throughput_tps": float(benchmark_result.get("token_throughput_tps", 0.0)),
         "avg_token_throughput_tps": float(benchmark_result.get("avg_throughput_tps", 0.0)),
-        "avg_decode_tps": float(benchmark_result.get("avg_decode_tps", 0.0)),
-        "avg_ttft_sec": float(benchmark_result.get("avg_ttft_sec", 0.0)),
+        "avg_decode_tps": _optional_float(benchmark_result.get("avg_decode_tps"), default=None),
+        "avg_ttft_sec": _optional_float(benchmark_result.get("avg_ttft_sec"), default=None),
+        "avg_tpot_sec": _optional_float(benchmark_result.get("avg_tpot_sec"), default=None),
+        "avg_e2e_time_per_output_token_sec": _optional_float(
+            benchmark_result.get("avg_e2e_time_per_output_token_sec"),
+            default=None,
+        ),
+        "avg_input_tokens": float(benchmark_result.get("avg_input_tokens", 0.0)),
         "avg_output_tokens": float(benchmark_result.get("avg_output_tokens", 0.0)),
+        "total_input_tokens": float(benchmark_result.get("total_input_tokens", 0.0)),
         "total_output_tokens": float(benchmark_result.get("total_output_tokens", 0.0)),
         "avg_infer_peak_vram_mb": float(benchmark_result.get("avg_peak_memory", 0.0)),
         "max_infer_peak_vram_mb": float(benchmark_result.get("peak_memory", 0.0)),
