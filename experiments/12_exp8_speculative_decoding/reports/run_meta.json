@@ -1,0 +1,108 @@
+{
+  "timestamp": {
+    "utc": "2026-03-27T11:23:49.243214Z",
+    "epoch_sec": 1774610629
+  },
+  "git": {
+    "commit_hash": "e1f1da6b7574bcea1d24562b4caae9f016ba4901",
+    "dirty": true,
+    "branch": "suijijiema"
+  },
+  "runtime": {
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "python_executable": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "dependencies": {
+    "torch": "2.9.1",
+    "transformers": "4.57.1",
+    "datasets": "4.0.0",
+    "accelerate": "1.11.0",
+    "bitsandbytes": "0.49.2",
+    "vllm": "0.16.0",
+    "pyyaml": "6.0.3",
+    "openai": "2.24.0",
+    "huggingface_hub": "0.36.0"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "gpu": {
+    "detected": true,
+    "count": 1,
+    "devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "total_memory_mb": 8187,
+        "compute_capability": "8.9"
+      }
+    ],
+    "source": "torch",
+    "cuda_version": "12.8"
+  },
+  "command": {
+    "argv": [
+      "experiments/12_exp8_speculative_decoding/run_speculative_benchmark.py",
+      "--config",
+      "experiments/12_exp8_speculative_decoding/configs/speculative.yaml"
+    ],
+    "cli_args": {
+      "config": "experiments/12_exp8_speculative_decoding/configs/speculative.yaml",
+      "base_config": "/home/lin/Bishe_LLM_for_genesis/configs/base.yaml",
+      "target_model_path": null,
+      "assistant_model_path": null,
+      "dataset_path": null,
+      "num_samples": null,
+      "batch_size": null,
+      "max_new_tokens": "[REDACTED]",
+      "temperature": null,
+      "warmup_samples": null,
+      "assistant_num_tokens": "[REDACTED]",
+      "assistant_confidence_threshold": null,
+      "assistant_num_tokens_schedule": "[REDACTED]",
+      "preferred_cuda_device": null,
+      "disable_same_gpu_placement": false,
+      "disable_auto_device_map_fallback": false,
+      "disable_assistant": false,
+      "report_path": null
+    }
+  },
+  "random_seed": null,
+  "config_snapshot": {
+    "speculative_decoding": {
+      "target_model_path": "../../model/qwen2.5-3b-genesis-merged",
+      "assistant_model_path": "../../model/qwen2.5-0.5b-genesis-merged",
+      "target_adapter_path": null,
+      "assistant_adapter_path": null,
+      "dataset_path": "../../data_prepare/splits/test.json",
+      "num_samples": 50,
+      "batch_size": 1,
+      "max_new_tokens": "[REDACTED]",
+      "temperature": 0.0,
+      "warmup_samples": 5,
+      "assistant_num_tokens": "[REDACTED]",
+      "assistant_confidence_threshold": 0.55,
+      "assistant_num_tokens_schedule": "[REDACTED]",
+      "prefer_same_gpu": true,
+      "preferred_cuda_device": 0,
+      "allow_auto_device_map_fallback": true,
+      "report_path": "reports/speculative_benchmark_finetune.json",
+      "trust_remote_code": true,
+      "prefer_flash_attention_2": true
+    }
+  },
+  "data_files": [
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "exists": true,
+      "sha256": "8ed9f9dcea3a8991d6b1fc53013bd7027ec70bf3bc81af40592fe7f766fe2275",
+      "size_bytes": 70795
+    }
+  ],
+  "extra": {
+    "entry": "experiments/12_exp8_speculative_decoding/run_speculative_benchmark.py",
+    "stage": "speculative_benchmark",
+    "report_path": "/home/lin/Bishe_LLM_for_genesis/experiments/12_exp8_speculative_decoding/reports/speculative_benchmark_finetune.json"
+  }
+}
