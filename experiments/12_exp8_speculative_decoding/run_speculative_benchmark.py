@@ -380,6 +380,11 @@ def _sanitize_model_generation_config(
     generation_config.num_beams = 1
     generation_config.use_cache = True
     generation_config.repetition_penalty = float(repetition_penalty)
+    for key, value in [("logits_processor", None), ("logits_warper", None)]:
+        try:
+            setattr(generation_config, key, value)
+        except Exception:
+            continue
 
     if temperature > 0.0:
         generation_config.temperature = float(temperature)
@@ -427,6 +432,11 @@ def _build_generation_kwargs(
     generation_config.pad_token_id = tokenizer.pad_token_id
     generation_config.eos_token_id = tokenizer.eos_token_id
     generation_config.repetition_penalty = 1.0
+    for key, value in [("logits_processor", None), ("logits_warper", None)]:
+        try:
+            setattr(generation_config, key, value)
+        except Exception:
+            continue
 
     if temperature > 0.0:
         generation_config.temperature = float(temperature)

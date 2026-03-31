@@ -1,0 +1,4 @@
+﻿Name,Backend,Decoding Mode,Decoding Mode Label,Speculative Method,Scenario Label,Plot Scenario Label,Experiment Profile,Precision,Avg Latency (s),Token Throughput (tokens/s),Peak VRAM (MB),Parse OK Rate,Status,Assistant Draft Tokens,Execution Note
+vllm_standard,vllm,standard,无投机解码,none,vLLM 无投机解码,vLLM Standard,exp8_aligned,,0.0,0.0,0.0,0.0,failed,0,vLLM 仅运行基线解码，主模型以 float16 精度加载，用于和 Transformers 基线与投机解码结果对比。
+transformers_standard,transformers,standard,无投机解码,none,Transformers 无投机解码,Transformers Standard,exp8_aligned,,0.0,0.0,0.0,0.0,failed,0,与 exp8 保持一致：BF16/FP16 自动选择、单模型生成，不启用投机解码。
+transformers_speculative,transformers,speculative,投机解码,assistant_model,Transformers 投机解码,Transformers Speculative,exp8_aligned,,0.0,0.0,0.0,0.0,failed,8,与 exp8 保持一致：BF16/FP16 自动选择、主模型与助手模型优先同卡加载、assistant_confidence_threshold 与 constant schedule 按 exp8 配置执行。

@@ -26,6 +26,9 @@ import matplotlib.pyplot as plt
 import yaml
 
 from src.utils.config import load_merged_config
+from src.utils.plotting import configure_report_matplotlib
+
+configure_report_matplotlib(matplotlib)
 
 # =========================
 # High-Extensibility Config

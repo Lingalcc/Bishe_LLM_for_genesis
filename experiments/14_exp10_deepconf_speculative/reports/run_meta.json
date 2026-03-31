@@ -1,0 +1,133 @@
+{
+  "timestamp": {
+    "utc": "2026-03-31T03:29:48.860555Z",
+    "epoch_sec": 1774927788
+  },
+  "git": {
+    "commit_hash": "eef7cbe3be10a07ee8a1904d26b2cee44dcf0ad8",
+    "dirty": true,
+    "branch": "believe"
+  },
+  "runtime": {
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "python_executable": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "dependencies": {
+    "torch": "2.9.1",
+    "transformers": "4.57.1",
+    "datasets": "4.0.0",
+    "accelerate": "1.11.0",
+    "bitsandbytes": "0.49.2",
+    "vllm": "0.16.0",
+    "pyyaml": "6.0.3",
+    "openai": "2.24.0",
+    "huggingface_hub": "0.36.0"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "gpu": {
+    "detected": true,
+    "count": 1,
+    "devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "total_memory_mb": 8187,
+        "compute_capability": "8.9"
+      }
+    ],
+    "source": "torch",
+    "cuda_version": "12.8"
+  },
+  "command": {
+    "argv": [
+      "experiments/14_exp10_deepconf_speculative/run_deepconf_speculative_benchmark.py"
+    ],
+    "cli_args": {
+      "config": "/home/lin/Bishe_LLM_for_genesis/experiments/14_exp10_deepconf_speculative/configs/deepconf_speculative.yaml",
+      "base_config": "/home/lin/Bishe_LLM_for_genesis/configs/base.yaml",
+      "target_model_path": null,
+      "assistant_model_path": null,
+      "dataset_path": null,
+      "num_samples": null,
+      "max_new_tokens": "[REDACTED]",
+      "warmup_samples": null,
+      "temperature": null,
+      "top_p": null,
+      "num_candidates": null,
+      "deepconf_candidate_counts": null,
+      "cases": null,
+      "assistant_num_tokens": "[REDACTED]",
+      "assistant_confidence_threshold": null,
+      "assistant_num_tokens_schedule": "[REDACTED]",
+      "top_k_confidence": null,
+      "bottom_fraction": null,
+      "tail_fraction": null,
+      "candidate_temperature_step": null,
+      "candidate_top_p_step": null,
+      "candidate_duplicate_retry_limit": null,
+      "candidate_retry_temperature_bump": null,
+      "candidate_retry_top_p_bump": null,
+      "candidate_retry_seed_stride": null,
+      "report_path": null,
+      "dry_run": false
+    }
+  },
+  "random_seed": 42,
+  "config_snapshot": {
+    "deepconf_speculative": {
+      "target_model_path": "../../model/qwen2.5-3b-genesis-merged",
+      "assistant_model_path": "../../model/qwen2.5-0.5b-genesis-merged",
+      "dataset_path": "../../data_prepare/splits/test.json",
+      "num_samples": 50,
+      "batch_size": 1,
+      "max_new_tokens": "[REDACTED]",
+      "warmup_samples": 2,
+      "temperature": 0.7,
+      "top_p": 0.95,
+      "num_candidates": 4,
+      "deepconf_candidate_counts": [
+        2,
+        3,
+        4
+      ],
+      "cases": "baseline_off,speculative_on,deepconf_target,deepconf_speculative",
+      "assistant_num_tokens": "[REDACTED]",
+      "assistant_confidence_threshold": 0.55,
+      "assistant_num_tokens_schedule": "[REDACTED]",
+      "top_k_confidence": 20,
+      "bottom_fraction": 0.2,
+      "tail_fraction": 0.2,
+      "avg_weight": 0.35,
+      "bottom_weight": 0.35,
+      "tail_weight": 0.15,
+      "actual_prob_weight": 0.15,
+      "candidate_seed": 42,
+      "candidate_temperature_step": 0.08,
+      "candidate_top_p_step": 0.02,
+      "candidate_duplicate_retry_limit": 2,
+      "candidate_retry_temperature_bump": 0.06,
+      "candidate_retry_top_p_bump": 0.01,
+      "candidate_retry_seed_stride": 97,
+      "prefer_same_gpu": true,
+      "preferred_cuda_device": 0,
+      "allow_auto_device_map_fallback": true,
+      "trust_remote_code": true,
+      "prefer_flash_attention_2": true,
+      "report_path": "reports/deepconf_speculative_report.json"
+    }
+  },
+  "data_files": [
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "exists": true,
+      "sha256": "8ed9f9dcea3a8991d6b1fc53013bd7027ec70bf3bc81af40592fe7f766fe2275",
+      "size_bytes": 70795
+    }
+  ],
+  "extra": {
+    "report_path": "/home/lin/Bishe_LLM_for_genesis/experiments/14_exp10_deepconf_speculative/reports/deepconf_speculative_report.json"
+  }
+}

@@ -26,6 +26,9 @@ import matplotlib.pyplot as plt
 import yaml
 
 from src.utils.config import load_merged_config
+from src.utils.plotting import configure_report_matplotlib
+
+configure_report_matplotlib(matplotlib)
 
 LORA_RANKS = [4, 8, 16, 32, 64]
 TRAIN_SUBSET_SIZE = 600

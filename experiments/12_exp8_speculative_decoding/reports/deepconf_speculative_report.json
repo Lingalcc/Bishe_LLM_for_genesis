@@ -1,0 +1,113 @@
+{
+  "generated_at": "2026-03-31T09:02:02+08:00",
+  "experiment": {
+    "name": "exp10_deepconf_speculative",
+    "entry": "experiments/14_exp10_deepconf_speculative/run_deepconf_speculative_benchmark.py"
+  },
+  "config": {
+    "target_model_path": "../../model/qwen2.5-3b-genesis-merged",
+    "assistant_model_path": "../../model/qwen2.5-0.5b-genesis-merged",
+    "dataset_path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+    "num_samples": 1,
+    "batch_size": 1,
+    "max_new_tokens": 2,
+    "warmup_samples": 2,
+    "temperature": 0.0,
+    "top_p": 0.95,
+    "num_candidates": 4,
+    "cases": "baseline_off",
+    "assistant_num_tokens": 8,
+    "assistant_confidence_threshold": 0.55,
+    "assistant_num_tokens_schedule": "constant",
+    "top_k_confidence": 20,
+    "bottom_fraction": 0.2,
+    "tail_fraction": 0.2,
+    "avg_weight": 0.35,
+    "bottom_weight": 0.35,
+    "tail_weight": 0.15,
+    "actual_prob_weight": 0.15,
+    "candidate_seed": 42,
+    "prefer_same_gpu": true,
+    "preferred_cuda_device": 0,
+    "allow_auto_device_map_fallback": true,
+    "trust_remote_code": true,
+    "prefer_flash_attention_2": true,
+    "report_path": "reports/deepconf_speculative_report.json",
+    "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。",
+    "tokenizer_source": "/home/lin/Bishe_LLM_for_genesis/model/qwen2.5-3b-genesis-merged"
+  },
+  "environment": {
+    "transformers_version": "4.57.1",
+    "torch_version": "2.10.0+cu128",
+    "cuda_available": false,
+    "dtype": "float32",
+    "flash_attention_2_available": false
+  },
+  "results": [
+    {
+      "case_name": "baseline_off",
+      "assistant_enabled": false,
+      "deepconf_enabled": false,
+      "num_candidates": 1,
+      "temperature": 0.0,
+      "top_p": null,
+      "assistant_num_tokens": null,
+      "assistant_confidence_threshold": null,
+      "assistant_num_tokens_schedule": null,
+      "parse_ok_rate": 0.0,
+      "exact_match_rate": 0.0,
+      "action_match_rate": 0.0,
+      "avg_latency_sec_per_sample": 3.95738,
+      "avg_generation_time_sec_per_sample": 2.012143,
+      "avg_scoring_time_sec_per_sample": 1.919661,
+      "candidate_token_throughput_tps": 0.505,
+      "selected_token_throughput_tps": 0.505,
+      "avg_candidate_tokens_per_sample": 2.0,
+      "avg_selected_output_tokens": 2.0,
+      "peak_vram_mb": 0.0,
+      "samples": [
+        {
+          "sample_index": 0,
+          "instruction": "让机械臂保持当前位置静止10秒钟",
+          "input": "",
+          "selected_prediction": "{\"commands",
+          "selected_candidate_index": 0,
+          "selected_generated_tokens": 2,
+          "selected_deepconf_score": 0.192481,
+          "selected_avg_confidence": 0.05,
+          "parse_ok": false,
+          "exact_match": false,
+          "action_match": false,
+          "sample_latency_sec": 3.95738,
+          "sample_peak_vram_mb": 0.0,
+          "sample_generation_time_sec": 2.012143,
+          "sample_scoring_time_sec": 1.919661,
+          "candidate_count": 1,
+          "candidate_parse_ok_rate": 0.0,
+          "candidate_avg_deepconf_score": 0.192481,
+          "candidate_best_deepconf_score": 0.192481,
+          "candidates": [
+            {
+              "prediction": "{\"commands",
+              "generated_tokens": 2,
+              "generation_time_sec": 2.0121434150000823,
+              "parse_ok": false,
+              "canonical_commands": null,
+              "action_signature": null,
+              "commands": null,
+              "parse_error": "no valid JSON found",
+              "candidate_index": 0,
+              "num_generated_tokens": 2.0,
+              "avg_confidence": 0.0500000175088644,
+              "bottom_confidence": 0.05000000074505806,
+              "tail_confidence": 0.050000034272670746,
+              "avg_actual_token_prob": 0.9998703002929688,
+              "deepconf_score": 0.1924805565737188
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "comparison": {}
+}

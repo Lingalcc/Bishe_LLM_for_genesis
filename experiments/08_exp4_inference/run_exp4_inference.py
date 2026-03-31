@@ -25,6 +25,9 @@ import matplotlib.pyplot as plt
 from src.eval_core.inference_benchmark import InferenceBenchmarkConfig, run_inference_benchmark
 from src.eval_core.inference_engines import build_inference_engine
 from src.eval_core.performance_monitor import time_and_memory_tracker
+from src.utils.plotting import configure_report_matplotlib
+
+configure_report_matplotlib(matplotlib)
 
 
 REPORTS_DIR = EXPERIMENT_DIR / "reports"

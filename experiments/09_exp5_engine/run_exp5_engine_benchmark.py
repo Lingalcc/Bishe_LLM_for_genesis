@@ -22,6 +22,11 @@ LOGS_DIR = EXPERIMENT_DIR / "logs"
 TEMP_DIR = EXPERIMENT_DIR / ".cache"
 DEFAULT_BENCHMARK_PROMPTS = EXPERIMENT_DIR / "prompts" / "default_prompts.json"
 
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.utils.plotting import configure_report_matplotlib, pick_plot_text
+
 BATCH_SIZE = 1
 NUM_SAMPLES = 200
 MAX_NEW_TOKENS = 128
@@ -555,6 +560,7 @@ def draw_figures(df: pd.DataFrame, *, output_dir: Path) -> None:
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    configure_report_matplotlib(matplotlib)
 
     try:
         import seaborn as sns
@@ -581,8 +587,8 @@ def draw_figures(df: pd.DataFrame, *, output_dir: Path) -> None:
     ax1.bar([idx + width for idx in x], p95_values, width=width, color="#f58518", label="P95 Latency")
     ax1.set_xticks(x)
     ax1.set_xticklabels(plot_df["Name"].tolist(), rotation=18)
-    ax1.set_title("图1：端到端延迟对比")
-    ax1.set_xlabel("部署方案")
+    ax1.set_title(pick_plot_text("图1：端到端延迟对比", "Figure 1: End-to-End Latency"))
+    ax1.set_xlabel(pick_plot_text("部署方案", "Deployment Stack"))
     ax1.set_ylabel("Seconds")
     ax1.legend()
     fig1.tight_layout()
@@ -595,8 +601,8 @@ def draw_figures(df: pd.DataFrame, *, output_dir: Path) -> None:
         for v in plot_df["Sample Throughput (samples/s)"].tolist()
     ]
     ax2.bar(plot_df["Name"], throughput_values, color="#54a24b", edgecolor="#222222", linewidth=0.8)
-    ax2.set_title("图2：样本吞吐对比")
-    ax2.set_xlabel("部署方案")
+    ax2.set_title(pick_plot_text("图2：样本吞吐对比", "Figure 2: Sample Throughput"))
+    ax2.set_xlabel(pick_plot_text("部署方案", "Deployment Stack"))
     ax2.set_ylabel("Samples / Second")
     ax2.tick_params(axis="x", rotation=18)
     fig2.tight_layout()
@@ -617,8 +623,8 @@ def draw_figures(df: pd.DataFrame, *, output_dir: Path) -> None:
     ax3.axhline(VRAM_LIMIT_MB, color="red", linestyle="--", linewidth=1.8, label="8GB VRAM Limit")
     ax3.set_xticks(x)
     ax3.set_xticklabels(plot_df["Name"].tolist(), rotation=18)
-    ax3.set_title("图3：显存与进程内存占用对比")
-    ax3.set_xlabel("部署方案")
+    ax3.set_title(pick_plot_text("图3：显存与进程内存占用对比", "Figure 3: VRAM vs Process RSS"))
+    ax3.set_xlabel(pick_plot_text("部署方案", "Deployment Stack"))
     ax3.set_ylabel("MB")
     ax3.legend()
     fig3.tight_layout()
