@@ -1,0 +1,91 @@
+{
+  "timestamp": {
+    "utc": "2026-03-31T04:50:22.772419Z",
+    "epoch_sec": 1774932622
+  },
+  "git": {
+    "commit_hash": "eef7cbe3be10a07ee8a1904d26b2cee44dcf0ad8",
+    "dirty": true,
+    "branch": "believe"
+  },
+  "runtime": {
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "python_executable": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "dependencies": {
+    "torch": "2.9.1",
+    "transformers": "4.57.1",
+    "datasets": "4.0.0",
+    "accelerate": "1.11.0",
+    "bitsandbytes": "0.49.2",
+    "vllm": "0.16.0",
+    "pyyaml": "6.0.3",
+    "openai": "2.24.0",
+    "huggingface_hub": "0.36.0"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "gpu": {
+    "detected": true,
+    "count": 1,
+    "devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "total_memory_mb": 8187,
+        "compute_capability": "8.9"
+      }
+    ],
+    "source": "torch",
+    "cuda_version": "12.8"
+  },
+  "command": {
+    "argv": [
+      "experiments/11_exp7_vllm/run_exp7_vllm_benchmark.py"
+    ],
+    "cli_args": {
+      "gpu_id": null,
+      "results_dir": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/reports",
+      "model_path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct",
+      "tokenizer_path": "[REDACTED]",
+      "hf_repo_id": "Qwen/Qwen2.5-3B-Instruct",
+      "num_samples": 200,
+      "batch_size": 1,
+      "max_new_tokens": "[REDACTED]",
+      "max_model_len": 2048,
+      "memory_budgets_gb": "8,6,4,2",
+      "total_gpu_memory_mb": null,
+      "benchmark_prompts_file": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json",
+      "sleep_seconds": 15,
+      "vram_poll_interval": 0.2,
+      "auto_install_deps": false,
+      "auto_download_missing_models": false,
+      "hf_token": "[REDACTED]"
+    }
+  },
+  "random_seed": null,
+  "config_snapshot": {},
+  "data_files": [
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json",
+      "exists": true,
+      "sha256": "a74eebf34722c3c541f1ef7b74171b1bc997f6cf12a92bd21203f9acaf46ecf2",
+      "size_bytes": 637
+    }
+  ],
+  "extra": {
+    "entry": "experiments/11_exp7_vllm/run_exp7_vllm_benchmark.py",
+    "stage": "vllm_memory_budget_benchmark",
+    "summary_path": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/reports/exp7_vllm_memory_budget_summary.json",
+    "gpu_id": 0,
+    "total_gpu_memory_mb": 8188,
+    "memory_budgets_gb": [
+      8.0,
+      6.0,
+      4.0,
+      2.0
+    ]
+  }
+}

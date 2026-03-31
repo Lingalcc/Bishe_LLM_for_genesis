@@ -1,5 +1,5 @@
 {
-  "created_at_utc": "2026-03-17T07:41:54.675835+00:00",
+  "created_at_utc": "2026-03-31T10:36:44.068902+00:00",
   "seed": 42,
   "ratios": {
     "train": 0.8,
@@ -8,27 +8,29 @@
   },
   "source": {
     "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
-    "num_samples": 2000,
-    "sha256": "19de947734a08ea2ae074d2d7e6c93afc4cd3e099a9c09c41aee0666d657d46c"
+    "num_samples": 2942,
+    "sha256": "cc69a8a1dce16d9bcdba4c2dfafdaa127ef21589793b40c9a631bcbcf49507e5"
   },
+  "mode": "replace",
+  "new_rows_considered": 2942,
   "splits": {
     "train": {
       "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/train.json",
-      "num_samples": 1600,
-      "sha256": "948b122c16580b53aec2148debc35f423954bacddf8de29ea64e8727d59943af",
-      "sample_set_sha256": "20e12139bace5db623459e9fa6098765e5f660fb7b02b326b72dfe2627de1962"
+      "num_samples": 2353,
+      "sha256": "ea4bd631b9c803675b5293510b79d526fd98b126d019c0f108aa363caef56303",
+      "sample_set_sha256": "9db9ea9eab3a37d8746ed378350883774027b29f8791d68fe939f094b99601ae"
     },
     "val": {
       "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/val.json",
-      "num_samples": 200,
-      "sha256": "4b6f9c463a9d42b8dd3be4ebdee45ddb9cbc665f7f73d4578fd758935dc4c7a9",
-      "sample_set_sha256": "e1a76c5ce6777fff596d45f8fe60f219e3cdd18e0fa2a3700f1100ef23e118db"
+      "num_samples": 294,
+      "sha256": "9d5b10892d2ac671de05028bc5c40f04412a2d9272c37d2e9568f277283c8660",
+      "sample_set_sha256": "089f11a6f92f9905727d9ed679da6f87e2aa887d0b760fbef8cc8dd0b20a04a6"
     },
     "test": {
       "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
-      "num_samples": 200,
-      "sha256": "8ed9f9dcea3a8991d6b1fc53013bd7027ec70bf3bc81af40592fe7f766fe2275",
-      "sample_set_sha256": "75f1d2a01e784e424d7b7eeca05adaa0b5f35b7f34ad732975ec770b4056bad9"
+      "num_samples": 295,
+      "sha256": "299ceb37d777b3e5ead9c562e051a0887d22027386cb49fa93429ee95af47936",
+      "sample_set_sha256": "828636ea749166dd7ea97bd27460096aef5466f731445c351e8e60d16dcbcae5"
     }
   },
   "overlap": {

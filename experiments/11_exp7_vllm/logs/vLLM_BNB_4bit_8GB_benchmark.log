@@ -1,0 +1,116 @@
+$ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval benchmark --backend vllm --model-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --batch-size 1 --num-samples 200 --max-new-tokens 128 --max-model-len 2048 --gpu-memory-utilization 0.99 --output-json /home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/reports/vLLM_BNB_4bit_8GB_benchmark.json --require-gpu --use-chat --quantization 4bit --tokenizer-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --prompts-file /home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json
+
+[returncode]
+1
+
+[stdout]
+INFO 03-31 12:36:24 [utils.py:223] non-default args: {'tokenizer': '/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct', 'trust_remote_code': True, 'load_format': 'bitsandbytes', 'max_model_len': 2048, 'gpu_memory_utilization': 0.99, 'disable_log_stats': True, 'quantization': 'bitsandbytes', 'model': '/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct'}
+INFO 03-31 12:36:24 [model.py:529] Resolved architecture: Qwen2ForCausalLM
+INFO 03-31 12:36:24 [model.py:1549] Using max model len 2048
+INFO 03-31 12:36:24 [scheduler.py:224] Chunked prefill is enabled with max_num_batched_tokens=8192.
+INFO 03-31 12:36:25 [vllm.py:689] Asynchronous scheduling is enabled.
+WARNING 03-31 12:36:26 [interface.py:456] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.
+WARNING 03-31 12:36:26 [system_utils.py:140] We must use the `spawn` multiprocessing start method. Overriding VLLM_WORKER_MULTIPROC_METHOD to 'spawn'. See https://docs.vllm.ai/en/latest/usage/troubleshooting.html#python-multiprocessing for more information. Reasons: WSL is detected and NVML is not compatible with fork
+(EngineCore_DP0 pid=26344) INFO 03-31 12:36:30 [core.py:97] Initializing a V1 LLM engine (v0.16.0) with config: model='/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct', speculative_config=None, tokenizer='/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=2048, download_dir=None, load_format=bitsandbytes, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, disable_custom_all_reduce=False, quantization=bitsandbytes, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_fallback=False, disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False), seed=0, served_model_name=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'level': None, 'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'splitting_ops': ['vllm::unified_attention', 'vllm::unified_attention_with_output', 'vllm::unified_mla_attention', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::plamo2_mamba_mixer', 'vllm::gdn_attention_core', 'vllm::kda_attention', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::unified_kv_cache_update'], 'compile_mm_encoder': False, 'compile_sizes': [], 'compile_ranges_split_points': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'eliminate_noops': True, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'fuse_act_padding': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}
+(EngineCore_DP0 pid=26344) INFO 03-31 12:36:30 [parallel_state.py:1234] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://10.135.11.83:48693 backend=nccl
+(EngineCore_DP0 pid=26344) INFO 03-31 12:36:41 [parallel_state.py:1445] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006] EngineCore failed to start.
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006] Traceback (most recent call last):
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core.py", line 996, in run_engine_core
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core.py", line 740, in __init__
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     super().__init__(
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core.py", line 106, in __init__
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     self.model_executor = executor_class(vllm_config)
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/executor/abstract.py", line 103, in __init__
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     self._init_executor()
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/executor/uniproc_executor.py", line 47, in _init_executor
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     self.driver_worker.init_device()
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/worker/worker_base.py", line 322, in init_device
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     self.worker.init_device()  # type: ignore
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     ^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/worker/gpu_worker.py", line 252, in init_device
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     self.requested_memory = request_memory(init_snapshot, self.cache_config)
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/worker/utils.py", line 102, in request_memory
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006]     raise ValueError(
+(EngineCore_DP0 pid=26344) ERROR 03-31 12:36:41 [core.py:1006] ValueError: Free memory on device cuda:0 (6.92/8.0 GiB) on startup is less than desired GPU memory utilization (0.99, 7.92 GiB). Decrease GPU memory utilization or reduce GPU memory used by other processes.
+
+
+[stderr]
+The argument `trust_remote_code` is to be used with Auto classes. It has no effect here and is ignored.
+The argument `trust_remote_code` is to be used with Auto classes. It has no effect here and is ignored.
+[W331 12:36:40.286010802 socket.cpp:209] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+(EngineCore_DP0 pid=26344) Process EngineCore_DP0:
+(EngineCore_DP0 pid=26344) Traceback (most recent call last):
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/multiprocessing/process.py", line 314, in _bootstrap
+(EngineCore_DP0 pid=26344)     self.run()
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/multiprocessing/process.py", line 108, in run
+(EngineCore_DP0 pid=26344)     self._target(*self._args, **self._kwargs)
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core.py", line 1010, in run_engine_core
+(EngineCore_DP0 pid=26344)     raise e
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core.py", line 996, in run_engine_core
+(EngineCore_DP0 pid=26344)     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore_DP0 pid=26344)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core.py", line 740, in __init__
+(EngineCore_DP0 pid=26344)     super().__init__(
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core.py", line 106, in __init__
+(EngineCore_DP0 pid=26344)     self.model_executor = executor_class(vllm_config)
+(EngineCore_DP0 pid=26344)                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/executor/abstract.py", line 103, in __init__
+(EngineCore_DP0 pid=26344)     self._init_executor()
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/executor/uniproc_executor.py", line 47, in _init_executor
+(EngineCore_DP0 pid=26344)     self.driver_worker.init_device()
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/worker/worker_base.py", line 322, in init_device
+(EngineCore_DP0 pid=26344)     self.worker.init_device()  # type: ignore
+(EngineCore_DP0 pid=26344)     ^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/worker/gpu_worker.py", line 252, in init_device
+(EngineCore_DP0 pid=26344)     self.requested_memory = request_memory(init_snapshot, self.cache_config)
+(EngineCore_DP0 pid=26344)                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP0 pid=26344)   File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/worker/utils.py", line 102, in request_memory
+(EngineCore_DP0 pid=26344)     raise ValueError(
+(EngineCore_DP0 pid=26344) ValueError: Free memory on device cuda:0 (6.92/8.0 GiB) on startup is less than desired GPU memory utilization (0.99, 7.92 GiB). Decrease GPU memory utilization or reduce GPU memory used by other processes.
+[rank0]:[W331 12:36:41.094560156 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+Traceback (most recent call last):
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 400, in <module>
+    main()
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 396, in main
+    handler(args)
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 189, in _run_eval_benchmark
+    report = run_inference_benchmark(cfg)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/eval_core/inference_benchmark.py", line 236, in run_inference_benchmark
+    engine = build_inference_engine(engine_cfg)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/eval_core/inference_engines.py", line 794, in build_inference_engine
+    return VLLMInferenceEngine(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/eval_core/inference_engines.py", line 460, in __init__
+    self._engine = LLM(**llm_kwargs)
+                   ^^^^^^^^^^^^^^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/entrypoints/llm.py", line 346, in __init__
+    self.llm_engine = LLMEngine.from_engine_args(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/llm_engine.py", line 174, in from_engine_args
+    return cls(
+           ^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/llm_engine.py", line 108, in __init__
+    self.engine_core = EngineCoreClient.make_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core_client.py", line 95, in make_client
+    return SyncMPClient(vllm_config, executor_class, log_stats)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core_client.py", line 659, in __init__
+    super().__init__(
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/core_client.py", line 490, in __init__
+    with launch_core_engines(vllm_config, executor_class, log_stats) as (
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/utils.py", line 925, in launch_core_engines
+    wait_for_engine_startup(
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/vllm/v1/engine/utils.py", line 984, in wait_for_engine_startup
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+

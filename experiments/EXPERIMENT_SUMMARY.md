@@ -1,10 +1,10 @@
 # 实验实施与结果汇总
 
-更新时间：2026-03-27（已同步 Exp5 推理引擎速度基准正式汇总结果）
+更新时间：2026-03-31（已补充 Exp7 vLLM 显存预算实验脚本与索引）
 
 ## 统计口径
 
-- 统计范围：`experiments/01_data_exp` 到 `experiments/11_exp7_prefix`，以及与实验直接对应的 `data_prepare/` 数据产物。
+- 统计范围：`experiments/01_data_exp` 到当前已纳入索引的 `experiments/11_exp7_vllm`，以及与实验直接对应的 `data_prepare/` 数据产物。
 - 判定标准：
   - 已完成并有结构化结果：仓库内存在 `csv/json/md/png` 等可直接引用的结果文件。
   - 已执行但结果不完整：存在部分训练报告或原始日志，但缺少完整对比结果。
@@ -26,6 +26,7 @@
 | 09 | Exp5 推理引擎速度基准 | 已完成并已修订口径 | `experiments/09_exp5_engine/reports/*` | 当前仅统计速度与资源指标，并强制 GPU-only；实验矩阵已重写为 `Transformers_BNB_4bit`、`vLLM_BNB_4bit`、`LlamaCPP_GGUF_Q4_K_M` 三引擎对比。 |
 | 10 | Exp6 Prompt 消融 | 已完成并有结构化结果 | `experiments/10_exp6_prompt/reports/*` | 在正式测试集抽样 100 条的口径下，当前 Baseline Prompt 明显优于已尝试的 Optimized Prompt。 |
 | 11 | Exp7 Prefix Caching 对照 | 已实现但未见结果 | 暂无 | 已新增开关对照脚本，可直接比较 Prefix Cache 开/关下的延迟、吞吐与显存指标。 |
+| 11-补充 | Exp7 vLLM 显存预算对照 | 已实现但未见结果 | 暂无 | 已新增 `8GB / 6GB / 4GB / 2GB` 四档预算脚本，可直接比较 vLLM 在不同显存分配下的速度、吞吐与 OOM 边界。 |
 
 ## 01 数据生成实验
 

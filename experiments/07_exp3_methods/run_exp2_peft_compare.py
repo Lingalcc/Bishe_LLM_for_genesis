@@ -35,6 +35,10 @@ try:
 except ModuleNotFoundError as exc:
     raise SystemExit("缺少 ruamel.yaml，请先安装：pip install ruamel.yaml") from exc
 
+from src.utils.plotting import configure_report_matplotlib
+
+configure_report_matplotlib(matplotlib)
+
 
 # =========================
 # Exp3 方法对比配置
@@ -493,8 +497,8 @@ def normalize_series(series: pd.Series, *, higher_is_better: bool, fill_value: f
 def choose_memory_series(df: pd.DataFrame) -> tuple[pd.Series, str]:
     delta_series = pd.to_numeric(df["峰值增量显存(MB)"], errors="coerce")
     if delta_series.notna().any():
-        return delta_series, "峰值增量显存(MB)"
-    return pd.to_numeric(df["峰值显存(MB)"], errors="coerce"), "峰值显存(MB)"
+        return delta_series, "Peak Delta VRAM (MB)"
+    return pd.to_numeric(df["峰值显存(MB)"], errors="coerce"), "Peak VRAM (MB)"
 
 
 def plot_dual_axis_chart(csv_path: Path, output_path: Path) -> None:
@@ -510,7 +514,7 @@ def plot_dual_axis_chart(csv_path: Path, output_path: Path) -> None:
     fig, ax1 = plt.subplots(figsize=(10, 6), dpi=300)
     x = range(len(df))
     bars = ax1.bar(x, memory_for_plot, color=bar_colors, width=0.6, label=memory_label)
-    ax1.set_xlabel("PEFT 方法")
+    ax1.set_xlabel("PEFT Method")
     ax1.set_ylabel(memory_label, color="#2F4B7C")
     ax1.set_xticks(list(x))
     ax1.set_xticklabels(df["Method"].tolist())
@@ -531,7 +535,7 @@ def plot_dual_axis_chart(csv_path: Path, output_path: Path) -> None:
     ax2.tick_params(axis="y", labelcolor="#A0512D")
 
     for idx, bar in enumerate(bars):
-        label = "失败" if pd.isna(memory_series.iloc[idx]) else f"{int(memory_for_plot.iloc[idx])}"
+        label = "Failed" if pd.isna(memory_series.iloc[idx]) else f"{int(memory_for_plot.iloc[idx])}"
         ax1.text(
             bar.get_x() + bar.get_width() / 2,
             bar.get_height(),
@@ -544,7 +548,7 @@ def plot_dual_axis_chart(csv_path: Path, output_path: Path) -> None:
     for idx, value in enumerate(action_match):
         ax2.text(idx, value, f"{value:.3f}", ha="center", va="bottom", fontsize=8, color="#A0512D")
 
-    plt.title("Exp3: PEFT 方法训练资源与 Action Match 对比")
+    plt.title("Exp3: PEFT Training Resource vs Action Match")
     fig.tight_layout()
     fig.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -568,14 +572,14 @@ def plot_radar_chart(csv_path: Path, output_path: Path) -> None:
     radar_df = pd.DataFrame(
         {
             "Method": df["Method"],
-            "显存效率": memory_efficiency,
-            "训练速度": speed_score,
+            "Memory Efficiency": memory_efficiency,
+            "Training Speed": speed_score,
             "Exact Match": exact_match,
             "Action Match": action_match,
         }
     )
 
-    categories = ["显存效率", "训练速度", "Exact Match", "Action Match"]
+    categories = ["Memory Efficiency", "Training Speed", "Exact Match", "Action Match"]
     angles = [index / float(len(categories)) * 2 * math.pi for index in range(len(categories))]
     angles += angles[:1]
 
@@ -594,7 +598,7 @@ def plot_radar_chart(csv_path: Path, output_path: Path) -> None:
     ax.set_ylim(0, 1)
     ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
     ax.set_yticklabels(["0.2", "0.4", "0.6", "0.8", "1.0"])
-    ax.set_title("Exp3: PEFT 方法综合能力雷达图", pad=20)
+    ax.set_title("Exp3: PEFT Overall Capability Radar", pad=20)
     ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.10))
 
     fig.tight_layout()
