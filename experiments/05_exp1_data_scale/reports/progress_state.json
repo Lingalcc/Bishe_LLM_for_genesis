@@ -51,8 +51,8 @@
       "action_match_rate": 0.705
     }
   ],
-  "last_started_size": 1600,
-  "last_status": "completed",
-  "last_error": null,
-  "updated_at": "2026-03-18 06:22:13"
+  "last_started_size": 1800,
+  "last_status": "interrupted",
+  "last_error": "KeyboardInterrupt",
+  "updated_at": "2026-04-01 11:10:23"
 }
