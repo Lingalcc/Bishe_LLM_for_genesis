@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import json
 import re
-import urllib.request
 from typing import Any
+
+import requests
 
 from src.utils.secrets import MissingSecretError, resolve_api_key_from_env
 
@@ -52,19 +53,17 @@ def call_chat_api(
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
-    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        url=url,
-        data=data,
-        method="POST",
+    response = requests.post(
+        url,
+        json=payload,
         headers={
-            "Content-Type": "application/json",
+            "Content-Type": "application/json; charset=utf-8",
             "Authorization": f"Bearer {api_key}",
         },
+        timeout=timeout,
     )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        raw = resp.read().decode("utf-8")
-    obj = json.loads(raw)
+    response.raise_for_status()
+    obj = response.json()
     choices = obj.get("choices", [])
     if not choices:
         raise ValueError("API returned empty choices")

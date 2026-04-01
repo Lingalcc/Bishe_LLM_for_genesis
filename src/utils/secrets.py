@@ -38,6 +38,19 @@ def _normalize_secret_text(value: Any) -> str:
     return str(value).strip()
 
 
+def _validate_api_key_text(value: str, *, env_name: str, source_name: str) -> None:
+    if not value.isascii():
+        raise MissingSecretError(
+            f"{source_name} key in environment variable `{env_name}` contains non-ASCII characters. "
+            "请检查是否误填了中文占位符、全角符号或其他非密钥文本。"
+        )
+    if any(ch.isspace() for ch in value):
+        raise MissingSecretError(
+            f"{source_name} key in environment variable `{env_name}` contains whitespace. "
+            "请去掉空格、换行后重试。"
+        )
+
+
 def _is_placeholder_secret(value: str) -> bool:
     text = value.strip()
     if not text:
@@ -79,6 +92,7 @@ def resolve_api_key_from_env(
             f"{source_name} key is missing. Set environment variable `{env_name}`. "
             "Config field `api_key` is not used for real secrets."
         )
+    _validate_api_key_text(key, env_name=env_name, source_name=source_name)
     return key
 
 

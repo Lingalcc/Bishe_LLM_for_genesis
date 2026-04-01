@@ -1,0 +1,13 @@
+dataset_prepare:
+  split:
+    input_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    out_dir: data_prepare/splits_4000_exp1_qlora_rank4
+    train_ratio: 0.9
+    val_ratio: 0.05
+    test_ratio: 0.05
+    seed: 42
+    train_file: train.json
+    val_file: val.json
+    test_file: test.json
+    metadata_file: split_metadata.json
+    preserve_existing_splits: false

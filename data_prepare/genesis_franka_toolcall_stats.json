@@ -1,7 +1,23 @@
 {
-  "total_samples": 2942,
-  "source_current_samples": 1001,
-  "source_git_head_samples": 2000,
-  "overlap_samples": 59,
-  "merge_mode": "dedup_by_instruction_output"
+  "total_samples": 4000,
+  "target_samples": 4000,
+  "requested_new_samples": 1058,
+  "existing_base_samples": 2942,
+  "generation_mode": "append",
+  "api_calls": 418,
+  "invalid_discarded": 224,
+  "duplicate_discarded": 183,
+  "dedup_rounds": 5,
+  "target_reached": true,
+  "difficulty_distribution": {
+    "simple": 231,
+    "medium": 450,
+    "complex": 377
+  },
+  "state_context_ratio": 0.7,
+  "max_workers": 4,
+  "model": "deepseek-ai/DeepSeek-V3",
+  "seed": 42,
+  "resumed_from_progress": true,
+  "progress_file": "data_prepare/genesis_franka_toolcall_progress.json"
 }

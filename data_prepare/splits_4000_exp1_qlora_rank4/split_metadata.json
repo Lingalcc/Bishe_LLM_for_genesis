@@ -1,0 +1,41 @@
+{
+  "created_at_utc": "2026-03-31T14:53:01.781375+00:00",
+  "seed": 42,
+  "ratios": {
+    "train": 0.9,
+    "val": 0.05,
+    "test": 0.05
+  },
+  "source": {
+    "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+    "num_samples": 4000,
+    "sha256": "cf9c2f2481f00a15986dab04806ea778622f1ece8dd97bf7189e238bdc5b08d4"
+  },
+  "mode": "replace",
+  "new_rows_considered": 4000,
+  "splits": {
+    "train": {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits_4000_exp1_qlora_rank4/train.json",
+      "num_samples": 3600,
+      "sha256": "28254860bac71ac3240ac352b63f3554cd6d7ec4b5256486fa8112cd1d583b89",
+      "sample_set_sha256": "aad60f4d0a991b027b9b0d5b928f96ab4c062bff2b0701782aa85ec104aa4066"
+    },
+    "val": {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits_4000_exp1_qlora_rank4/val.json",
+      "num_samples": 200,
+      "sha256": "308a45507dcbc26c3025a8bc1bae7ec9e78b7cb37056e62942cd943c5ccdee93",
+      "sample_set_sha256": "4f9aec84be223f7bf51c5d120b944dc51de285d75ce5a4b895d5cc8e890e1320"
+    },
+    "test": {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits_4000_exp1_qlora_rank4/test.json",
+      "num_samples": 200,
+      "sha256": "ee891c76f11a64c7de05daabcc8624ff557f8ca8061d06de5a4f2a8c41859b45",
+      "sample_set_sha256": "f18109fbfb2a879665600dfe48cc5bc5d3930e5e8f59c25590ac527a7c678167"
+    }
+  },
+  "overlap": {
+    "train_val": 0,
+    "train_test": 0,
+    "val_test": 0
+  }
+}

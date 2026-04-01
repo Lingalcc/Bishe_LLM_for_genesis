@@ -15,7 +15,7 @@ lora_target: all
 dataset: genesis_franka_toolcall
 template: qwen
 cutoff_len: 1024
-max_samples: 2000
+max_samples: 4000
 preprocessing_num_workers: 4
 dataloader_num_workers: 2
 

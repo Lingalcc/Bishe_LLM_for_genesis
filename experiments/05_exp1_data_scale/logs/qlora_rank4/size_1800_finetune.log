@@ -1,0 +1,1636 @@
+
+===== 2026-03-31 22:53:57 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8
+
+Traceback (most recent call last):
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 400, in <module>
+    main()
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 396, in main
+    handler(args)
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 125, in _run_finetune_start
+    result = run_finetune_from_merged_config(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 710, in run_finetune_from_merged_config
+    return run_finetune(cfg)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 534, in run_finetune
+    _validate_cuda_runtime(gpus, dry_run=False)
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 292, in _validate_cuda_runtime
+    raise RuntimeError(
+RuntimeError: 检测到本次微调配置要求使用 GPU，但当前 Python 训练环境看不到可用 CUDA 设备，继续运行通常会退化成极慢的 CPU/offload 训练。
+请求的 gpus: 0
+环境变量 CUDA_VISIBLE_DEVICES: <unset>
+torch.version.cuda: 12.8
+torch.cuda.is_available(): False
+torch.cuda.device_count(): 0
+请先确认当前终端/conda 环境能正常访问 GPU，再重新启动训练。
+
+===== 2026-03-31 22:54:00 | stage=train/size_1800 finished in 2.7s =====
+
+===== 2026-03-31 22:55:22 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8
+
+Traceback (most recent call last):
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 400, in <module>
+    main()
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 396, in main
+    handler(args)
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 125, in _run_finetune_start
+    result = run_finetune_from_merged_config(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 710, in run_finetune_from_merged_config
+    return run_finetune(cfg)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 534, in run_finetune
+    _validate_cuda_runtime(gpus, dry_run=False)
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 292, in _validate_cuda_runtime
+    raise RuntimeError(
+RuntimeError: 检测到本次微调配置要求使用 GPU，但当前 Python 训练环境看不到可用 CUDA 设备，继续运行通常会退化成极慢的 CPU/offload 训练。
+请求的 gpus: 0
+环境变量 CUDA_VISIBLE_DEVICES: <unset>
+torch.version.cuda: 12.8
+torch.cuda.is_available(): False
+torch.cuda.device_count(): 0
+请先确认当前终端/conda 环境能正常访问 GPU，再重新启动训练。
+
+===== 2026-03-31 22:55:25 | stage=train/size_1800 finished in 3.4s =====
+
+===== 2026-03-31 22:56:14 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/conda run -n llm_genesis python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8
+
+Traceback (most recent call last):
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 400, in <module>
+    main()
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 396, in main
+    handler(args)
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 125, in _run_finetune_start
+    result = run_finetune_from_merged_config(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 710, in run_finetune_from_merged_config
+    return run_finetune(cfg)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 534, in run_finetune
+    _validate_cuda_runtime(gpus, dry_run=False)
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 292, in _validate_cuda_runtime
+    raise RuntimeError(
+RuntimeError: 检测到本次微调配置要求使用 GPU，但当前 Python 训练环境看不到可用 CUDA 设备，继续运行通常会退化成极慢的 CPU/offload 训练。
+请求的 gpus: 0
+环境变量 CUDA_VISIBLE_DEVICES: <unset>
+torch.version.cuda: 12.8
+torch.cuda.is_available(): False
+torch.cuda.device_count(): 0
+请先确认当前终端/conda 环境能正常访问 GPU，再重新启动训练。
+
+ERROR conda.cli.main_run:execute(127): `conda run python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8` failed. (See above for error)
+
+===== 2026-03-31 22:56:20 | stage=train/size_1800 finished in 5.8s =====
+
+===== 2026-03-31 22:58:21 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/conda run -n llm_genesis python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8
+
+
+===== 2026-03-31 22:59:49 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/bin/conda run -n llm_genesis python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8
+
+/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/torch/cuda/__init__.py:827: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/torch/cuda/__init__.py:827: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/torch/cuda/__init__.py:827: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/torch/cuda/__init__.py:827: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,140 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,140 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,140 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,140 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,140 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,140 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,140 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2323] 2026-03-31 22:59:57,316 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[INFO|configuration_utils.py:691] 2026-03-31 22:59:57,317 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:765] 2026-03-31 22:59:57,319 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": 32768,
+  "tie_word_embeddings": true,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.51.3",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,319 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,319 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,319 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,319 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,319 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,319 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 22:59:57,319 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2323] 2026-03-31 22:59:57,479 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Traceback (most recent call last):
+  File "/home/lin/miniconda3/envs/llm_genesis/bin/llamafactory-cli", line 7, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/cli.py", line 24, in main
+    launcher.launch()
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/launcher.py", line 157, in launch
+    run_exp()
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/train/tuner.py", line 125, in run_exp
+    _training_function(config={"args": args, "callbacks": callbacks})
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/train/tuner.py", line 93, in _training_function
+    run_sft(model_args, data_args, training_args, finetuning_args, generating_args, callbacks)
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/train/sft/workflow.py", line 52, in run_sft
+    dataset_module = get_dataset(template, model_args, data_args, training_args, stage="sft", **tokenizer_module)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/data/loader.py", line 303, in get_dataset
+    dataset = _get_merged_dataset(data_args.dataset, model_args, data_args, training_args, stage)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/data/loader.py", line 181, in _get_merged_dataset
+    datasets[dataset_name] = _load_single_dataset(dataset_attr, model_args, data_args, training_args)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/LlamaFactory/src/llamafactory/data/loader.py", line 131, in _load_single_dataset
+    dataset = load_dataset(
+              ^^^^^^^^^^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/datasets/load.py", line 1392, in load_dataset
+    builder_instance = load_dataset_builder(
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/datasets/load.py", line 1166, in load_dataset_builder
+    builder_instance: DatasetBuilder = builder_cls(
+                                       ^^^^^^^^^^^^
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/datasets/builder.py", line 388, in __init__
+    with FileLock(lock_path):
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/filelock/_api.py", line 376, in __enter__
+    self.acquire()
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/filelock/_api.py", line 332, in acquire
+    self._acquire()
+  File "/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/filelock/_unix.py", line 47, in _acquire
+    fd = os.open(self.lock_file, open_flags, self._context.mode)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/home/lin/.cache/huggingface/datasets/_home_lin_.cache_huggingface_datasets_json_default-6c67bd702ab083fe_0.0.0_f4e89e8750d5d5ffbef2c078bf0ddfedef29dc2faff52a6255cf513c05eb1092.lock'
+Traceback (most recent call last):
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 400, in <module>
+    main()
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 396, in main
+    handler(args)
+  File "/home/lin/Bishe_LLM_for_genesis/cli.py", line 125, in _run_finetune_start
+    result = run_finetune_from_merged_config(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 710, in run_finetune_from_merged_config
+    return run_finetune(cfg)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/lin/Bishe_LLM_for_genesis/src/finetune_core/train.py", line 554, in run_finetune
+    raise subprocess.CalledProcessError(return_code, command)
+subprocess.CalledProcessError: Command '['llamafactory-cli', 'train', '/home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml', 'finetuning_type=lora', 'quantization_bit=4', 'quantization_type=nf4', 'double_quantization=true', 'model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct', 'output_dir=/home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora', 'dataset_dir=/home/lin/Bishe_LLM_for_genesis/.cache/llamafactory_dataset_splits', 'dataset=__train_split__', 'eval_dataset=__val_split__', 'val_size=0.0', 'model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct', 'output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800', 'lora_rank=4', 'lora_alpha=8']' returned non-zero exit status 1.
+
+ERROR conda.cli.main_run:execute(127): `conda run python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8` failed. (See above for error)
+[WARNING|2026-03-31 22:59:57] llamafactory.hparams.parser:149 >> We recommend enable `upcast_layernorm` in quantized training.
+[INFO|2026-03-31 22:59:57] llamafactory.hparams.parser:508 >> Process rank: 0, world size: 1, device: cpu, distributed training: False, compute dtype: torch.bfloat16
+[INFO|2026-03-31 22:59:57] llamafactory.data.loader:144 >> Loading dataset /home/lin/Bishe_LLM_for_genesis/data_prepare/splits_4000_exp1_qlora_rank4/train.json...
+
+
+===== 2026-03-31 22:59:58 | stage=train/size_1800 finished in 9.7s =====
+
+===== 2026-03-31 23:02:28 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/condabin/conda run -n llm_genesis python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=8 preprocessing_num_workers=1 dataloader_num_workers=0
+
+
+===== 2026-03-31 23:14:48 | stage=train/size_1800 finished in 740.6s =====
+
+===== 2026-03-31 23:15:51 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/condabin/conda run -n llm_genesis python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/train_override.yaml --finetune-method qlora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=32 preprocessing_num_workers=1 dataloader_num_workers=0
+
+[WARNING|2026-03-31 23:15:59] llamafactory.hparams.parser:149 >> We recommend enable `upcast_layernorm` in quantized training.
+[INFO|2026-03-31 23:15:59] llamafactory.hparams.parser:508 >> Process rank: 0, world size: 1, device: cuda:0, distributed training: False, compute dtype: torch.bfloat16
+[INFO|2026-03-31 23:15:59] llamafactory.data.loader:144 >> Loading dataset /home/lin/Bishe_LLM_for_genesis/data_prepare/splits_4000_exp1_qlora_rank4/train.json...
+[INFO|2026-03-31 23:16:00] llamafactory.data.loader:144 >> Loading dataset /home/lin/Bishe_LLM_for_genesis/data_prepare/splits_4000_exp1_qlora_rank4/val.json...
+training example:
+input_ids:
+[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 58, 24628, 29577, 60, 4913, 10499, 66582, 606, 3252, 45411, 2198, 5471, 3252, 1700, 2198, 2454, 22317, 966, 8899, 15, 13, 21, 20, 11, 15, 13, 15, 11, 15, 13, 15, 20, 60, 3417, 13989, 24157, 24628, 29577, 60, 58230, 228, 100754, 102768, 101148, 26939, 23384, 99922, 108072, 20, 105887, 44290, 3837, 101889, 104089, 104792, 108302, 151645, 198, 151644, 77091, 198, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 20, 11, 220, 15, 13, 15, 11, 220, 15, 13, 16, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 66125, 5212, 1311, 788, 330, 2508, 1889, 93265, 497, 330, 3487, 788, 220, 15, 13, 15, 19, 92, 13989, 151645, 198]
+inputs:
+<|im_start|>system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
+<|im_start|>user
+[STATE_CONTEXT]{"entities":[{"name":"cube","category":"object","state":{"pos":[0.65,0.0,0.05]}}]}[/STATE_CONTEXT] 将机械臂移动到方块上方5厘米处，然后打开夹爪<|im_end|>
+<|im_start|>assistant
+{"commands": [{"action": "move_ee", "pos": [0.65, 0.0, 0.1], "quat": [0, 1, 0, 0]}, {"action": "open_gripper", "position": 0.04}]}<|im_end|>
+
+label_ids:
+[-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 20, 11, 220, 15, 13, 15, 11, 220, 15, 13, 16, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 66125, 5212, 1311, 788, 330, 2508, 1889, 93265, 497, 330, 3487, 788, 220, 15, 13, 15, 19, 92, 13989, 151645, 198]
+labels:
+{"commands": [{"action": "move_ee", "pos": [0.65, 0.0, 0.1], "quat": [0, 1, 0, 0]}, {"action": "open_gripper", "position": 0.04}]}<|im_end|>
+
+eval example:
+input_ids:
+[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 58, 24628, 29577, 60, 4913, 10499, 66582, 606, 3252, 45411, 2198, 5471, 3252, 1700, 2198, 2454, 22317, 966, 8899, 15, 13, 21, 20, 11, 15, 13, 15, 11, 15, 13, 15, 20, 60, 3417, 13989, 24157, 24628, 29577, 60, 58230, 228, 100754, 102768, 101148, 26939, 23384, 99922, 108072, 220, 16, 15, 4891, 236, 246, 72261, 44290, 3837, 101077, 99745, 18158, 151645, 198, 151644, 77091, 198, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 20, 11, 220, 15, 13, 15, 11, 220, 15, 13, 16, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 13989, 13989, 151645, 198]
+inputs:
+<|im_start|>system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
+<|im_start|>user
+[STATE_CONTEXT]{"entities":[{"name":"cube","category":"object","state":{"pos":[0.65,0.0,0.05]}}]}[/STATE_CONTEXT] 将机械臂移动到方块上方 10 厘米处，准备抓取<|im_end|>
+<|im_start|>assistant
+{"commands": [{"action": "move_ee", "pos": [0.65, 0.0, 0.15], "quat": [0, 1, 0, 0]}]}<|im_end|>
+
+label_ids:
+[-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 4913, 24270, 788, 61753, 1311, 788, 330, 3397, 62, 2127, 497, 330, 966, 788, 508, 15, 13, 21, 20, 11, 220, 15, 13, 15, 11, 220, 15, 13, 16, 20, 1125, 330, 72983, 788, 508, 15, 11, 220, 16, 11, 220, 15, 11, 220, 15, 13989, 13989, 151645, 198]
+labels:
+{"commands": [{"action": "move_ee", "pos": [0.65, 0.0, 0.15], "quat": [0, 1, 0, 0]}]}<|im_end|>
+
+[INFO|2026-03-31 23:16:01] llamafactory.model.model_utils.quantization:144 >> Quantizing model to 4 bit with bitsandbytes.
+[INFO|2026-03-31 23:16:01] llamafactory.model.model_utils.kv_cache:144 >> KV cache is disabled during training.
+[INFO|2026-03-31 23:16:06] llamafactory.model.model_utils.checkpointing:144 >> Gradient checkpointing enabled.
+[INFO|2026-03-31 23:16:06] llamafactory.model.model_utils.attention:144 >> Using torch SDPA for faster training and inference.
+[INFO|2026-03-31 23:16:06] llamafactory.model.adapter:144 >> Upcasting trainable params to float32.
+[INFO|2026-03-31 23:16:06] llamafactory.model.adapter:144 >> Fine-tuning method: LoRA
+[INFO|2026-03-31 23:16:06] llamafactory.model.model_utils.misc:144 >> Found linear modules: v_proj,down_proj,gate_proj,k_proj,o_proj,q_proj,up_proj
+[INFO|2026-03-31 23:16:07] llamafactory.model.loader:144 >> trainable params: 7,483,392 || all params: 3,093,422,080 || trainable%: 0.2419
+{'loss': 1.6005, 'grad_norm': 9.004366874694824, 'learning_rate': 4e-05, 'epoch': 0.13}
+{'loss': 1.0066, 'grad_norm': 2.1425957679748535, 'learning_rate': 9e-05, 'epoch': 0.26}
+{'loss': 0.5522, 'grad_norm': 1.4333070516586304, 'learning_rate': 0.00014, 'epoch': 0.38}
+{'loss': 0.2572, 'grad_norm': 10.992822647094727, 'learning_rate': 0.00019, 'epoch': 0.51}
+{'loss': 0.1866, 'grad_norm': 1.041614294052124, 'learning_rate': 0.00019974229252728342, 'epoch': 0.64}
+{'loss': 0.154, 'grad_norm': 1.0784995555877686, 'learning_rate': 0.00019869763196974957, 'epoch': 0.77}
+{'loss': 0.1232, 'grad_norm': 0.7594371438026428, 'learning_rate': 0.0001968583161128631, 'epoch': 0.89}
+{'loss': 0.1416, 'grad_norm': 4.144188404083252, 'learning_rate': 0.0001942391540464035, 'epoch': 1.0}
+{'loss': 0.1215, 'grad_norm': 0.6525372266769409, 'learning_rate': 0.00019086123372328746, 'epoch': 1.13}
+{'loss': 0.0979, 'grad_norm': 0.41960492730140686, 'learning_rate': 0.00018675175217177175, 'epoch': 1.26}
+{'eval_loss': 0.10070184618234634, 'eval_runtime': 17.6703, 'eval_samples_per_second': 11.318, 'eval_steps_per_second': 5.659, 'epoch': 1.26}
+{'loss': 0.1032, 'grad_norm': 0.7319331169128418, 'learning_rate': 0.0001819437965209732, 'epoch': 1.38}
+{'loss': 0.0793, 'grad_norm': 0.5726491808891296, 'learning_rate': 0.00017647607760275987, 'epoch': 1.51}
+{'loss': 0.1034, 'grad_norm': 0.5918698906898499, 'learning_rate': 0.0001703926182748945, 'epoch': 1.64}
+{'loss': 0.0979, 'grad_norm': 0.5858815312385559, 'learning_rate': 0.000163742398974869, 'epoch': 1.77}
+{'loss': 0.087, 'grad_norm': 0.5145834684371948, 'learning_rate': 0.00015657896335822147, 'epoch': 1.89}
+{'loss': 0.0798, 'grad_norm': 0.6268630027770996, 'learning_rate': 0.00014895998719650526, 'epoch': 2.0}
+{'loss': 0.0624, 'grad_norm': 0.6066624522209167, 'learning_rate': 0.00014094681400588906, 'epoch': 2.13}
+{'loss': 0.0716, 'grad_norm': 0.5155788660049438, 'learning_rate': 0.0001326039611452342, 'epoch': 2.26}
+{'loss': 0.0763, 'grad_norm': 0.49930742383003235, 'learning_rate': 0.0001239986003602566, 'epoch': 2.38}
+{'loss': 0.075, 'grad_norm': 0.4939122200012207, 'learning_rate': 0.00011520001695612674, 'epoch': 2.51}
+{'eval_loss': 0.08614692091941833, 'eval_runtime': 17.6728, 'eval_samples_per_second': 11.317, 'eval_steps_per_second': 5.658, 'epoch': 2.51}
+{'loss': 0.0682, 'grad_norm': 0.49635541439056396, 'learning_rate': 0.00010627905195293135, 'epoch': 2.64}
+{'loss': 0.065, 'grad_norm': 0.4518858790397644, 'learning_rate': 9.730753171543374e-05, 'epoch': 2.77}
+{'loss': 0.0593, 'grad_norm': 0.5364186763763428, 'learning_rate': 8.835768964941773e-05, 'epoch': 2.89}
+{'loss': 0.0626, 'grad_norm': 1.4456373453140259, 'learning_rate': 7.950158462077697e-05, 'epoch': 3.0}
+{'loss': 0.0521, 'grad_norm': 0.46433785557746887, 'learning_rate': 7.081052077989667e-05, 'epoch': 3.13}
+{'loss': 0.0408, 'grad_norm': 0.40428951382637024, 'learning_rate': 6.23544734625608e-05, 'epoch': 3.26}
+{'loss': 0.0506, 'grad_norm': 0.5764746069908142, 'learning_rate': 5.420152578969326e-05, 'epoch': 3.38}
+{'loss': 0.042, 'grad_norm': 0.6731376051902771, 'learning_rate': 4.6417320502100316e-05, 'epoch': 3.51}
+{'loss': 0.0487, 'grad_norm': 0.6561506986618042, 'learning_rate': 3.90645314437192e-05, 'epoch': 3.64}
+{'loss': 0.0477, 'grad_norm': 0.5441412925720215, 'learning_rate': 3.220235894867794e-05, 'epoch': 3.77}
+{'eval_loss': 0.08921904861927032, 'eval_runtime': 17.7973, 'eval_samples_per_second': 11.238, 'eval_steps_per_second': 5.619, 'epoch': 3.77}
+{'loss': 0.0504, 'grad_norm': 0.45490211248397827, 'learning_rate': 2.5886053195014538e-05, 'epoch': 3.89}
+{'loss': 0.0351, 'grad_norm': 0.7605339288711548, 'learning_rate': 2.016646936272987e-05, 'epoch': 4.0}
+{'loss': 0.0314, 'grad_norm': 0.3080906867980957, 'learning_rate': 1.5089658177780653e-05, 'epoch': 4.13}
+{'loss': 0.0351, 'grad_norm': 0.441352903842926, 'learning_rate': 1.069649513871147e-05, 'epoch': 4.26}
+{'loss': 0.0385, 'grad_norm': 0.5346769094467163, 'learning_rate': 7.022351411174866e-06, 'epoch': 4.38}
+{'loss': 0.0316, 'grad_norm': 0.43530160188674927, 'learning_rate': 4.096809040103444e-06, 'epoch': 4.51}
+{'loss': 0.0375, 'grad_norm': 0.4509725868701935, 'learning_rate': 1.9434227724779984e-06, 'epoch': 4.64}
+{'loss': 0.0265, 'grad_norm': 0.4358634352684021, 'learning_rate': 5.795304083548559e-07, 'epoch': 4.77}
+{'loss': 0.0326, 'grad_norm': 0.5352979302406311, 'learning_rate': 1.6113207094181626e-08, 'epoch': 4.89}
+{'train_runtime': 903.9639, 'train_samples_per_second': 3.457, 'train_steps_per_second': 0.216, 'train_loss': 0.1521271282281631, 'epoch': 4.89}
+***** train metrics *****
+  epoch                    =     4.8946
+  total_flos               =  8702754GF
+  train_loss               =     0.1521
+  train_runtime            = 0:15:03.96
+  train_samples_per_second =      3.457
+  train_steps_per_second   =      0.216
+Figure saved at: /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/training_loss.png
+Figure saved at: /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/training_eval_loss.png
+[WARNING|2026-03-31 23:31:11] llamafactory.extras.ploting:149 >> No metric eval_accuracy to plot.
+***** eval metrics *****
+  epoch                   =     4.8946
+  eval_loss               =     0.0901
+  eval_runtime            = 0:00:17.77
+  eval_samples_per_second =     11.253
+  eval_steps_per_second   =      5.627
+[finetune] working_dir: /home/lin/Bishe_LLM_for_genesis/LlamaFactory
+[finetune] method     : qlora
+[finetune] command    : llamafactory-cli train /home/lin/Bishe_LLM_for_genesis/experiments/02_finetune_exp/configs/llamafactory_train_qlora_sft.yaml finetuning_type=lora quantization_bit=4 quantization_type=nf4 double_quantization=true model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/qwen2.5-3b-genesis-qlora dataset_dir=/home/lin/Bishe_LLM_for_genesis/.cache/llamafactory_dataset_splits dataset=__train_split__ eval_dataset=__val_split__ val_size=0.0 model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800 lora_rank=4 lora_alpha=32 preprocessing_num_workers=1 dataloader_num_workers=0
+[finetune] executed   : True
+[finetune] time (sec) : 935
+[finetune] final loss  : 0.0000
+[finetune] min loss    : 0.0000 (step 0)
+[finetune] peak VRAM   : 6331 MB
+[finetune] peak ΔVRAM  : 4504 MB
+/home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/transformers/utils/hub.py:105: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,559 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,559 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,559 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,559 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,559 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,559 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,559 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2323] 2026-03-31 23:15:59,723 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[INFO|configuration_utils.py:691] 2026-03-31 23:15:59,723 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:765] 2026-03-31 23:15:59,724 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": 32768,
+  "tie_word_embeddings": true,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.51.3",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,725 >> loading file vocab.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,725 >> loading file merges.txt
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,725 >> loading file tokenizer.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,725 >> loading file added_tokens.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,725 >> loading file special_tokens_map.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,725 >> loading file tokenizer_config.json
+[INFO|tokenization_utils_base.py:2058] 2026-03-31 23:15:59,725 >> loading file chat_template.jinja
+[INFO|tokenization_utils_base.py:2323] 2026-03-31 23:15:59,879 >> Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 1800 examples [00:00, 193786.99 examples/s]
+
+Converting format of dataset:   0%|          | 0/625 [00:00<?, ? examples/s]
+Converting format of dataset: 100%|██████████| 625/625 [00:00<00:00, 39774.83 examples/s]
+
+Running tokenizer on dataset:   0%|          | 0/625 [00:00<?, ? examples/s]
+Running tokenizer on dataset: 100%|██████████| 625/625 [00:00<00:00, 4468.51 examples/s]
+Running tokenizer on dataset: 100%|██████████| 625/625 [00:00<00:00, 4401.93 examples/s]
+[INFO|configuration_utils.py:691] 2026-03-31 23:16:01,336 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:765] 2026-03-31 23:16:01,337 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": 32768,
+  "tie_word_embeddings": true,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.51.3",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|modeling_utils.py:1121] 2026-03-31 23:16:01,359 >> loading weights file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/model.safetensors.index.json
+[INFO|modeling_utils.py:1195] 2026-03-31 23:16:01,359 >> Will use torch_dtype=torch.bfloat16 as defined in model's config object
+[INFO|modeling_utils.py:2167] 2026-03-31 23:16:01,359 >> Instantiating Qwen2ForCausalLM model under default dtype torch.bfloat16.
+[INFO|configuration_utils.py:1142] 2026-03-31 23:16:01,360 >> Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "use_cache": false
+}
+
+[WARNING|logging.py:328] 2026-03-31 23:16:01,361 >> Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.37s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.43s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.57s/it]
+[INFO|modeling_utils.py:4930] 2026-03-31 23:16:06,601 >> All model checkpoint weights were used when initializing Qwen2ForCausalLM.
+
+[INFO|modeling_utils.py:4938] 2026-03-31 23:16:06,601 >> All the weights of Qwen2ForCausalLM were initialized from the model checkpoint at /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use Qwen2ForCausalLM for predictions without further training.
+[INFO|configuration_utils.py:1095] 2026-03-31 23:16:06,602 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/generation_config.json
+[INFO|configuration_utils.py:1142] 2026-03-31 23:16:06,603 >> Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "do_sample": true,
+  "eos_token_id": [
+    151645,
+    151643
+  ],
+  "pad_token_id": 151643,
+  "repetition_penalty": 1.05,
+  "temperature": 0.7,
+  "top_k": 20,
+  "top_p": 0.8
+}
+
+[INFO|trainer.py:748] 2026-03-31 23:16:07,128 >> Using auto half precision backend
+[INFO|trainer.py:2414] 2026-03-31 23:16:07,300 >> ***** Running training *****
+[INFO|trainer.py:2415] 2026-03-31 23:16:07,300 >>   Num examples = 625
+[INFO|trainer.py:2416] 2026-03-31 23:16:07,300 >>   Num Epochs = 5
+[INFO|trainer.py:2417] 2026-03-31 23:16:07,300 >>   Instantaneous batch size per device = 2
+[INFO|trainer.py:2420] 2026-03-31 23:16:07,300 >>   Total train batch size (w. parallel, distributed & accumulation) = 16
+[INFO|trainer.py:2421] 2026-03-31 23:16:07,300 >>   Gradient Accumulation steps = 8
+[INFO|trainer.py:2422] 2026-03-31 23:16:07,300 >>   Total optimization steps = 195
+[INFO|trainer.py:2423] 2026-03-31 23:16:07,304 >>   Number of trainable parameters = 7,483,392
+
+  0%|          | 0/195 [00:00<?, ?it/s]
+  1%|          | 1/195 [00:04<15:33,  4.81s/it]
+  1%|          | 2/195 [00:09<15:42,  4.89s/it]
+  2%|▏         | 3/195 [00:14<14:47,  4.62s/it]
+  2%|▏         | 4/195 [00:17<13:44,  4.32s/it]
+  3%|▎         | 5/195 [00:21<12:59,  4.10s/it]
+                                               
+
+  3%|▎         | 5/195 [00:21<12:59,  4.10s/it]
+  3%|▎         | 6/195 [00:26<13:23,  4.25s/it]
+  4%|▎         | 7/195 [00:30<13:19,  4.25s/it]
+  4%|▍         | 8/195 [00:34<13:14,  4.25s/it]
+  5%|▍         | 9/195 [00:39<13:18,  4.29s/it]
+  5%|▌         | 10/195 [00:43<13:17,  4.31s/it]
+                                                
+
+  5%|▌         | 10/195 [00:43<13:17,  4.31s/it]
+  6%|▌         | 11/195 [00:47<13:03,  4.26s/it]
+  6%|▌         | 12/195 [00:52<13:32,  4.44s/it]
+  7%|▋         | 13/195 [00:56<13:31,  4.46s/it]
+  7%|▋         | 14/195 [01:01<13:32,  4.49s/it]
+  8%|▊         | 15/195 [01:06<13:40,  4.56s/it]
+                                                
+
+  8%|▊         | 15/195 [01:06<13:40,  4.56s/it]
+  8%|▊         | 16/195 [01:10<13:13,  4.43s/it]
+  9%|▊         | 17/195 [01:15<13:35,  4.58s/it]
+  9%|▉         | 18/195 [01:19<13:16,  4.50s/it]
+ 10%|▉         | 19/195 [01:23<12:55,  4.40s/it]
+ 10%|█         | 20/195 [01:28<12:45,  4.38s/it]
+                                                
+
+ 10%|█         | 20/195 [01:28<12:45,  4.38s/it]
+ 11%|█         | 21/195 [01:32<12:31,  4.32s/it]
+ 11%|█▏        | 22/195 [01:36<12:23,  4.30s/it]
+ 12%|█▏        | 23/195 [01:40<12:08,  4.23s/it]
+ 12%|█▏        | 24/195 [01:45<12:20,  4.33s/it]
+ 13%|█▎        | 25/195 [01:49<12:43,  4.49s/it]
+                                                
+
+ 13%|█▎        | 25/195 [01:49<12:43,  4.49s/it]
+ 13%|█▎        | 26/195 [01:54<12:29,  4.44s/it]
+ 14%|█▍        | 27/195 [01:59<12:49,  4.58s/it]
+ 14%|█▍        | 28/195 [02:03<12:36,  4.53s/it]
+ 15%|█▍        | 29/195 [02:07<12:05,  4.37s/it]
+ 15%|█▌        | 30/195 [02:11<11:34,  4.21s/it]
+                                                
+
+ 15%|█▌        | 30/195 [02:11<11:34,  4.21s/it]
+ 16%|█▌        | 31/195 [02:15<11:37,  4.25s/it]
+ 16%|█▋        | 32/195 [02:20<12:09,  4.47s/it]
+ 17%|█▋        | 33/195 [02:25<12:10,  4.51s/it]
+ 17%|█▋        | 34/195 [02:29<11:38,  4.34s/it]
+ 18%|█▊        | 35/195 [02:33<11:39,  4.37s/it]
+                                                
+
+ 18%|█▊        | 35/195 [02:33<11:39,  4.37s/it]
+ 18%|█▊        | 36/195 [02:39<12:18,  4.64s/it]
+ 19%|█▉        | 37/195 [02:43<12:11,  4.63s/it]
+ 19%|█▉        | 38/195 [02:48<11:59,  4.58s/it]
+ 20%|██        | 39/195 [02:52<11:54,  4.58s/it]
+ 21%|██        | 40/195 [02:53<08:36,  3.33s/it]
+                                                
+
+ 21%|██        | 40/195 [02:53<08:36,  3.33s/it]
+ 21%|██        | 41/195 [02:57<09:35,  3.73s/it]
+ 22%|██▏       | 42/195 [03:02<10:24,  4.08s/it]
+ 22%|██▏       | 43/195 [03:07<11:11,  4.42s/it]
+ 23%|██▎       | 44/195 [03:12<11:06,  4.41s/it]
+ 23%|██▎       | 45/195 [03:16<11:08,  4.46s/it]
+                                                
+
+ 23%|██▎       | 45/195 [03:16<11:08,  4.46s/it]
+ 24%|██▎       | 46/195 [03:21<11:15,  4.53s/it]
+ 24%|██▍       | 47/195 [03:26<11:31,  4.67s/it]
+ 25%|██▍       | 48/195 [03:31<11:44,  4.79s/it]
+ 25%|██▌       | 49/195 [03:35<10:59,  4.52s/it]
+ 26%|██▌       | 50/195 [03:39<10:49,  4.48s/it]
+                                                
+
+ 26%|██▌       | 50/195 [03:39<10:49,  4.48s/it][INFO|trainer.py:4307] 2026-03-31 23:19:47,198 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4309] 2026-03-31 23:19:47,198 >>   Num examples = 200
+[INFO|trainer.py:4312] 2026-03-31 23:19:47,198 >>   Batch size = 2
+
+
+  0%|          | 0/100 [00:00<?, ?it/s][A
+
+  2%|▏         | 2/100 [00:00<00:07, 12.54it/s][A
+
+  4%|▍         | 4/100 [00:00<00:11,  8.53it/s][A
+
+  5%|▌         | 5/100 [00:00<00:14,  6.38it/s][A
+
+  6%|▌         | 6/100 [00:00<00:14,  6.33it/s][A
+
+  7%|▋         | 7/100 [00:01<00:14,  6.32it/s][A
+
+  8%|▊         | 8/100 [00:01<00:15,  5.88it/s][A
+
+  9%|▉         | 9/100 [00:01<00:16,  5.66it/s][A
+
+ 10%|█         | 10/100 [00:01<00:16,  5.46it/s][A
+
+ 11%|█         | 11/100 [00:01<00:14,  6.14it/s][A
+
+ 12%|█▏        | 12/100 [00:01<00:16,  5.38it/s][A
+
+ 13%|█▎        | 13/100 [00:02<00:16,  5.34it/s][A
+
+ 14%|█▍        | 14/100 [00:02<00:15,  5.68it/s][A
+
+ 15%|█▌        | 15/100 [00:02<00:14,  5.87it/s][A
+
+ 16%|█▌        | 16/100 [00:02<00:14,  5.93it/s][A
+
+ 17%|█▋        | 17/100 [00:02<00:13,  6.36it/s][A
+
+ 18%|█▊        | 18/100 [00:02<00:13,  6.26it/s][A
+
+ 19%|█▉        | 19/100 [00:03<00:12,  6.25it/s][A
+
+ 20%|██        | 20/100 [00:03<00:14,  5.68it/s][A
+
+ 21%|██        | 21/100 [00:03<00:13,  5.79it/s][A
+
+ 22%|██▏       | 22/100 [00:03<00:13,  5.91it/s][A
+
+ 23%|██▎       | 23/100 [00:03<00:14,  5.15it/s][A
+
+ 24%|██▍       | 24/100 [00:04<00:13,  5.62it/s][A
+
+ 25%|██▌       | 25/100 [00:04<00:14,  5.31it/s][A
+
+ 26%|██▌       | 26/100 [00:04<00:15,  4.67it/s][A
+
+ 27%|██▋       | 27/100 [00:04<00:15,  4.80it/s][A
+
+ 28%|██▊       | 28/100 [00:04<00:13,  5.15it/s][A
+
+ 29%|██▉       | 29/100 [00:05<00:14,  5.06it/s][A
+
+ 30%|███       | 30/100 [00:05<00:12,  5.46it/s][A
+
+ 31%|███       | 31/100 [00:05<00:14,  4.71it/s][A
+
+ 32%|███▏      | 32/100 [00:05<00:13,  5.08it/s][A
+
+ 33%|███▎      | 33/100 [00:05<00:12,  5.51it/s][A
+
+ 34%|███▍      | 34/100 [00:05<00:11,  5.70it/s][A
+
+ 35%|███▌      | 35/100 [00:06<00:10,  5.91it/s][A
+
+ 36%|███▌      | 36/100 [00:06<00:11,  5.63it/s][A
+
+ 37%|███▋      | 37/100 [00:06<00:10,  5.94it/s][A
+
+ 38%|███▊      | 38/100 [00:06<00:10,  5.98it/s][A
+
+ 39%|███▉      | 39/100 [00:06<00:09,  6.14it/s][A
+
+ 40%|████      | 40/100 [00:06<00:09,  6.28it/s][A
+
+ 41%|████      | 41/100 [00:07<00:10,  5.89it/s][A
+
+ 42%|████▏     | 42/100 [00:07<00:09,  5.97it/s][A
+
+ 43%|████▎     | 43/100 [00:07<00:09,  5.72it/s][A
+
+ 44%|████▍     | 44/100 [00:07<00:09,  6.19it/s][A
+
+ 45%|████▌     | 45/100 [00:07<00:10,  5.43it/s][A
+
+ 46%|████▌     | 46/100 [00:08<00:09,  5.55it/s][A
+
+ 47%|████▋     | 47/100 [00:08<00:09,  5.32it/s][A
+
+ 48%|████▊     | 48/100 [00:08<00:09,  5.48it/s][A
+
+ 49%|████▉     | 49/100 [00:08<00:08,  5.90it/s][A
+
+ 50%|█████     | 50/100 [00:08<00:08,  5.96it/s][A
+
+ 51%|█████     | 51/100 [00:08<00:08,  5.92it/s][A
+
+ 52%|█████▏    | 52/100 [00:08<00:07,  6.43it/s][A
+
+ 53%|█████▎    | 53/100 [00:09<00:06,  6.74it/s][A
+
+ 54%|█████▍    | 54/100 [00:09<00:06,  7.06it/s][A
+
+ 55%|█████▌    | 55/100 [00:09<00:06,  6.84it/s][A
+
+ 56%|█████▌    | 56/100 [00:09<00:06,  6.60it/s][A
+
+ 57%|█████▋    | 57/100 [00:09<00:07,  6.06it/s][A
+
+ 58%|█████▊    | 58/100 [00:09<00:06,  6.52it/s][A
+
+ 59%|█████▉    | 59/100 [00:10<00:05,  6.97it/s][A
+
+ 60%|██████    | 60/100 [00:10<00:05,  7.25it/s][A
+
+ 61%|██████    | 61/100 [00:10<00:05,  7.07it/s][A
+
+ 62%|██████▏   | 62/100 [00:10<00:06,  6.23it/s][A
+
+ 63%|██████▎   | 63/100 [00:10<00:06,  5.42it/s][A
+
+ 64%|██████▍   | 64/100 [00:10<00:06,  5.30it/s][A
+
+ 65%|██████▌   | 65/100 [00:11<00:07,  4.93it/s][A
+
+ 66%|██████▌   | 66/100 [00:11<00:07,  4.62it/s][A
+
+ 67%|██████▋   | 67/100 [00:11<00:06,  5.03it/s][A
+
+ 68%|██████▊   | 68/100 [00:11<00:06,  5.06it/s][A
+
+ 69%|██████▉   | 69/100 [00:11<00:05,  5.69it/s][A
+
+ 70%|███████   | 70/100 [00:12<00:05,  5.47it/s][A
+
+ 71%|███████   | 71/100 [00:12<00:05,  5.31it/s][A
+
+ 72%|███████▏  | 72/100 [00:12<00:05,  5.23it/s][A
+
+ 73%|███████▎  | 73/100 [00:12<00:04,  5.58it/s][A
+
+ 74%|███████▍  | 74/100 [00:12<00:04,  5.80it/s][A
+
+ 75%|███████▌  | 75/100 [00:12<00:04,  6.25it/s][A
+
+ 76%|███████▌  | 76/100 [00:13<00:03,  6.56it/s][A
+
+ 77%|███████▋  | 77/100 [00:13<00:03,  6.48it/s][A
+
+ 78%|███████▊  | 78/100 [00:13<00:04,  5.42it/s][A
+
+ 79%|███████▉  | 79/100 [00:13<00:04,  4.87it/s][A
+
+ 80%|████████  | 80/100 [00:14<00:04,  4.30it/s][A
+
+ 81%|████████  | 81/100 [00:14<00:04,  4.49it/s][A
+
+ 82%|████████▏ | 82/100 [00:14<00:03,  4.97it/s][A
+
+ 83%|████████▎ | 83/100 [00:14<00:03,  5.43it/s][A
+
+ 84%|████████▍ | 84/100 [00:14<00:02,  5.76it/s][A
+
+ 85%|████████▌ | 85/100 [00:14<00:02,  6.12it/s][A
+
+ 86%|████████▌ | 86/100 [00:14<00:02,  6.30it/s][A
+
+ 87%|████████▋ | 87/100 [00:15<00:02,  6.34it/s][A
+
+ 88%|████████▊ | 88/100 [00:15<00:01,  6.50it/s][A
+
+ 89%|████████▉ | 89/100 [00:15<00:02,  5.20it/s][A
+
+ 90%|█████████ | 90/100 [00:15<00:01,  5.56it/s][A
+
+ 91%|█████████ | 91/100 [00:15<00:01,  6.07it/s][A
+
+ 92%|█████████▏| 92/100 [00:16<00:01,  5.68it/s][A
+
+ 93%|█████████▎| 93/100 [00:16<00:01,  5.57it/s][A
+
+ 94%|█████████▍| 94/100 [00:16<00:01,  5.66it/s][A
+
+ 95%|█████████▌| 95/100 [00:16<00:00,  5.42it/s][A
+
+ 96%|█████████▌| 96/100 [00:16<00:00,  5.75it/s][A
+
+ 97%|█████████▋| 97/100 [00:16<00:00,  5.22it/s][A
+
+ 98%|█████████▊| 98/100 [00:17<00:00,  4.89it/s][A
+
+ 99%|█████████▉| 99/100 [00:17<00:00,  5.50it/s][A
+
+100%|██████████| 100/100 [00:17<00:00,  5.47it/s][A
+                                                
+
+                                                 
+[A
+ 26%|██▌       | 50/195 [03:57<10:49,  4.48s/it]
+
+100%|██████████| 100/100 [00:17<00:00,  5.47it/s][A
+
+                                                 [A
+ 26%|██▌       | 51/195 [04:02<23:38,  9.85s/it]
+ 27%|██▋       | 52/195 [04:07<19:49,  8.32s/it]
+ 27%|██▋       | 53/195 [04:11<16:57,  7.17s/it]
+ 28%|██▊       | 54/195 [04:16<15:05,  6.42s/it]
+ 28%|██▊       | 55/195 [04:20<13:19,  5.71s/it]
+                                                
+
+ 28%|██▊       | 55/195 [04:20<13:19,  5.71s/it]
+ 29%|██▊       | 56/195 [04:24<12:07,  5.23s/it]
+ 29%|██▉       | 57/195 [04:28<11:26,  4.98s/it]
+ 30%|██▉       | 58/195 [04:32<10:41,  4.68s/it]
+ 30%|███       | 59/195 [04:36<10:01,  4.42s/it]
+ 31%|███       | 60/195 [04:41<10:31,  4.68s/it]
+                                                
+
+ 31%|███       | 60/195 [04:41<10:31,  4.68s/it]
+ 31%|███▏      | 61/195 [04:46<10:15,  4.59s/it]
+ 32%|███▏      | 62/195 [04:51<10:21,  4.67s/it]
+ 32%|███▏      | 63/195 [04:54<09:45,  4.44s/it]
+ 33%|███▎      | 64/195 [04:59<09:56,  4.55s/it]
+ 33%|███▎      | 65/195 [05:03<09:31,  4.40s/it]
+                                                
+
+ 33%|███▎      | 65/195 [05:03<09:31,  4.40s/it]
+ 34%|███▍      | 66/195 [05:08<09:23,  4.37s/it]
+ 34%|███▍      | 67/195 [05:12<09:34,  4.49s/it]
+ 35%|███▍      | 68/195 [05:16<09:10,  4.34s/it]
+ 35%|███▌      | 69/195 [05:21<09:15,  4.41s/it]
+ 36%|███▌      | 70/195 [05:25<09:05,  4.37s/it]
+                                                
+
+ 36%|███▌      | 70/195 [05:25<09:05,  4.37s/it]
+ 36%|███▋      | 71/195 [05:30<09:19,  4.51s/it]
+ 37%|███▋      | 72/195 [05:34<08:49,  4.31s/it]
+ 37%|███▋      | 73/195 [05:38<08:27,  4.16s/it]
+ 38%|███▊      | 74/195 [05:41<08:05,  4.01s/it]
+ 38%|███▊      | 75/195 [05:46<08:10,  4.09s/it]
+                                                
+
+ 38%|███▊      | 75/195 [05:46<08:10,  4.09s/it]
+ 39%|███▉      | 76/195 [05:50<08:31,  4.30s/it]
+ 39%|███▉      | 77/195 [05:55<08:36,  4.38s/it]
+ 40%|████      | 78/195 [05:59<08:32,  4.38s/it]
+ 41%|████      | 79/195 [06:04<08:28,  4.38s/it]
+ 41%|████      | 80/195 [06:04<06:10,  3.22s/it]
+                                                
+
+ 41%|████      | 80/195 [06:04<06:10,  3.22s/it]
+ 42%|████▏     | 81/195 [06:08<06:36,  3.48s/it]
+ 42%|████▏     | 82/195 [06:13<07:18,  3.88s/it]
+ 43%|████▎     | 83/195 [06:18<07:30,  4.02s/it]
+ 43%|████▎     | 84/195 [06:22<07:47,  4.21s/it]
+ 44%|████▎     | 85/195 [06:26<07:31,  4.11s/it]
+                                                
+
+ 44%|████▎     | 85/195 [06:26<07:31,  4.11s/it]
+ 44%|████▍     | 86/195 [06:30<07:21,  4.05s/it]
+ 45%|████▍     | 87/195 [06:34<07:22,  4.10s/it]
+ 45%|████▌     | 88/195 [06:39<07:50,  4.40s/it]
+ 46%|████▌     | 89/195 [06:44<08:02,  4.55s/it]
+ 46%|████▌     | 90/195 [06:49<08:04,  4.61s/it]
+                                                
+
+ 46%|████▌     | 90/195 [06:49<08:04,  4.61s/it]
+ 47%|████▋     | 91/195 [06:53<07:35,  4.38s/it]
+ 47%|████▋     | 92/195 [06:57<07:36,  4.43s/it]
+ 48%|████▊     | 93/195 [07:02<07:40,  4.52s/it]
+ 48%|████▊     | 94/195 [07:07<07:47,  4.63s/it]
+ 49%|████▊     | 95/195 [07:12<07:49,  4.69s/it]
+                                                
+
+ 49%|████▊     | 95/195 [07:12<07:49,  4.69s/it]
+ 49%|████▉     | 96/195 [07:16<07:39,  4.64s/it]
+ 50%|████▉     | 97/195 [07:21<07:37,  4.67s/it]
+ 50%|█████     | 98/195 [07:25<07:26,  4.60s/it]
+ 51%|█████     | 99/195 [07:30<07:22,  4.61s/it]
+ 51%|█████▏    | 100/195 [07:34<07:11,  4.55s/it]
+                                                 
+
+ 51%|█████▏    | 100/195 [07:34<07:11,  4.55s/it][INFO|trainer.py:4307] 2026-03-31 23:23:42,301 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4309] 2026-03-31 23:23:42,301 >>   Num examples = 200
+[INFO|trainer.py:4312] 2026-03-31 23:23:42,301 >>   Batch size = 2
+
+
+  0%|          | 0/100 [00:00<?, ?it/s][A
+
+  2%|▏         | 2/100 [00:00<00:07, 12.46it/s][A
+
+  4%|▍         | 4/100 [00:00<00:11,  8.49it/s][A
+
+  5%|▌         | 5/100 [00:00<00:14,  6.34it/s][A
+
+  6%|▌         | 6/100 [00:00<00:14,  6.29it/s][A
+
+  7%|▋         | 7/100 [00:01<00:14,  6.29it/s][A
+
+  8%|▊         | 8/100 [00:01<00:15,  5.87it/s][A
+
+  9%|▉         | 9/100 [00:01<00:15,  5.70it/s][A
+
+ 10%|█         | 10/100 [00:01<00:16,  5.54it/s][A
+
+ 11%|█         | 11/100 [00:01<00:14,  6.09it/s][A
+
+ 12%|█▏        | 12/100 [00:01<00:16,  5.33it/s][A
+
+ 13%|█▎        | 13/100 [00:02<00:16,  5.31it/s][A
+
+ 14%|█▍        | 14/100 [00:02<00:15,  5.69it/s][A
+
+ 15%|█▌        | 15/100 [00:02<00:14,  5.86it/s][A
+
+ 16%|█▌        | 16/100 [00:02<00:14,  5.98it/s][A
+
+ 17%|█▋        | 17/100 [00:02<00:12,  6.39it/s][A
+
+ 18%|█▊        | 18/100 [00:02<00:12,  6.35it/s][A
+
+ 19%|█▉        | 19/100 [00:03<00:12,  6.47it/s][A
+
+ 20%|██        | 20/100 [00:03<00:13,  5.98it/s][A
+
+ 21%|██        | 21/100 [00:03<00:13,  6.02it/s][A
+
+ 22%|██▏       | 22/100 [00:03<00:12,  6.08it/s][A
+
+ 23%|██▎       | 23/100 [00:03<00:14,  5.23it/s][A
+
+ 24%|██▍       | 24/100 [00:03<00:13,  5.70it/s][A
+
+ 25%|██▌       | 25/100 [00:04<00:14,  5.33it/s][A
+
+ 26%|██▌       | 26/100 [00:04<00:16,  4.54it/s][A
+
+ 27%|██▋       | 27/100 [00:04<00:15,  4.72it/s][A
+
+ 28%|██▊       | 28/100 [00:04<00:14,  5.10it/s][A
+
+ 29%|██▉       | 29/100 [00:05<00:14,  5.05it/s][A
+
+ 30%|███       | 30/100 [00:05<00:12,  5.42it/s][A
+
+ 31%|███       | 31/100 [00:05<00:14,  4.66it/s][A
+
+ 32%|███▏      | 32/100 [00:05<00:13,  5.05it/s][A
+
+ 33%|███▎      | 33/100 [00:05<00:12,  5.43it/s][A
+
+ 34%|███▍      | 34/100 [00:05<00:11,  5.65it/s][A
+
+ 35%|███▌      | 35/100 [00:06<00:11,  5.80it/s][A
+
+ 36%|███▌      | 36/100 [00:06<00:11,  5.52it/s][A
+
+ 37%|███▋      | 37/100 [00:06<00:10,  5.80it/s][A
+
+ 38%|███▊      | 38/100 [00:06<00:10,  5.92it/s][A
+
+ 39%|███▉      | 39/100 [00:06<00:09,  6.14it/s][A
+
+ 40%|████      | 40/100 [00:06<00:09,  6.29it/s][A
+
+ 41%|████      | 41/100 [00:07<00:10,  5.85it/s][A
+
+ 42%|████▏     | 42/100 [00:07<00:09,  5.99it/s][A
+
+ 43%|████▎     | 43/100 [00:07<00:09,  5.70it/s][A
+
+ 44%|████▍     | 44/100 [00:07<00:09,  6.21it/s][A
+
+ 45%|████▌     | 45/100 [00:07<00:10,  5.45it/s][A
+
+ 46%|████▌     | 46/100 [00:08<00:09,  5.65it/s][A
+
+ 47%|████▋     | 47/100 [00:08<00:09,  5.50it/s][A
+
+ 48%|████▊     | 48/100 [00:08<00:09,  5.58it/s][A
+
+ 49%|████▉     | 49/100 [00:08<00:08,  5.96it/s][A
+
+ 50%|█████     | 50/100 [00:08<00:08,  6.06it/s][A
+
+ 51%|█████     | 51/100 [00:08<00:08,  5.95it/s][A
+
+ 52%|█████▏    | 52/100 [00:08<00:07,  6.45it/s][A
+
+ 53%|█████▎    | 53/100 [00:09<00:07,  6.63it/s][A
+
+ 54%|█████▍    | 54/100 [00:09<00:06,  6.86it/s][A
+
+ 55%|█████▌    | 55/100 [00:09<00:06,  6.56it/s][A
+
+ 56%|█████▌    | 56/100 [00:09<00:06,  6.34it/s][A
+
+ 57%|█████▋    | 57/100 [00:09<00:07,  5.89it/s][A
+
+ 58%|█████▊    | 58/100 [00:09<00:06,  6.33it/s][A
+
+ 59%|█████▉    | 59/100 [00:10<00:06,  6.73it/s][A
+
+ 60%|██████    | 60/100 [00:10<00:05,  7.03it/s][A
+
+ 61%|██████    | 61/100 [00:10<00:05,  6.83it/s][A
+
+ 62%|██████▏   | 62/100 [00:10<00:06,  6.11it/s][A
+
+ 63%|██████▎   | 63/100 [00:10<00:06,  5.35it/s][A
+
+ 64%|██████▍   | 64/100 [00:10<00:06,  5.23it/s][A
+
+ 65%|██████▌   | 65/100 [00:11<00:07,  4.91it/s][A
+
+ 66%|██████▌   | 66/100 [00:11<00:07,  4.62it/s][A
+
+ 67%|██████▋   | 67/100 [00:11<00:06,  5.03it/s][A
+
+ 68%|██████▊   | 68/100 [00:11<00:06,  5.03it/s][A
+
+ 69%|██████▉   | 69/100 [00:11<00:05,  5.59it/s][A
+
+ 70%|███████   | 70/100 [00:12<00:05,  5.37it/s][A
+
+ 71%|███████   | 71/100 [00:12<00:05,  5.27it/s][A
+
+ 72%|███████▏  | 72/100 [00:12<00:05,  5.23it/s][A
+
+ 73%|███████▎  | 73/100 [00:12<00:04,  5.62it/s][A
+
+ 74%|███████▍  | 74/100 [00:12<00:04,  5.81it/s][A
+
+ 75%|███████▌  | 75/100 [00:12<00:04,  6.22it/s][A
+
+ 76%|███████▌  | 76/100 [00:13<00:03,  6.66it/s][A
+
+ 77%|███████▋  | 77/100 [00:13<00:03,  6.61it/s][A
+
+ 78%|███████▊  | 78/100 [00:13<00:04,  5.48it/s][A
+
+ 79%|███████▉  | 79/100 [00:13<00:04,  4.85it/s][A
+
+ 80%|████████  | 80/100 [00:14<00:04,  4.26it/s][A
+
+ 81%|████████  | 81/100 [00:14<00:04,  4.44it/s][A
+
+ 82%|████████▏ | 82/100 [00:14<00:03,  4.87it/s][A
+
+ 83%|████████▎ | 83/100 [00:14<00:03,  5.56it/s][A
+
+ 84%|████████▍ | 84/100 [00:14<00:02,  5.83it/s][A
+
+ 85%|████████▌ | 85/100 [00:14<00:02,  6.29it/s][A
+
+ 86%|████████▌ | 86/100 [00:14<00:02,  6.21it/s][A
+
+ 87%|████████▋ | 87/100 [00:15<00:02,  6.32it/s][A
+
+ 88%|████████▊ | 88/100 [00:15<00:01,  6.57it/s][A
+
+ 89%|████████▉ | 89/100 [00:15<00:02,  5.26it/s][A
+
+ 90%|█████████ | 90/100 [00:15<00:01,  5.61it/s][A
+
+ 91%|█████████ | 91/100 [00:15<00:01,  6.13it/s][A
+
+ 92%|█████████▏| 92/100 [00:16<00:01,  5.73it/s][A
+
+ 93%|█████████▎| 93/100 [00:16<00:01,  5.57it/s][A
+
+ 94%|█████████▍| 94/100 [00:16<00:01,  5.85it/s][A
+
+ 95%|█████████▌| 95/100 [00:16<00:00,  5.54it/s][A
+
+ 96%|█████████▌| 96/100 [00:16<00:00,  6.04it/s][A
+
+ 97%|█████████▋| 97/100 [00:16<00:00,  5.32it/s][A
+
+ 98%|█████████▊| 98/100 [00:17<00:00,  4.95it/s][A
+
+ 99%|█████████▉| 99/100 [00:17<00:00,  5.56it/s][A
+
+100%|██████████| 100/100 [00:17<00:00,  5.47it/s][A
+                                                 
+
+                                                 
+[A
+ 51%|█████▏    | 100/195 [07:52<07:11,  4.55s/it]
+
+100%|██████████| 100/100 [00:17<00:00,  5.47it/s][A
+
+                                                 [A[INFO|trainer.py:3984] 2026-03-31 23:23:59,972 >> Saving model checkpoint to /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/checkpoint-100
+[INFO|configuration_utils.py:691] 2026-03-31 23:24:00,018 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:765] 2026-03-31 23:24:00,018 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": 32768,
+  "tie_word_embeddings": true,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.51.3",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2510] 2026-03-31 23:24:00,081 >> tokenizer config file saved in /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/checkpoint-100/tokenizer_config.json
+[INFO|tokenization_utils_base.py:2519] 2026-03-31 23:24:00,082 >> Special tokens file saved in /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/checkpoint-100/special_tokens_map.json
+
+ 52%|█████▏    | 101/195 [07:57<15:27,  9.87s/it]
+ 52%|█████▏    | 102/195 [08:01<12:36,  8.13s/it]
+ 53%|█████▎    | 103/195 [08:05<10:32,  6.88s/it]
+ 53%|█████▎    | 104/195 [08:10<09:28,  6.25s/it]
+ 54%|█████▍    | 105/195 [08:14<08:43,  5.82s/it]
+                                                 
+
+ 54%|█████▍    | 105/195 [08:14<08:43,  5.82s/it]
+ 54%|█████▍    | 106/195 [08:19<08:04,  5.44s/it]
+ 55%|█████▍    | 107/195 [08:24<07:38,  5.21s/it]
+ 55%|█████▌    | 108/195 [08:28<07:05,  4.89s/it]
+ 56%|█████▌    | 109/195 [08:32<06:36,  4.61s/it]
+ 56%|█████▋    | 110/195 [08:35<06:09,  4.35s/it]
+                                                 
+
+ 56%|█████▋    | 110/195 [08:35<06:09,  4.35s/it]
+ 57%|█████▋    | 111/195 [08:40<06:14,  4.45s/it]
+ 57%|█████▋    | 112/195 [08:45<06:07,  4.43s/it]
+ 58%|█████▊    | 113/195 [08:49<06:01,  4.41s/it]
+ 58%|█████▊    | 114/195 [08:53<05:59,  4.44s/it]
+ 59%|█████▉    | 115/195 [08:58<05:52,  4.41s/it]
+                                                 
+
+ 59%|█████▉    | 115/195 [08:58<05:52,  4.41s/it]
+ 59%|█████▉    | 116/195 [09:02<05:43,  4.35s/it]
+ 60%|██████    | 117/195 [09:06<05:27,  4.20s/it]
+ 61%|██████    | 118/195 [09:11<05:37,  4.39s/it]
+ 61%|██████    | 119/195 [09:15<05:43,  4.52s/it]
+ 62%|██████▏   | 120/195 [09:16<04:06,  3.29s/it]
+                                                 
+
+ 62%|██████▏   | 120/195 [09:16<04:06,  3.29s/it]
+ 62%|██████▏   | 121/195 [09:20<04:20,  3.52s/it]
+ 63%|██████▎   | 122/195 [09:24<04:22,  3.59s/it]
+ 63%|██████▎   | 123/195 [09:28<04:36,  3.84s/it]
+ 64%|██████▎   | 124/195 [09:33<04:57,  4.20s/it]
+ 64%|██████▍   | 125/195 [09:38<05:01,  4.31s/it]
+                                                 
+
+ 64%|██████▍   | 125/195 [09:38<05:01,  4.31s/it]
+ 65%|██████▍   | 126/195 [09:42<04:49,  4.19s/it]
+ 65%|██████▌   | 127/195 [09:46<04:47,  4.23s/it]
+ 66%|██████▌   | 128/195 [09:50<04:42,  4.22s/it]
+ 66%|██████▌   | 129/195 [09:54<04:31,  4.11s/it]
+ 67%|██████▋   | 130/195 [09:58<04:29,  4.15s/it]
+                                                 
+
+ 67%|██████▋   | 130/195 [09:58<04:29,  4.15s/it]
+ 67%|██████▋   | 131/195 [10:02<04:26,  4.16s/it]
+ 68%|██████▊   | 132/195 [10:07<04:36,  4.39s/it]
+ 68%|██████▊   | 133/195 [10:12<04:39,  4.51s/it]
+ 69%|██████▊   | 134/195 [10:17<04:35,  4.52s/it]
+ 69%|██████▉   | 135/195 [10:21<04:24,  4.42s/it]
+                                                 
+
+ 69%|██████▉   | 135/195 [10:21<04:24,  4.42s/it]
+ 70%|██████▉   | 136/195 [10:26<04:26,  4.52s/it]
+ 70%|███████   | 137/195 [10:30<04:13,  4.38s/it]
+ 71%|███████   | 138/195 [10:34<04:08,  4.36s/it]
+ 71%|███████▏  | 139/195 [10:39<04:07,  4.42s/it]
+ 72%|███████▏  | 140/195 [10:43<03:57,  4.32s/it]
+                                                 
+
+ 72%|███████▏  | 140/195 [10:43<03:57,  4.32s/it]
+ 72%|███████▏  | 141/195 [10:47<03:52,  4.30s/it]
+ 73%|███████▎  | 142/195 [10:52<03:56,  4.47s/it]
+ 73%|███████▎  | 143/195 [10:56<03:44,  4.32s/it]
+ 74%|███████▍  | 144/195 [11:01<03:48,  4.48s/it]
+ 74%|███████▍  | 145/195 [11:05<03:43,  4.46s/it]
+                                                 
+
+ 74%|███████▍  | 145/195 [11:05<03:43,  4.46s/it]
+ 75%|███████▍  | 146/195 [11:10<03:45,  4.59s/it]
+ 75%|███████▌  | 147/195 [11:14<03:35,  4.49s/it]
+ 76%|███████▌  | 148/195 [11:19<03:31,  4.49s/it]
+ 76%|███████▋  | 149/195 [11:24<03:37,  4.73s/it]
+ 77%|███████▋  | 150/195 [11:28<03:22,  4.50s/it]
+                                                 
+
+ 77%|███████▋  | 150/195 [11:28<03:22,  4.50s/it][INFO|trainer.py:4307] 2026-03-31 23:27:35,732 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4309] 2026-03-31 23:27:35,732 >>   Num examples = 200
+[INFO|trainer.py:4312] 2026-03-31 23:27:35,732 >>   Batch size = 2
+
+
+  0%|          | 0/100 [00:00<?, ?it/s][A
+
+  2%|▏         | 2/100 [00:00<00:07, 12.65it/s][A
+
+  4%|▍         | 4/100 [00:00<00:11,  8.13it/s][A
+
+  5%|▌         | 5/100 [00:00<00:15,  6.00it/s][A
+
+  6%|▌         | 6/100 [00:00<00:15,  5.95it/s][A
+
+  7%|▋         | 7/100 [00:01<00:15,  5.92it/s][A
+
+  8%|▊         | 8/100 [00:01<00:17,  5.40it/s][A
+
+  9%|▉         | 9/100 [00:01<00:17,  5.22it/s][A
+
+ 10%|█         | 10/100 [00:01<00:17,  5.16it/s][A
+
+ 11%|█         | 11/100 [00:01<00:15,  5.85it/s][A
+
+ 12%|█▏        | 12/100 [00:02<00:16,  5.19it/s][A
+
+ 13%|█▎        | 13/100 [00:02<00:16,  5.22it/s][A
+
+ 14%|█▍        | 14/100 [00:02<00:15,  5.55it/s][A
+
+ 15%|█▌        | 15/100 [00:02<00:14,  5.71it/s][A
+
+ 16%|█▌        | 16/100 [00:02<00:14,  5.85it/s][A
+
+ 17%|█▋        | 17/100 [00:02<00:13,  6.26it/s][A
+
+ 18%|█▊        | 18/100 [00:03<00:13,  6.21it/s][A
+
+ 19%|█▉        | 19/100 [00:03<00:12,  6.34it/s][A
+
+ 20%|██        | 20/100 [00:03<00:13,  5.75it/s][A
+
+ 21%|██        | 21/100 [00:03<00:13,  5.97it/s][A
+
+ 22%|██▏       | 22/100 [00:03<00:12,  6.21it/s][A
+
+ 23%|██▎       | 23/100 [00:03<00:14,  5.47it/s][A
+
+ 24%|██▍       | 24/100 [00:04<00:12,  5.97it/s][A
+
+ 25%|██▌       | 25/100 [00:04<00:13,  5.61it/s][A
+
+ 26%|██▌       | 26/100 [00:04<00:15,  4.82it/s][A
+
+ 27%|██▋       | 27/100 [00:04<00:14,  4.93it/s][A
+
+ 28%|██▊       | 28/100 [00:04<00:13,  5.26it/s][A
+
+ 29%|██▉       | 29/100 [00:05<00:13,  5.13it/s][A
+
+ 30%|███       | 30/100 [00:05<00:12,  5.46it/s][A
+
+ 31%|███       | 31/100 [00:05<00:15,  4.57it/s][A
+
+ 32%|███▏      | 32/100 [00:05<00:14,  4.85it/s][A
+
+ 33%|███▎      | 33/100 [00:05<00:12,  5.20it/s][A
+
+ 34%|███▍      | 34/100 [00:06<00:12,  5.38it/s][A
+
+ 35%|███▌      | 35/100 [00:06<00:11,  5.49it/s][A
+
+ 36%|███▌      | 36/100 [00:06<00:12,  5.20it/s][A
+
+ 37%|███▋      | 37/100 [00:06<00:11,  5.56it/s][A
+
+ 38%|███▊      | 38/100 [00:06<00:10,  5.74it/s][A
+
+ 39%|███▉      | 39/100 [00:06<00:10,  5.97it/s][A
+
+ 40%|████      | 40/100 [00:07<00:09,  6.15it/s][A
+
+ 41%|████      | 41/100 [00:07<00:10,  5.75it/s][A
+
+ 42%|████▏     | 42/100 [00:07<00:09,  5.89it/s][A
+
+ 43%|████▎     | 43/100 [00:07<00:10,  5.62it/s][A
+
+ 44%|████▍     | 44/100 [00:07<00:09,  6.13it/s][A
+
+ 45%|████▌     | 45/100 [00:07<00:10,  5.40it/s][A
+
+ 46%|████▌     | 46/100 [00:08<00:09,  5.62it/s][A
+
+ 47%|████▋     | 47/100 [00:08<00:09,  5.46it/s][A
+
+ 48%|████▊     | 48/100 [00:08<00:09,  5.65it/s][A
+
+ 49%|████▉     | 49/100 [00:08<00:08,  6.22it/s][A
+
+ 50%|█████     | 50/100 [00:08<00:07,  6.39it/s][A
+
+ 51%|█████     | 51/100 [00:08<00:07,  6.29it/s][A
+
+ 52%|█████▏    | 52/100 [00:09<00:07,  6.83it/s][A
+
+ 53%|█████▎    | 53/100 [00:09<00:06,  6.99it/s][A
+
+ 54%|█████▍    | 54/100 [00:09<00:06,  7.26it/s][A
+
+ 55%|█████▌    | 55/100 [00:09<00:06,  6.87it/s][A
+
+ 56%|█████▌    | 56/100 [00:09<00:06,  6.66it/s][A
+
+ 57%|█████▋    | 57/100 [00:09<00:07,  6.11it/s][A
+
+ 58%|█████▊    | 58/100 [00:09<00:06,  6.60it/s][A
+
+ 59%|█████▉    | 59/100 [00:10<00:05,  6.97it/s][A
+
+ 60%|██████    | 60/100 [00:10<00:05,  7.17it/s][A
+
+ 61%|██████    | 61/100 [00:10<00:05,  6.89it/s][A
+
+ 62%|██████▏   | 62/100 [00:10<00:06,  6.04it/s][A
+
+ 63%|██████▎   | 63/100 [00:10<00:07,  5.16it/s][A
+
+ 64%|██████▍   | 64/100 [00:11<00:07,  4.99it/s][A
+
+ 65%|██████▌   | 65/100 [00:11<00:07,  4.60it/s][A
+
+ 66%|██████▌   | 66/100 [00:11<00:07,  4.36it/s][A
+
+ 67%|██████▋   | 67/100 [00:11<00:06,  4.75it/s][A
+
+ 68%|██████▊   | 68/100 [00:11<00:06,  4.82it/s][A
+
+ 69%|██████▉   | 69/100 [00:12<00:05,  5.45it/s][A
+
+ 70%|███████   | 70/100 [00:12<00:05,  5.33it/s][A
+
+ 71%|███████   | 71/100 [00:12<00:05,  5.23it/s][A
+
+ 72%|███████▏  | 72/100 [00:12<00:05,  5.18it/s][A
+
+ 73%|███████▎  | 73/100 [00:12<00:04,  5.51it/s][A
+
+ 74%|███████▍  | 74/100 [00:12<00:04,  5.73it/s][A
+
+ 75%|███████▌  | 75/100 [00:13<00:04,  6.12it/s][A
+
+ 76%|███████▌  | 76/100 [00:13<00:03,  6.59it/s][A
+
+ 77%|███████▋  | 77/100 [00:13<00:03,  6.62it/s][A
+
+ 78%|███████▊  | 78/100 [00:13<00:03,  5.63it/s][A
+
+ 79%|███████▉  | 79/100 [00:13<00:04,  5.12it/s][A
+
+ 80%|████████  | 80/100 [00:14<00:04,  4.54it/s][A
+
+ 81%|████████  | 81/100 [00:14<00:04,  4.72it/s][A
+
+ 82%|████████▏ | 82/100 [00:14<00:03,  5.17it/s][A
+
+ 83%|████████▎ | 83/100 [00:14<00:02,  5.88it/s][A
+
+ 84%|████████▍ | 84/100 [00:14<00:02,  6.10it/s][A
+
+ 85%|████████▌ | 85/100 [00:14<00:02,  6.50it/s][A
+
+ 86%|████████▌ | 86/100 [00:15<00:02,  6.56it/s][A
+
+ 87%|████████▋ | 87/100 [00:15<00:01,  6.62it/s][A
+
+ 88%|████████▊ | 88/100 [00:15<00:01,  6.70it/s][A
+
+ 89%|████████▉ | 89/100 [00:15<00:02,  5.12it/s][A
+
+ 90%|█████████ | 90/100 [00:15<00:01,  5.42it/s][A
+
+ 91%|█████████ | 91/100 [00:15<00:01,  5.88it/s][A
+
+ 92%|█████████▏| 92/100 [00:16<00:01,  5.43it/s][A
+
+ 93%|█████████▎| 93/100 [00:16<00:01,  5.25it/s][A
+
+ 94%|█████████▍| 94/100 [00:16<00:01,  5.49it/s][A
+
+ 95%|█████████▌| 95/100 [00:16<00:00,  5.31it/s][A
+
+ 96%|█████████▌| 96/100 [00:16<00:00,  5.89it/s][A
+
+ 97%|█████████▋| 97/100 [00:17<00:00,  5.25it/s][A
+
+ 98%|█████████▊| 98/100 [00:17<00:00,  4.89it/s][A
+
+ 99%|█████████▉| 99/100 [00:17<00:00,  5.49it/s][A
+
+100%|██████████| 100/100 [00:17<00:00,  5.41it/s][A
+                                                 
+
+                                                 
+[A
+ 77%|███████▋  | 150/195 [11:46<03:22,  4.50s/it]
+
+100%|██████████| 100/100 [00:17<00:00,  5.41it/s][A
+
+                                                 [A
+ 77%|███████▋  | 151/195 [11:51<07:18,  9.96s/it]
+ 78%|███████▊  | 152/195 [11:55<05:55,  8.27s/it]
+ 78%|███████▊  | 153/195 [12:00<05:10,  7.39s/it]
+ 79%|███████▉  | 154/195 [12:04<04:23,  6.43s/it]
+ 79%|███████▉  | 155/195 [12:09<03:56,  5.91s/it]
+                                                 
+
+ 79%|███████▉  | 155/195 [12:09<03:56,  5.91s/it]
+ 80%|████████  | 156/195 [12:14<03:33,  5.47s/it]
+ 81%|████████  | 157/195 [12:18<03:14,  5.13s/it]
+ 81%|████████  | 158/195 [12:22<03:00,  4.89s/it]
+ 82%|████████▏ | 159/195 [12:27<02:54,  4.86s/it]
+ 82%|████████▏ | 160/195 [12:28<02:03,  3.53s/it]
+                                                 
+
+ 82%|████████▏ | 160/195 [12:28<02:03,  3.53s/it]
+ 83%|████████▎ | 161/195 [12:32<02:05,  3.69s/it]
+ 83%|████████▎ | 162/195 [12:36<02:09,  3.92s/it]
+ 84%|████████▎ | 163/195 [12:40<02:05,  3.93s/it]
+ 84%|████████▍ | 164/195 [12:45<02:13,  4.29s/it]
+ 85%|████████▍ | 165/195 [12:49<02:05,  4.17s/it]
+                                                 
+
+ 85%|████████▍ | 165/195 [12:49<02:05,  4.17s/it]
+ 85%|████████▌ | 166/195 [12:54<02:04,  4.29s/it]
+ 86%|████████▌ | 167/195 [12:58<02:03,  4.40s/it]
+ 86%|████████▌ | 168/195 [13:02<01:57,  4.34s/it]
+ 87%|████████▋ | 169/195 [13:06<01:48,  4.16s/it]
+ 87%|████████▋ | 170/195 [13:10<01:42,  4.10s/it]
+                                                 
+
+ 87%|████████▋ | 170/195 [13:10<01:42,  4.10s/it]
+ 88%|████████▊ | 171/195 [13:14<01:35,  3.97s/it]
+ 88%|████████▊ | 172/195 [13:19<01:38,  4.29s/it]
+ 89%|████████▊ | 173/195 [13:23<01:36,  4.37s/it]
+ 89%|████████▉ | 174/195 [13:29<01:36,  4.62s/it]
+ 90%|████████▉ | 175/195 [13:32<01:27,  4.39s/it]
+                                                 
+
+ 90%|████████▉ | 175/195 [13:32<01:27,  4.39s/it]
+ 90%|█████████ | 176/195 [13:37<01:26,  4.53s/it]
+ 91%|█████████ | 177/195 [13:41<01:18,  4.34s/it]
+ 91%|█████████▏| 178/195 [13:46<01:17,  4.56s/it]
+ 92%|█████████▏| 179/195 [13:51<01:13,  4.59s/it]
+ 92%|█████████▏| 180/195 [13:55<01:06,  4.42s/it]
+                                                 
+
+ 92%|█████████▏| 180/195 [13:55<01:06,  4.42s/it]
+ 93%|█████████▎| 181/195 [13:59<01:01,  4.41s/it]
+ 93%|█████████▎| 182/195 [14:03<00:56,  4.32s/it]
+ 94%|█████████▍| 183/195 [14:08<00:52,  4.37s/it]
+ 94%|█████████▍| 184/195 [14:13<00:49,  4.52s/it]
+ 95%|█████████▍| 185/195 [14:17<00:44,  4.45s/it]
+                                                 
+
+ 95%|█████████▍| 185/195 [14:17<00:44,  4.45s/it]
+ 95%|█████████▌| 186/195 [14:22<00:40,  4.45s/it]
+ 96%|█████████▌| 187/195 [14:26<00:35,  4.42s/it]
+ 96%|█████████▋| 188/195 [14:31<00:32,  4.66s/it]
+ 97%|█████████▋| 189/195 [14:36<00:27,  4.66s/it]
+ 97%|█████████▋| 190/195 [14:40<00:22,  4.46s/it]
+                                                 
+
+ 97%|█████████▋| 190/195 [14:40<00:22,  4.46s/it]
+ 98%|█████████▊| 191/195 [14:44<00:17,  4.48s/it]
+ 98%|█████████▊| 192/195 [14:49<00:13,  4.48s/it]
+ 99%|█████████▉| 193/195 [14:53<00:08,  4.45s/it]
+ 99%|█████████▉| 194/195 [14:58<00:04,  4.59s/it]
+100%|██████████| 195/195 [15:03<00:00,  4.71s/it]
+                                                 
+
+100%|██████████| 195/195 [15:03<00:00,  4.71s/it][INFO|trainer.py:3984] 2026-03-31 23:31:10,895 >> Saving model checkpoint to /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/checkpoint-195
+[INFO|configuration_utils.py:691] 2026-03-31 23:31:10,940 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:765] 2026-03-31 23:31:10,940 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": 32768,
+  "tie_word_embeddings": true,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.51.3",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2510] 2026-03-31 23:31:11,001 >> tokenizer config file saved in /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/checkpoint-195/tokenizer_config.json
+[INFO|tokenization_utils_base.py:2519] 2026-03-31 23:31:11,001 >> Special tokens file saved in /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/checkpoint-195/special_tokens_map.json
+[INFO|trainer.py:2681] 2026-03-31 23:31:11,268 >> 
+
+Training completed. Do not forget to share your model on huggingface.co/models =)
+
+
+
+                                                 
+
+100%|██████████| 195/195 [15:03<00:00,  4.71s/it]
+100%|██████████| 195/195 [15:03<00:00,  4.64s/it]
+[INFO|trainer.py:3984] 2026-03-31 23:31:11,269 >> Saving model checkpoint to /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800
+[INFO|configuration_utils.py:691] 2026-03-31 23:31:11,312 >> loading configuration file /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct/config.json
+[INFO|configuration_utils.py:765] 2026-03-31 23:31:11,312 >> Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 11008,
+  "max_position_embeddings": 32768,
+  "max_window_layers": 70,
+  "model_type": "qwen2",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": 32768,
+  "tie_word_embeddings": true,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.51.3",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 151936
+}
+
+[INFO|tokenization_utils_base.py:2510] 2026-03-31 23:31:11,376 >> tokenizer config file saved in /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/tokenizer_config.json
+[INFO|tokenization_utils_base.py:2519] 2026-03-31 23:31:11,377 >> Special tokens file saved in /home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_qlora_rank4/size_1800/special_tokens_map.json
+[INFO|trainer.py:4307] 2026-03-31 23:31:11,623 >> 
+***** Running Evaluation *****
+[INFO|trainer.py:4309] 2026-03-31 23:31:11,623 >>   Num examples = 200
+[INFO|trainer.py:4312] 2026-03-31 23:31:11,623 >>   Batch size = 2
+
+  0%|          | 0/100 [00:00<?, ?it/s]
+  2%|▏         | 2/100 [00:00<00:08, 11.38it/s]
+  4%|▍         | 4/100 [00:00<00:12,  7.92it/s]
+  5%|▌         | 5/100 [00:00<00:15,  6.01it/s]
+  6%|▌         | 6/100 [00:00<00:15,  5.98it/s]
+  7%|▋         | 7/100 [00:01<00:15,  5.99it/s]
+  8%|▊         | 8/100 [00:01<00:16,  5.64it/s]
+  9%|▉         | 9/100 [00:01<00:16,  5.50it/s]
+ 10%|█         | 10/100 [00:01<00:16,  5.35it/s]
+ 11%|█         | 11/100 [00:01<00:15,  5.91it/s]
+ 12%|█▏        | 12/100 [00:02<00:16,  5.24it/s]
+ 13%|█▎        | 13/100 [00:02<00:16,  5.23it/s]
+ 14%|█▍        | 14/100 [00:02<00:15,  5.58it/s]
+ 15%|█▌        | 15/100 [00:02<00:14,  5.75it/s]
+ 16%|█▌        | 16/100 [00:02<00:14,  5.85it/s]
+ 17%|█▋        | 17/100 [00:02<00:13,  6.27it/s]
+ 18%|█▊        | 18/100 [00:02<00:13,  6.30it/s]
+ 19%|█▉        | 19/100 [00:03<00:12,  6.33it/s]
+ 20%|██        | 20/100 [00:03<00:13,  5.86it/s]
+ 21%|██        | 21/100 [00:03<00:12,  6.11it/s]
+ 22%|██▏       | 22/100 [00:03<00:12,  6.35it/s]
+ 23%|██▎       | 23/100 [00:03<00:13,  5.53it/s]
+ 24%|██▍       | 24/100 [00:04<00:12,  6.05it/s]
+ 25%|██▌       | 25/100 [00:04<00:13,  5.70it/s]
+ 26%|██▌       | 26/100 [00:04<00:15,  4.85it/s]
+ 27%|██▋       | 27/100 [00:04<00:14,  4.93it/s]
+ 28%|██▊       | 28/100 [00:04<00:13,  5.16it/s]
+ 29%|██▉       | 29/100 [00:05<00:14,  4.92it/s]
+ 30%|███       | 30/100 [00:05<00:13,  5.27it/s]
+ 31%|███       | 31/100 [00:05<00:15,  4.45it/s]
+ 32%|███▏      | 32/100 [00:05<00:14,  4.78it/s]
+ 33%|███▎      | 33/100 [00:05<00:13,  5.12it/s]
+ 34%|███▍      | 34/100 [00:06<00:12,  5.34it/s]
+ 35%|███▌      | 35/100 [00:06<00:11,  5.57it/s]
+ 36%|███▌      | 36/100 [00:06<00:11,  5.34it/s]
+ 37%|███▋      | 37/100 [00:06<00:11,  5.65it/s]
+ 38%|███▊      | 38/100 [00:06<00:10,  5.80it/s]
+ 39%|███▉      | 39/100 [00:06<00:10,  6.07it/s]
+ 40%|████      | 40/100 [00:07<00:09,  6.17it/s]
+ 41%|████      | 41/100 [00:07<00:10,  5.76it/s]
+ 42%|████▏     | 42/100 [00:07<00:09,  5.90it/s]
+ 43%|████▎     | 43/100 [00:07<00:10,  5.64it/s]
+ 44%|████▍     | 44/100 [00:07<00:09,  6.13it/s]
+ 45%|████▌     | 45/100 [00:07<00:10,  5.40it/s]
+ 46%|████▌     | 46/100 [00:08<00:09,  5.62it/s]
+ 47%|████▋     | 47/100 [00:08<00:09,  5.43it/s]
+ 48%|████▊     | 48/100 [00:08<00:09,  5.65it/s]
+ 49%|████▉     | 49/100 [00:08<00:08,  6.15it/s]
+ 50%|█████     | 50/100 [00:08<00:07,  6.31it/s]
+ 51%|█████     | 51/100 [00:08<00:07,  6.31it/s]
+ 52%|█████▏    | 52/100 [00:09<00:07,  6.71it/s]
+ 53%|█████▎    | 53/100 [00:09<00:06,  7.03it/s]
+ 54%|█████▍    | 54/100 [00:09<00:06,  7.30it/s]
+ 55%|█████▌    | 55/100 [00:09<00:06,  6.98it/s]
+ 56%|█████▌    | 56/100 [00:09<00:06,  6.71it/s]
+ 57%|█████▋    | 57/100 [00:09<00:07,  6.13it/s]
+ 58%|█████▊    | 58/100 [00:09<00:06,  6.46it/s]
+ 59%|█████▉    | 59/100 [00:10<00:06,  6.73it/s]
+ 60%|██████    | 60/100 [00:10<00:05,  6.76it/s]
+ 61%|██████    | 61/100 [00:10<00:05,  6.61it/s]
+ 62%|██████▏   | 62/100 [00:10<00:06,  5.80it/s]
+ 63%|██████▎   | 63/100 [00:10<00:07,  5.03it/s]
+ 64%|██████▍   | 64/100 [00:11<00:07,  4.91it/s]
+ 65%|██████▌   | 65/100 [00:11<00:07,  4.68it/s]
+ 66%|██████▌   | 66/100 [00:11<00:07,  4.46it/s]
+ 67%|██████▋   | 67/100 [00:11<00:06,  4.89it/s]
+ 68%|██████▊   | 68/100 [00:11<00:06,  4.94it/s]
+ 69%|██████▉   | 69/100 [00:12<00:05,  5.57it/s]
+ 70%|███████   | 70/100 [00:12<00:05,  5.36it/s]
+ 71%|███████   | 71/100 [00:12<00:05,  5.25it/s]
+ 72%|███████▏  | 72/100 [00:12<00:05,  5.19it/s]
+ 73%|███████▎  | 73/100 [00:12<00:04,  5.55it/s]
+ 74%|███████▍  | 74/100 [00:12<00:04,  5.75it/s]
+ 75%|███████▌  | 75/100 [00:13<00:03,  6.27it/s]
+ 76%|███████▌  | 76/100 [00:13<00:03,  6.62it/s]
+ 77%|███████▋  | 77/100 [00:13<00:03,  6.61it/s]
+ 78%|███████▊  | 78/100 [00:13<00:03,  5.63it/s]
+ 79%|███████▉  | 79/100 [00:13<00:04,  5.11it/s]
+ 80%|████████  | 80/100 [00:14<00:04,  4.54it/s]
+ 81%|████████  | 81/100 [00:14<00:04,  4.73it/s]
+ 82%|████████▏ | 82/100 [00:14<00:03,  5.18it/s]
+ 83%|████████▎ | 83/100 [00:14<00:02,  5.86it/s]
+ 84%|████████▍ | 84/100 [00:14<00:02,  6.10it/s]
+ 85%|████████▌ | 85/100 [00:14<00:02,  6.44it/s]
+ 86%|████████▌ | 86/100 [00:15<00:02,  6.40it/s]
+ 87%|████████▋ | 87/100 [00:15<00:02,  6.35it/s]
+ 88%|████████▊ | 88/100 [00:15<00:01,  6.58it/s]
+ 89%|████████▉ | 89/100 [00:15<00:02,  5.12it/s]
+ 90%|█████████ | 90/100 [00:15<00:01,  5.43it/s]
+ 91%|█████████ | 91/100 [00:15<00:01,  5.82it/s]
+ 92%|█████████▏| 92/100 [00:16<00:01,  5.46it/s]
+ 93%|█████████▎| 93/100 [00:16<00:01,  5.38it/s]
+ 94%|█████████▍| 94/100 [00:16<00:01,  5.72it/s]
+ 95%|█████████▌| 95/100 [00:16<00:00,  5.44it/s]
+ 96%|█████████▌| 96/100 [00:16<00:00,  5.90it/s]
+ 97%|█████████▋| 97/100 [00:17<00:00,  5.25it/s]
+ 98%|█████████▊| 98/100 [00:17<00:00,  4.88it/s]
+ 99%|█████████▉| 99/100 [00:17<00:00,  5.52it/s]
+100%|██████████| 100/100 [00:17<00:00,  5.45it/s]
+100%|██████████| 100/100 [00:17<00:00,  5.68it/s]
+[INFO|modelcard.py:450] 2026-03-31 23:31:29,395 >> Dropping the following result as it does not have all the necessary fields:
+{'task': {'name': 'Causal Language Modeling', 'type': 'text-generation'}}
+
+
+
+===== 2026-03-31 23:31:30 | stage=train/size_1800 finished in 939.9s =====

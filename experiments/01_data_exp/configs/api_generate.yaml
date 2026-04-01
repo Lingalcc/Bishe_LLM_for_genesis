@@ -15,7 +15,7 @@ dataset_prepare:
     append_to_existing: true   # true 时按“新增样本数”追加到已有 Alpaca/ShareGPT，不覆盖旧数据
 
     # --- Generation parameters ---
-    num_samples: 1000          # Total number of samples to generate
+    num_samples: 1058          # Total number of samples to generate
     seed: 42
     batch_size: 8              # Number of samples per API call; smaller batches are more stable for hosted APIs
     state_context_ratio: 0.7   # Proportion of samples with scene state context
@@ -51,4 +51,4 @@ dataset_prepare:
     val_file: val.json
     test_file: test.json
     metadata_file: split_metadata.json
-    preserve_existing_splits: false   # true 时仅对新增样本切分并追加到现有 split
+    preserve_existing_splits: true   # true 时仅对新增样本切分并追加到现有 split

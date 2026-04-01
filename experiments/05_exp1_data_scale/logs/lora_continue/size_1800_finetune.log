@@ -1,0 +1,7 @@
+
+===== 2026-04-01 11:07:22 | stage=train/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/condabin/conda run -n llm_genesis python cli.py finetune start --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/lora_continue/train_override.yaml --finetune-method lora model_name_or_path=/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct output_dir=/home/lin/Bishe_LLM_for_genesis/output/exp1_data_scale_lora_continue/size_1800 preprocessing_num_workers=1 dataloader_num_workers=0
+
+
+===== 2026-04-01 11:10:23 | stage=train/size_1800 finished in 180.8s =====
