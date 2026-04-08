@@ -1,0 +1,18 @@
+app:
+  interactive:
+    enabled: true
+    show_viewer: false
+  state_injection:
+    enable_instruction_to_action: true
+    enable_instruction_to_motion: true
+
+exp13_sim_success:
+  dataset_file: data_prepare/splits/test.json
+  num_samples: 20
+  seed: 42
+  reports_dir: experiments/17_exp13_sim_success/reports
+  report_json: experiments/17_exp13_sim_success/reports/sim_success_report.json
+  summary_csv: experiments/17_exp13_sim_success/reports/sim_success_summary.csv
+  summary_md: experiments/17_exp13_sim_success/reports/sim_success_summary.md
+  samples_json: experiments/17_exp13_sim_success/reports/sim_success_samples.json
+  stop_on_error: false

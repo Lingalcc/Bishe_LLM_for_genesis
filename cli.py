@@ -181,6 +181,7 @@ def _run_eval_benchmark(args: argparse.Namespace) -> None:
         temperature=args.temperature,
         max_model_len=args.max_model_len,
         gpu_memory_utilization=args.gpu_memory_utilization,
+        vllm_dtype=args.vllm_dtype,
         trust_remote_code=not args.no_trust_remote_code,
         use_flash_attention=args.use_flash_attention,
         output_json=str(args.output_json),
@@ -353,6 +354,12 @@ def build_parser() -> argparse.ArgumentParser:
     eval_benchmark_parser.add_argument("--temperature", type=float, default=0.0)
     eval_benchmark_parser.add_argument("--max-model-len", type=int, default=4096)
     eval_benchmark_parser.add_argument("--gpu-memory-utilization", type=float, default=0.9)
+    eval_benchmark_parser.add_argument(
+        "--vllm-dtype",
+        type=str,
+        default=None,
+        help="仅对 vLLM backend 生效，例如 float16 / bfloat16 / auto。",
+    )
     eval_benchmark_parser.add_argument("--use-flash-attention", action="store_true")
     eval_benchmark_parser.add_argument("--no-trust-remote-code", action="store_true")
     eval_benchmark_parser.add_argument(

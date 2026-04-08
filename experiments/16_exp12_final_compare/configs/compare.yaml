@@ -1,0 +1,49 @@
+test:
+  accuracy_eval:
+    mode: local
+    test_file: data_prepare/splits/test.json
+    dataset_file: data_prepare/genesis_franka_toolcall_alpaca.json
+    report_file: experiments/16_exp12_final_compare/reports/placeholder_accuracy.json
+    num_samples: 100
+    seed: 42
+    leakage_check:
+      enabled: true
+      strict: true
+    backend: transformers
+    quantization: null
+    max_new_tokens: 512
+    max_model_len: 4096
+    gpu_memory_utilization: 0.9
+    trust_remote_code: true
+    temperature: 0.0
+    system_prompt: 你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。
+
+final_compare:
+  reports_dir: experiments/16_exp12_final_compare/reports
+  summary_json: experiments/16_exp12_final_compare/reports/final_compare_summary.json
+  summary_csv: experiments/16_exp12_final_compare/reports/final_compare_summary.csv
+  summary_md: experiments/16_exp12_final_compare/reports/final_compare_summary.md
+  select_best_by:
+    - exact_match_rate
+    - action_match_rate
+    - parse_ok_rate
+    - avg_latency_sec_asc
+  cases:
+    - name: base_model
+      label: Base Model
+      model_path: model/Qwen_Qwen2.5-3B-Instruct
+      backend: transformers
+      quantization: null
+      report_file: experiments/16_exp12_final_compare/reports/base_model_accuracy.json
+    - name: lora_rank4
+      label: LoRA Rank4
+      model_path: output/qwen2.5-3b-genesis-lora-rank-4
+      backend: transformers
+      quantization: null
+      report_file: experiments/16_exp12_final_compare/reports/lora_rank4_accuracy.json
+    - name: final_merged
+      label: Final Merged
+      model_path: model/qwen2.5-3b-genesis-merged
+      backend: transformers
+      quantization: null
+      report_file: experiments/16_exp12_final_compare/reports/final_merged_accuracy.json

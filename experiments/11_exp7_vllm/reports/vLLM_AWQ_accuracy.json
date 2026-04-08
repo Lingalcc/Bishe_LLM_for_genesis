@@ -1,0 +1,2022 @@
+{
+  "mode": "local",
+  "model_path": "/home/lin/Bishe_LLM_for_genesis/model/qwen2.5-3b-genesis-merged-awq",
+  "backend": "vllm",
+  "quantization": "awq",
+  "dataset_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+  "seed": 42,
+  "num_samples_evaluated": 200,
+  "num_valid_rows_in_dataset": 295,
+  "parse_ok": 0,
+  "parse_ok_rate": 0.0,
+  "exact_match": 0,
+  "exact_match_rate": 0.0,
+  "action_match": 0,
+  "action_match_rate": 0.0,
+  "avg_latency_sec": 11.0441320717049,
+  "avg_throughput_tps": 11.709631366398842,
+  "avg_peak_vram_mb": 0.0,
+  "max_peak_vram_mb": 0.0,
+  "details": [
+    {
+      "dataset_index": 57,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.845030945998587,
+      "throughput_tps": 13.001482748210588,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 12,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.51755217200116,
+      "throughput_tps": 13.448836180436373,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 140,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.561371988002065,
+      "throughput_tps": 13.387200096452554,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 125,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.568972828001279,
+      "throughput_tps": 13.376566356781685,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 114,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.609262257999944,
+      "throughput_tps": 13.320481485811971,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 71,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.509352347999084,
+      "throughput_tps": 13.460432983843868,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 52,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.61684722100108,
+      "throughput_tps": 13.3099754065424,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 279,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.524199780000345,
+      "throughput_tps": 13.439449293029778,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 44,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.591270508000889,
+      "throughput_tps": 13.345468662699522,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 216,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.523858395001298,
+      "throughput_tps": 13.439931033328069,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 16,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.612042101998668,
+      "throughput_tps": 13.316629145162034,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 15,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.571862732998852,
+      "throughput_tps": 13.372527748305659,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 47,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.530650831999083,
+      "throughput_tps": 13.430352476059772,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 111,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.605430113999319,
+      "throughput_tps": 13.325795771856997,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 119,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.526841032002267,
+      "throughput_tps": 13.435723296948737,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 258,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.617895442999725,
+      "throughput_tps": 13.308524797195975,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 13,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.517537312000059,
+      "throughput_tps": 13.448857178485964,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 101,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.611412274000031,
+      "throughput_tps": 13.317501772996943,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 214,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.538434406000306,
+      "throughput_tps": 13.41939301060555,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 112,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.564225586000248,
+      "throughput_tps": 13.383205869522941,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 229,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.57576236100067,
+      "throughput_tps": 13.367081927733215,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 142,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.56076838700028,
+      "throughput_tps": 13.38804527197216,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 3,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.572026452999125,
+      "throughput_tps": 13.37229902450748,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 81,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.512755551000737,
+      "throughput_tps": 13.455617493138933,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 285,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.611319313000422,
+      "throughput_tps": 13.317630580316397,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 174,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.510080051000841,
+      "throughput_tps": 13.459403003293255,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 273,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.552739904000191,
+      "throughput_tps": 13.399297090293462,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 79,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.569044473999384,
+      "throughput_tps": 13.376466202847773,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 110,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.5462416090013,
+      "throughput_tps": 13.408418228102127,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 172,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.604174146999867,
+      "throughput_tps": 13.327538426610516,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 288,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.51078884999879,
+      "throughput_tps": 13.458399930728806,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 282,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.599792738998076,
+      "throughput_tps": 13.333621202051,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 194,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.528729573001328,
+      "throughput_tps": 13.433060411607732,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 49,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.588572026001202,
+      "throughput_tps": 13.349224436433717,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 183,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.584864012998878,
+      "throughput_tps": 13.354388734822729,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 176,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.598813450997113,
+      "throughput_tps": 13.334981521773768,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 135,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 9.478179601999727,
+      "throughput_tps": 13.504702946649616,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 22,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.641280271996948,
+      "throughput_tps": 10.995354205834515,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 235,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 13.436623346002307,
+      "throughput_tps": 9.526202878797138,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 63,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 15.341676199001085,
+      "throughput_tps": 8.343286505312518,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 249,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.535613427997305,
+      "throughput_tps": 11.096072246087918,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 236,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.089216881999164,
+      "throughput_tps": 11.542744754841891,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 96,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.015415204998135,
+      "throughput_tps": 11.62007946299848,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 20,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.251633117997699,
+      "throughput_tps": 11.3761263505167,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 141,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.03056361400013,
+      "throughput_tps": 11.604121464613177,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 75,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.045892632999312,
+      "throughput_tps": 11.588017759434253,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 212,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.064691440999013,
+      "throughput_tps": 11.568329824879697,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 160,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.13424091500201,
+      "throughput_tps": 11.496068836406787,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 158,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.084779259999777,
+      "throughput_tps": 11.547365716329345,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 226,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.946945225998206,
+      "throughput_tps": 11.692759702132173,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 220,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.065015410000342,
+      "throughput_tps": 11.56799111949868,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 92,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.925488117998611,
+      "throughput_tps": 11.715723692851146,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 147,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.03744689299856,
+      "throughput_tps": 11.596884790557398,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 261,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.180042338997737,
+      "throughput_tps": 11.448972742573252,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 180,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.147454229998402,
+      "throughput_tps": 11.48244230109015,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 17,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.072827383999538,
+      "throughput_tps": 11.55982980326801,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 11,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.147445250000601,
+      "throughput_tps": 11.482451550950035,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 169,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.024097209996398,
+      "throughput_tps": 11.61092809340728,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 58,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.037945156000205,
+      "throughput_tps": 11.596361296506302,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 197,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.97113126199838,
+      "throughput_tps": 11.666982824584759,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 74,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.093974014998821,
+      "throughput_tps": 11.53779518745462,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 251,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.033926481999515,
+      "throughput_tps": 11.600584815280051,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 218,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.95266629499747,
+      "throughput_tps": 11.686652049141935,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 59,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.02744545799942,
+      "throughput_tps": 11.607402683379178,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 221,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.214990038999531,
+      "throughput_tps": 11.413295915099953,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 25,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.09373956499985,
+      "throughput_tps": 11.538039021921254,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 97,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.701343951997842,
+      "throughput_tps": 10.938914412318063,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 289,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.009466385999986,
+      "throughput_tps": 11.626358218666182,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 116,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.0118336250016,
+      "throughput_tps": 11.62385887391042,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 162,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.05448212400006,
+      "throughput_tps": 11.579013703600188,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 213,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.933552767000947,
+      "throughput_tps": 11.707082110247148,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 93,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.104258959996514,
+      "throughput_tps": 11.52710869416181,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 41,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.255428261996713,
+      "throughput_tps": 11.372290509121223,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 94,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.087948473999859,
+      "throughput_tps": 11.544065189349258,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 90,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.074156673003017,
+      "throughput_tps": 11.558442216375994,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 53,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.074764560999029,
+      "throughput_tps": 11.55780777956813,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 171,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.118015522999485,
+      "throughput_tps": 11.51284595125906,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 68,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.2763285789988,
+      "throughput_tps": 11.351212329728408,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 179,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.077101648003008,
+      "throughput_tps": 11.555369271444393,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 269,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.1949309599986,
+      "throughput_tps": 11.433746260460726,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 165,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.104979011997784,
+      "throughput_tps": 11.526361271075722,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 18,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.006505012999696,
+      "throughput_tps": 11.629486367272827,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 155,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.211518931002502,
+      "throughput_tps": 11.416829493642448,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 225,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.034503422997659,
+      "throughput_tps": 11.599978276614392,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 43,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.045021032998193,
+      "throughput_tps": 11.588932209145295,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 136,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.159725375997368,
+      "throughput_tps": 11.469816298105846,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 186,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.055383843999152,
+      "throughput_tps": 11.578069274318162,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 62,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.217220652000833,
+      "throughput_tps": 11.411026311332161,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 222,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.24537249399873,
+      "throughput_tps": 11.38245976896801,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 118,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.962061449998146,
+      "throughput_tps": 11.676635875820752,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 228,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.06212554800004,
+      "throughput_tps": 11.571013133469776,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 69,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.025791619998927,
+      "throughput_tps": 11.60914376141751,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 163,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.142963618000067,
+      "throughput_tps": 11.48706972292649,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 259,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.141322045998095,
+      "throughput_tps": 11.48876223768946,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 268,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.059138297998288,
+      "throughput_tps": 11.574138649045386,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 56,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.127598327999294,
+      "throughput_tps": 11.502931380792749,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 175,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.036866173999442,
+      "throughput_tps": 11.597494975660876,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 83,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.164708085998427,
+      "throughput_tps": 11.464697421021137,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 196,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.117980199996964,
+      "throughput_tps": 11.51288252879196,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 14,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.025311559998954,
+      "throughput_tps": 11.60964924242124,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 253,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.233654413001204,
+      "throughput_tps": 11.394333072224471,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 8,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.12772472999859,
+      "throughput_tps": 11.5028007167478,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 80,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.07206712200059,
+      "throughput_tps": 11.560623557425828,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 102,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.106284002999018,
+      "throughput_tps": 11.525006920895981,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 217,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.151895948001766,
+      "throughput_tps": 11.477868928909391,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 284,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.030517904997396,
+      "throughput_tps": 11.604169550552959,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 54,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.041662138999527,
+      "throughput_tps": 11.592457583709217,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 145,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.18464056099765,
+      "throughput_tps": 11.444265848502388,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 260,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.043183378998947,
+      "throughput_tps": 11.59086067912449,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 192,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.950118060001842,
+      "throughput_tps": 11.689371685183318,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 188,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.058310176002124,
+      "throughput_tps": 11.57500539981014,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 167,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.981333447001816,
+      "throughput_tps": 11.656143638452875,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 127,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.020890881001833,
+      "throughput_tps": 11.614306083063623,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 277,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.024746340001002,
+      "throughput_tps": 11.610244449396408,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 164,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 18.75021662400104,
+      "throughput_tps": 6.826587797186022,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 117,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 17.239970484999503,
+      "throughput_tps": 7.424606678495929,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 36,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 17.43616824000128,
+      "throughput_tps": 7.34106245352394,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 67,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 19.316809209001804,
+      "throughput_tps": 6.626353173294835,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 35,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 14.279066137001792,
+      "throughput_tps": 8.964171660239712,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 255,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.59671135499957,
+      "throughput_tps": 11.037611964431337,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 143,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.278650806998485,
+      "throughput_tps": 11.348875161608431,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 137,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.300890611000796,
+      "throughput_tps": 11.326540925491221,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 177,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.59099051800149,
+      "throughput_tps": 11.043059676496885,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 149,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.352120373001526,
+      "throughput_tps": 11.27542659822559,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 109,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.524873300000763,
+      "throughput_tps": 11.10641277071493,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 232,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.271885643000132,
+      "throughput_tps": 11.355686533201151,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 191,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.522051616000681,
+      "throughput_tps": 11.109132667158539,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 243,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.33175596699948,
+      "throughput_tps": 11.295689774185362,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 199,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.373153232998447,
+      "throughput_tps": 11.254574468285234,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 201,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.482764721000422,
+      "throughput_tps": 11.147141225135906,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 130,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.438402200998098,
+      "throughput_tps": 11.190374123129795,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 126,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.505595570997684,
+      "throughput_tps": 11.12502166534094,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 23,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.408345160001772,
+      "throughput_tps": 11.219856885885115,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 293,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.330458992000786,
+      "throughput_tps": 11.296982769221176,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 28,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.554597534002824,
+      "throughput_tps": 11.077841493251679,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 39,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.292990262001695,
+      "throughput_tps": 11.334464745860133,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 40,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 12.467904805002036,
+      "throughput_tps": 10.266360066259674,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 108,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 12.58614426799977,
+      "throughput_tps": 10.169913618854629,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 152,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.144425837999734,
+      "throughput_tps": 11.485562545856036,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 189,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.167312079000112,
+      "throughput_tps": 11.462024083727473,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 98,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.088412191002135,
+      "throughput_tps": 11.543582416954846,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 204,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.039419859996997,
+      "throughput_tps": 11.594812193331581,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 156,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.978605462001724,
+      "throughput_tps": 11.659039979442145,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 280,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.081014040002628,
+      "throughput_tps": 11.551289398056717,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 287,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.995842888001789,
+      "throughput_tps": 11.640762905012796,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 64,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.013473442999384,
+      "throughput_tps": 11.62212817441005,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 250,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.062722747999942,
+      "throughput_tps": 11.570388494382312,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 2,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.995586279997951,
+      "throughput_tps": 11.641034569738636,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 29,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.071112056000857,
+      "throughput_tps": 11.561620851865587,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 173,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.10811473600188,
+      "throughput_tps": 11.52310747971899,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 190,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.946914523003215,
+      "throughput_tps": 11.692792497011663,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 87,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.202294700000493,
+      "throughput_tps": 11.4262303776024,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 247,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.126726300997689,
+      "throughput_tps": 11.503832891847331,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 254,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.153326219002338,
+      "throughput_tps": 11.47639703946986,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 281,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.307124662002025,
+      "throughput_tps": 11.320296169560095,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 246,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.100748419998126,
+      "throughput_tps": 11.530754067843437,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 245,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.99705006700242,
+      "throughput_tps": 11.639485063733122,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 0,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.006999448996794,
+      "throughput_tps": 11.6289639690739,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 265,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.158418093000364,
+      "throughput_tps": 11.471160063476555,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 128,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.106541175999155,
+      "throughput_tps": 11.524740058282367,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 45,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.112138669999695,
+      "throughput_tps": 11.518934725461225,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 129,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.962578517999646,
+      "throughput_tps": 11.676085128132456,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 27,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.176510462999431,
+      "throughput_tps": 11.452590719057829,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 76,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.020285508999223,
+      "throughput_tps": 11.61494408611052,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 133,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.045196835999377,
+      "throughput_tps": 11.588747751675397,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 50,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.028529429000628,
+      "throughput_tps": 11.606261816141245,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 159,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.103697214999556,
+      "throughput_tps": 11.52769185988697,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 95,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.025571179001417,
+      "throughput_tps": 11.609375870139084,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 153,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.975437602002785,
+      "throughput_tps": 11.662405148806341,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 233,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.196437606999098,
+      "throughput_tps": 11.43220768005574,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 203,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.156644844999391,
+      "throughput_tps": 11.472983300832768,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 122,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.085381518998474,
+      "throughput_tps": 11.546738358136757,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 99,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.108058898000309,
+      "throughput_tps": 11.523165404087187,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 205,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.977246911999828,
+      "throughput_tps": 11.66048290852201,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 209,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.119265614001051,
+      "throughput_tps": 11.511551611720307,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 270,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.995890622998559,
+      "throughput_tps": 11.6407123705178,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 187,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.009839703998296,
+      "throughput_tps": 11.625963995962262,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 131,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.122216815001593,
+      "throughput_tps": 11.50849710350496,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 206,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.10619227600182,
+      "throughput_tps": 11.52510210691935,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 207,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.11154884500138,
+      "throughput_tps": 11.519546175381466,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 242,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.081409097998403,
+      "throughput_tps": 11.550877588583946,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 195,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.052326646997244,
+      "throughput_tps": 11.581271897603184,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 46,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.086429090002639,
+      "throughput_tps": 11.545647291915303,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 106,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.096279453002353,
+      "throughput_tps": 11.535398017158505,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 103,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.068597271001636,
+      "throughput_tps": 11.564247651808984,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 150,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.230963586000144,
+      "throughput_tps": 11.39706304092707,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 30,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.13827166700139,
+      "throughput_tps": 11.49190860366757,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 7,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.131696013999317,
+      "throughput_tps": 11.49869703942922,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 157,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.083820187999663,
+      "throughput_tps": 11.548364898465627,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 72,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.165294141999766,
+      "throughput_tps": 11.464095649617565,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 10,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.105593327996758,
+      "throughput_tps": 11.525723679915156,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 104,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.033768903998862,
+      "throughput_tps": 11.600750488222587,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 223,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.03176116600298,
+      "throughput_tps": 11.6028617800812,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 115,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.009551770999678,
+      "throughput_tps": 11.626268050000501,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 193,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.072663619997911,
+      "throughput_tps": 11.560000772426982,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 202,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.010607975000312,
+      "throughput_tps": 11.625152788168029,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 144,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 10.968279631000769,
+      "throughput_tps": 11.670016110659736,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 248,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.06319533200076,
+      "throughput_tps": 11.56989424472644,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 123,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.068002686002728,
+      "throughput_tps": 11.564868895620762,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 84,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 11.144883099001163,
+      "throughput_tps": 11.485091307191166,
+      "peak_vram_mb": 0.0
+    }
+  ]
+}

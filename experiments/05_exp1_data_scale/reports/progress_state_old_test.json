@@ -1,0 +1,16 @@
+{
+  "completed_sizes": [
+    1800
+  ],
+  "results": [
+    {
+      "data_size": 1800,
+      "exact_match_rate": 0.355,
+      "action_match_rate": 0.64
+    }
+  ],
+  "last_started_size": 2000,
+  "last_status": "interrupted",
+  "last_error": "KeyboardInterrupt",
+  "updated_at": "2026-04-02 16:01:25"
+}

@@ -1,0 +1,2022 @@
+{
+  "mode": "local",
+  "model_path": "model/qwen2.5-3b-genesis-lora-rank-4",
+  "backend": "transformers",
+  "quantization": null,
+  "dataset_file": "data_prepare/splits/test.json",
+  "seed": 42,
+  "num_samples_evaluated": 200,
+  "num_valid_rows_in_dataset": 295,
+  "parse_ok": 200,
+  "parse_ok_rate": 1.0,
+  "exact_match": 60,
+  "exact_match_rate": 0.3,
+  "action_match": 117,
+  "action_match_rate": 0.585,
+  "avg_latency_sec": 4.40219212463484,
+  "avg_throughput_tps": 19.83889288275195,
+  "avg_peak_vram_mb": 6610.0,
+  "max_peak_vram_mb": 6610.0,
+  "details": [
+    {
+      "dataset_index": 57,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.374562901997706,
+      "throughput_tps": 18.372749834740567,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 12,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.244391439999163,
+      "throughput_tps": 20.49763817260388,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 140,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.7011968359984166,
+      "throughput_tps": 21.161572393162803,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 125,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.55119713699969,
+      "throughput_tps": 19.598642251065712,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 114,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.459754031999182,
+      "throughput_tps": 19.92069099696725,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 71,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.983939581998129,
+      "throughput_tps": 17.88119658191319,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 52,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.368171539998002,
+      "throughput_tps": 20.18899548092504,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 279,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.432756285998039,
+      "throughput_tps": 21.785988306780485,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 44,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.3432857480001985,
+      "throughput_tps": 21.236593384956393,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 216,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 7.179295257003105,
+      "throughput_tps": 18.386205786875735,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 16,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.5510635480022756,
+      "throughput_tps": 19.207675182522067,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 15,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.265616627999407,
+      "throughput_tps": 19.560861961029875,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 47,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.1839848179988621,
+      "throughput_tps": 21.115135616565,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 111,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.735984772996744,
+      "throughput_tps": 19.21458880502667,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 119,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.98236179399828,
+      "throughput_tps": 20.05896736643182,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 258,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.7125145309983054,
+      "throughput_tps": 21.010018775340814,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 13,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 12.640261418997397,
+      "throughput_tps": 17.721152480544763,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 101,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.935223281001527,
+      "throughput_tps": 19.465847677870933,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 214,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.78070278299856,
+      "throughput_tps": 20.204395382659126,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 112,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.39023361100044,
+      "throughput_tps": 19.762649919640392,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 229,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 1.643009871000686,
+      "throughput_tps": 21.30236745241404,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 142,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.1897934730004636,
+      "throughput_tps": 21.01205004676493,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 3,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.428577258000587,
+      "throughput_tps": 19.91109305573011,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 81,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.6374277399991115,
+      "throughput_tps": 21.374989042276145,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 285,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.551757133998763,
+      "throughput_tps": 20.871060824051828,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 174,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.7101675670019176,
+      "throughput_tps": 21.023309214852958,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 273,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.3816887329994643,
+      "throughput_tps": 19.812586340722394,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 79,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.707646489998297,
+      "throughput_tps": 19.097188340413936,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 110,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.971595025002898,
+      "throughput_tps": 18.790534953648653,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 172,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.5074279670006945,
+      "throughput_tps": 19.669829715993895,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 288,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.2257321839970245,
+      "throughput_tps": 17.038467386235734,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 282,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.705226910999045,
+      "throughput_tps": 18.053620234004615,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 194,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.966804064999451,
+      "throughput_tps": 19.915276556522066,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 49,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 13.473044127997127,
+      "throughput_tps": 19.52045859135006,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 183,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.6727801349989022,
+      "throughput_tps": 20.92325181756356,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 176,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.34143345999837,
+      "throughput_tps": 18.196754764964115,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 135,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.623348133001855,
+      "throughput_tps": 18.67842067302371,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 22,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 11.230791239999235,
+      "throughput_tps": 19.58900270681329,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 235,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.9306329319988436,
+      "throughput_tps": 19.589720366191308,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 63,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.1646256130006805,
+      "throughput_tps": 21.46612586991541,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 249,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.8285295979985676,
+      "throughput_tps": 20.112160041874333,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 236,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.751504633000877,
+      "throughput_tps": 18.958736897601323,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 96,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.58818406499995,
+      "throughput_tps": 19.428722503368757,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 20,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.7070296329984558,
+      "throughput_tps": 20.503451916368498,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 141,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.531237012000929,
+      "throughput_tps": 22.857336732126196,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 75,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.471456774001126,
+      "throughput_tps": 19.588318226882215,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 212,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.541895784001099,
+      "throughput_tps": 19.27695081301524,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 160,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.446900351002114,
+      "throughput_tps": 19.43775368513951,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 158,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.6257887249994383,
+      "throughput_tps": 27.165717950599475,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 226,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.781017381999845,
+      "throughput_tps": 18.85481270812116,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 220,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.585292865998781,
+      "throughput_tps": 18.953365262573353,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 92,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.6491847610013792,
+      "throughput_tps": 18.873730792978076,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 147,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.69488179399923,
+      "throughput_tps": 20.234801251316785,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 261,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.626729110001179,
+      "throughput_tps": 18.749677171223272,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 180,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.437793483997666,
+      "throughput_tps": 19.780129410486186,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 17,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.076503562002472,
+      "throughput_tps": 18.888736101625245,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 11,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.401741367000795,
+      "throughput_tps": 17.947442480889798,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 169,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4837926709988096,
+      "throughput_tps": 17.509652772336533,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 58,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 7.188414326999919,
+      "throughput_tps": 20.171347032039495,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 197,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.1308367120000185,
+      "throughput_tps": 19.71056710421443,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 74,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.7379103359999135,
+      "throughput_tps": 17.950785907854513,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 251,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.67980734899902,
+      "throughput_tps": 18.31048019935543,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 218,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.342738309998822,
+      "throughput_tps": 18.191287238770194,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 59,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.670041733999824,
+      "throughput_tps": 19.84987699821605,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 221,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 7.902077916001872,
+      "throughput_tps": 19.868191843827777,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 25,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.5114586359995883,
+      "throughput_tps": 19.908749156085324,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 97,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.7030559010017896,
+      "throughput_tps": 19.607437633959947,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 289,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.814112726999156,
+      "throughput_tps": 19.941369353816718,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 116,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4152545309989364,
+      "throughput_tps": 19.910668262874836,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 162,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4404938990010123,
+      "throughput_tps": 19.473948208265746,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 213,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.518331521001528,
+      "throughput_tps": 19.04311734129244,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 93,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.5053700110001955,
+      "throughput_tps": 19.557989352813475,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 41,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 8.890181613001914,
+      "throughput_tps": 19.122219027716437,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 94,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 8.419297522999841,
+      "throughput_tps": 19.00396078923591,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 90,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.5964314049997483,
+      "throughput_tps": 28.502858597808366,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 53,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.974346767001407,
+      "throughput_tps": 18.293859327152585,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 171,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.973470842000097,
+      "throughput_tps": 22.802465099708723,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 68,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.8578920290019596,
+      "throughput_tps": 20.644586779789623,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 179,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 7.096573036000336,
+      "throughput_tps": 17.89596180518954,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 269,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.6787922520015854,
+      "throughput_tps": 19.785035573549447,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 165,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.7790962749968458,
+      "throughput_tps": 17.631630987687036,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 18,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.292769092000526,
+      "throughput_tps": 16.815394447211823,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 155,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.486214909997216,
+      "throughput_tps": 20.73017050359224,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 225,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.4795314990005863,
+      "throughput_tps": 20.165099745719413,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 43,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.8382008309999947,
+      "throughput_tps": 21.624715238878057,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 136,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.503907860998879,
+      "throughput_tps": 19.569410186065124,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 186,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.136982150997937,
+      "throughput_tps": 20.634683338233494,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 62,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 7.472371599000326,
+      "throughput_tps": 18.735684935520283,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 222,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.35992877100216,
+      "throughput_tps": 19.940898919716094,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 118,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4466344579996075,
+      "throughput_tps": 19.43925322411073,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 228,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.452403687999322,
+      "throughput_tps": 19.406768748653114,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 69,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.4568738470006792,
+      "throughput_tps": 19.94404395643618,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 163,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.838689288000751,
+      "throughput_tps": 19.63341606488068,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 259,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 16.174572027000977,
+      "throughput_tps": 18.6712822754047,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 268,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 10.425542487999337,
+      "throughput_tps": 19.855081904684972,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 56,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.0854367700012517,
+      "throughput_tps": 20.139665994272647,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 175,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.8592991229998006,
+      "throughput_tps": 20.21092367138706,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 83,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.598535962999449,
+      "throughput_tps": 19.469375693998863,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 196,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.378590398002416,
+      "throughput_tps": 19.830755465241836,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 14,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.4333466069983842,
+      "throughput_tps": 21.369746443209653,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 253,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.4738231520022964,
+      "throughput_tps": 19.80739809971449,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 8,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.941053845999704,
+      "throughput_tps": 19.53792132988933,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 80,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.5652970599985565,
+      "throughput_tps": 19.10110168684619,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 102,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.471283492999646,
+      "throughput_tps": 19.82775352920913,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 217,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4133418950004852,
+      "throughput_tps": 19.628857014919824,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 284,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.5993126270004723,
+      "throughput_tps": 28.365829842571635,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 54,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.6440733519993955,
+      "throughput_tps": 19.666647309018156,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 145,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 11.406102244000067,
+      "throughput_tps": 18.84955924475393,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 260,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.6381452189998527,
+      "throughput_tps": 26.63970440246129,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 192,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.423310843998479,
+      "throughput_tps": 17.819007031435998,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 188,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.579263815998274,
+      "throughput_tps": 19.455064210794003,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 167,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 8.783084802998928,
+      "throughput_tps": 20.266228095534615,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 127,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4928169660015556,
+      "throughput_tps": 19.18222473498205,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 277,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.7457030110017513,
+      "throughput_tps": 18.955053241397202,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 164,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.525473134999629,
+      "throughput_tps": 19.615435900496934,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 117,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.3970817389999866,
+      "throughput_tps": 21.783402839692545,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 36,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.219606293001561,
+      "throughput_tps": 20.308045099517297,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 67,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 6.29202071599866,
+      "throughput_tps": 19.707500276454336,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 35,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.7384207569994032,
+      "throughput_tps": 20.13321565511658,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 255,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.6642784329997085,
+      "throughput_tps": 19.419949301776434,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 143,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.644168744998751,
+      "throughput_tps": 18.517845651627614,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 137,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.3602709639999375,
+      "throughput_tps": 17.923764670602345,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 177,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.502840000001015,
+      "throughput_tps": 17.223243998004335,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 149,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 14.081896087998757,
+      "throughput_tps": 18.889501693361982,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 109,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.786921609000274,
+      "throughput_tps": 18.835575693728885,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 232,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.7974838919981266,
+      "throughput_tps": 20.27658370381785,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 191,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.701017192001018,
+      "throughput_tps": 18.293913101686307,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 243,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.5738379590002296,
+      "throughput_tps": 19.03771751778552,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 199,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.549744441999792,
+      "throughput_tps": 19.21761224100121,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 201,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.923923531998298,
+      "throughput_tps": 17.55593221928677,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 130,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.47874814899842,
+      "throughput_tps": 19.54726156867037,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 126,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.962276532998658,
+      "throughput_tps": 17.918991622290196,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 23,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.135609793000185,
+      "throughput_tps": 19.27716551497674,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 293,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.41063378599938,
+      "throughput_tps": 19.937643343339694,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 28,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.9792455110000446,
+      "throughput_tps": 19.350401925979362,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 39,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 8.635721514998295,
+      "throughput_tps": 18.411895256679244,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 40,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.0775001239999256,
+      "throughput_tps": 22.14199627166985,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 108,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.726707821999298,
+      "throughput_tps": 20.310119350553386,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 152,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.208861415998399,
+      "throughput_tps": 20.157956147096748,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 189,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.8033439179998823,
+      "throughput_tps": 18.667783279861204,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 98,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 12.882104790001904,
+      "throughput_tps": 19.639647722502545,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 204,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.0751949830009835,
+      "throughput_tps": 22.166591754900267,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 156,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.5057582699992054,
+      "throughput_tps": 17.399944691569914,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 280,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.4823927049983467,
+      "throughput_tps": 20.54469459941229,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 287,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.521858047999558,
+      "throughput_tps": 17.32040280119991,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 64,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.046822966000036,
+      "throughput_tps": 19.679755909691913,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 250,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.459005238000827,
+      "throughput_tps": 17.716956088488306,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 2,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4510973220021697,
+      "throughput_tps": 19.414114917260477,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 29,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.716932100996928,
+      "throughput_tps": 20.96763173051327,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 173,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.18747906399949,
+      "throughput_tps": 20.433817407693816,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 190,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 7.115462767000281,
+      "throughput_tps": 18.410608598437886,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 87,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.653998534999118,
+      "throughput_tps": 20.412554771037975,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 247,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.2861041639989708,
+      "throughput_tps": 19.438549924498968,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 254,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.6018646599986823,
+      "throughput_tps": 19.216987250991494,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 281,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.5493307469987485,
+      "throughput_tps": 21.96654948202666,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 246,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.406872187999397,
+      "throughput_tps": 19.741893181498348,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 245,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.1834472729970003,
+      "throughput_tps": 17.905118292202264,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 0,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.023732158999337,
+      "throughput_tps": 19.13646260668333,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 265,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 9.425294276003115,
+      "throughput_tps": 17.93047464101737,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 128,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.168403143001342,
+      "throughput_tps": 18.4723015885067,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 45,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.642011250998621,
+      "throughput_tps": 18.54647665920389,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 129,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 8.943343014001584,
+      "throughput_tps": 20.35033205313305,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 27,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.6179813950002426,
+      "throughput_tps": 20.24460529063274,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 76,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.802549446998455,
+      "throughput_tps": 20.512553771409692,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 133,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.6489566349991946,
+      "throughput_tps": 18.49784905973551,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 50,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.5116581239999505,
+      "throughput_tps": 19.50902454907552,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 159,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.029258000999107,
+      "throughput_tps": 22.668384196268715,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 95,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.738095062002685,
+      "throughput_tps": 19.170125069626902,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 153,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.022204504999536,
+      "throughput_tps": 22.252942216648027,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 233,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.8932949760019255,
+      "throughput_tps": 19.414321120207614,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 203,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.4784187650002423,
+      "throughput_tps": 19.2616256197075,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 122,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.706274777003273,
+      "throughput_tps": 18.886888914533976,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 99,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.746561619998829,
+      "throughput_tps": 18.967864126030587,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 205,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 2.529119685998012,
+      "throughput_tps": 19.374330234855687,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 209,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.6050099479980418,
+      "throughput_tps": 28.098711527392975,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 270,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 4.343381981998391,
+      "throughput_tps": 21.18165070014652,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 187,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.995920359997399,
+      "throughput_tps": 19.519908549941864,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 131,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.1464488399979018,
+      "throughput_tps": 21.806468049673942,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 206,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.771200587001658,
+      "throughput_tps": 17.500691316721856,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 207,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.9537499840007513,
+      "throughput_tps": 19.475181868248693,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 242,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.520148531002633,
+      "throughput_tps": 19.4432984394398,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 195,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 6.170251683997776,
+      "throughput_tps": 17.665405818483187,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 46,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.451287953001156,
+      "throughput_tps": 17.747672321835857,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 106,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 3.455894580001768,
+      "throughput_tps": 19.387165449926925,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 103,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 5.699611621999793,
+      "throughput_tps": 19.299560618378568,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 150,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.173584372998448,
+      "throughput_tps": 21.3022604724416,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 30,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.6787629059981555,
+      "throughput_tps": 19.01549759850617,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 7,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.1535827970001264,
+      "throughput_tps": 19.988355411413743,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 157,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.190862789997482,
+      "throughput_tps": 20.420497379406058,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 72,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 4.748315600001661,
+      "throughput_tps": 19.164690737904653,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 10,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 0.6047223540008417,
+      "throughput_tps": 28.112074719130256,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 104,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 1.1292768720013555,
+      "throughput_tps": 22.13806075359878,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 223,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.592426121998869,
+      "throughput_tps": 19.56790984270997,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 115,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 5.9719643570024346,
+      "throughput_tps": 18.586849044041397,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 193,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 3.3948757469988777,
+      "throughput_tps": 20.0301881622952,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 202,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 6.424140952000016,
+      "throughput_tps": 19.146528838491104,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 144,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 8.427199917001417,
+      "throughput_tps": 18.748813550897683,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 248,
+      "parse_ok": true,
+      "exact_match": true,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 2.494068200001493,
+      "throughput_tps": 19.646615918510435,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 123,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": false,
+      "error": null,
+      "latency_sec": 0.6633283709998068,
+      "throughput_tps": 25.62833242663301,
+      "peak_vram_mb": 6610.0
+    },
+    {
+      "dataset_index": 84,
+      "parse_ok": true,
+      "exact_match": false,
+      "action_match": true,
+      "error": null,
+      "latency_sec": 6.615989850000915,
+      "throughput_tps": 19.34706716637153,
+      "peak_vram_mb": 6610.0
+    }
+  ]
+}

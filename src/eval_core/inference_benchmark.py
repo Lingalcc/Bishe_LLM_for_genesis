@@ -187,6 +187,7 @@ class InferenceBenchmarkConfig:
     temperature: float = 0.0
     max_model_len: int = 4096
     gpu_memory_utilization: float = 0.9
+    vllm_dtype: str | None = None
     trust_remote_code: bool = True
     use_flash_attention: bool = False
 
@@ -233,6 +234,7 @@ def run_inference_benchmark(cfg: InferenceBenchmarkConfig, *, engine: Any | None
         }
         if backend == "vllm":
             engine_cfg["gpu_memory_utilization"] = cfg.gpu_memory_utilization
+            engine_cfg["vllm_dtype"] = cfg.vllm_dtype
         engine = build_inference_engine(engine_cfg)
 
     warmup_limit = min(cfg.warmup_batches, len(batches))

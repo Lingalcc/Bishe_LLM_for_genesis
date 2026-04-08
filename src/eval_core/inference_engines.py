@@ -8,6 +8,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 from src.eval_core.performance_monitor import estimate_tokens_from_text
+from src.utils.vllm_compat import apply_vllm_transformers_config_patch, ensure_vllm_environment_compatible
 
 
 def _resolve_model_path(model_path: str | Path) -> str:
@@ -71,6 +72,14 @@ def _resolve_tokenizer_path(
     except Exception:
         return None
     return str(resolved) if resolved.exists() else None
+
+
+def _is_gguf_model_path(model_path: str | Path) -> bool:
+    try:
+        suffix = Path(str(model_path)).suffix.lower()
+    except Exception:
+        return False
+    return suffix == ".gguf"
 
 
 def _fallback_chat_prompt(messages: list[dict[str, str]]) -> str:
@@ -269,10 +278,14 @@ class HFInferenceEngine:
                 raise RuntimeError("请求 8bit 量化，但当前环境缺少 bitsandbytes 支持。") from exc
             model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
             model_kwargs["torch_dtype"] = torch.float16
+        elif self.quantization == "awq":
+            # AWQ 模型通常已经在模型目录内携带量化配置，transformers
+            # 侧直接按预量化权重加载即可。
+            model_kwargs["torch_dtype"] = torch.float16
         else:
             raise ValueError(
                 f"不支持的 quantization={self.quantization!r}。"
-                " transformers backend 仅支持: None/'4bit'/'8bit'"
+                " transformers backend 仅支持: None/'awq'/'4bit'/'8bit'"
             )
 
         self._model = AutoModelForCausalLM.from_pretrained(self.base_model_path, **model_kwargs)
@@ -391,6 +404,7 @@ class VLLMInferenceEngine:
         temperature: float = 0.0,
         max_model_len: int = 4096,
         gpu_memory_utilization: float = 0.9,
+        dtype: str | None = None,
         trust_remote_code: bool = True,
         quantization: str | None = None,
         tokenizer_path: str | None = None,
@@ -402,6 +416,7 @@ class VLLMInferenceEngine:
         self.temperature = float(temperature)
         self.max_model_len = int(max_model_len)
         self.gpu_memory_utilization = float(gpu_memory_utilization)
+        self.dtype = str(dtype).strip() if isinstance(dtype, str) and str(dtype).strip() else None
         self.trust_remote_code = bool(trust_remote_code)
         self.quantization = _normalize_quantization(quantization)
         self.tokenizer_path = _resolve_tokenizer_path(self.model_path, tokenizer_path)
@@ -409,6 +424,8 @@ class VLLMInferenceEngine:
 
         # 当前项目里的 vLLM 接入默认视为 GPU-only，本地无 CUDA 时尽早给出清晰错误。
         _ensure_cuda_available("vllm")
+        ensure_vllm_environment_compatible()
+        apply_vllm_transformers_config_patch()
 
         try:
             from vllm import LLM, SamplingParams
@@ -422,13 +439,15 @@ class VLLMInferenceEngine:
         llm_kwargs: dict[str, Any] = {
             "model": self.base_model_path,
             "trust_remote_code": self.trust_remote_code,
-            "dtype": "auto",
+            "dtype": self.dtype or "auto",
             "max_model_len": self.max_model_len,
             "gpu_memory_utilization": self.gpu_memory_utilization,
         }
         if self.tokenizer_path:
             llm_kwargs["tokenizer"] = self.tokenizer_path
-        if self.quantization:
+        if _is_gguf_model_path(self.base_model_path) or self.quantization == "gguf_q4_k_m":
+            llm_kwargs["load_format"] = "gguf"
+        elif self.quantization:
             if self.quantization == "4bit":
                 llm_kwargs["quantization"] = "bitsandbytes"
                 llm_kwargs["load_format"] = "bitsandbytes"
@@ -795,6 +814,7 @@ def build_inference_engine(config: dict[str, Any]) -> Any:
             quantization=config.get("quantization"),
             max_model_len=int(config.get("max_model_len", 4096)),
             gpu_memory_utilization=float(config.get("gpu_memory_utilization", 0.9)),
+            dtype=config.get("vllm_dtype"),
             **common_kwargs,
         )
 

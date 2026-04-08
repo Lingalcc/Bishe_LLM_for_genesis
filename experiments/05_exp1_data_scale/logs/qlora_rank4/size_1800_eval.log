@@ -44,3 +44,10 @@ For further inquiries, feel free to reach out:
 
 
 ===== 2026-03-31 23:46:19 | stage=eval/size_1800 finished in 878.8s =====
+
+===== 2026-04-01 23:41:07 | stage=eval/size_1800 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/condabin/conda run -n llm_genesis python cli.py eval accuracy --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/05_exp1_data_scale/.cache/qlora_rank4/eval_override.yaml
+
+
+===== 2026-04-01 23:55:22 | stage=eval/size_1800 finished in 855.1s =====

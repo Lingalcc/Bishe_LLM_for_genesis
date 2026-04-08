@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
+from src.utils.vllm_compat import apply_vllm_transformers_config_patch, ensure_vllm_environment_compatible
+
 QuantizationMode = Literal["awq", "4bit", "8bit"]
 BackendMode = Literal["auto", "vllm", "transformers"]
 
@@ -290,6 +292,8 @@ class LocalLLMEngine:
         raise RuntimeError(err_msg)
 
     def _init_vllm(self) -> None:
+        ensure_vllm_environment_compatible()
+        apply_vllm_transformers_config_patch()
         from vllm import LLM
 
         kwargs: dict[str, Any] = {
