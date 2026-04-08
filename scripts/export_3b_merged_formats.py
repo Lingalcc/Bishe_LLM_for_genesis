@@ -9,15 +9,19 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.eval_core.prompting import DEFAULT_EVAL_SYSTEM_PROMPT, build_eval_messages
+
 DEFAULT_MODEL_PATH = REPO_ROOT / "model" / "qwen2.5-3b-genesis-merged"
 DEFAULT_CALIBRATION_DATASET_PATH = REPO_ROOT / "data_prepare" / "splits" / "train.json"
 DEFAULT_LLAMA_CPP_DIR = REPO_ROOT / "third_party" / "PowerInfer" / "smallthinker"
 
 
 def derive_default_gguf_output_path(model_path: Path) -> Path:
-    return model_path.parent / f"{model_path.name}-f16.gguf"
+    return model_path.parent / f"{model_path.name}-q4_k_m.gguf"
 
 
 def derive_default_awq_output_path(model_path: Path) -> Path:
@@ -54,9 +58,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--gguf-outtype",
-        choices=("f16",),
-        default="f16",
-        help="GGUF 输出精度，当前固定为 f16。",
+        choices=("f16", "q4_k_m"),
+        default="q4_k_m",
+        help="GGUF 输出精度，可选 f16 或 q4_k_m，默认 q4_k_m。",
+    )
+    parser.add_argument(
+        "--keep-gguf-f16",
+        action="store_true",
+        help="当 GGUF 目标为量化格式时，是否保留中间产物 F16 GGUF。",
     )
     parser.add_argument(
         "--awq-output-path",
@@ -159,6 +168,24 @@ def build_gguf_command(
     ]
 
 
+def build_gguf_quantize_command(
+    *,
+    llama_cpp_dir: Path,
+    input_f16_path: Path,
+    output_quantized_path: Path,
+    gguf_outtype: str,
+) -> list[str]:
+    quantize_path = llama_cpp_dir / "tools" / "quantize"
+    if not quantize_path.exists():
+        raise FileNotFoundError(f"未找到 GGUF 量化工具：{quantize_path}")
+    return [
+        str(quantize_path),
+        str(input_f16_path),
+        str(output_quantized_path),
+        gguf_outtype.upper(),
+    ]
+
+
 def run_gguf_export(
     *,
     model_path: Path,
@@ -166,17 +193,46 @@ def run_gguf_export(
     llama_cpp_dir: Path,
     gguf_outtype: str,
     overwrite: bool,
+    keep_gguf_f16: bool,
 ) -> None:
     prepare_output_path(gguf_output_path, overwrite=overwrite)
-    command = build_gguf_command(
+    if gguf_outtype == "f16":
+        command = build_gguf_command(
+            model_path=model_path,
+            gguf_output_path=gguf_output_path,
+            llama_cpp_dir=llama_cpp_dir,
+            gguf_outtype=gguf_outtype,
+        )
+        print(f"[INFO] 开始导出 GGUF(F16)：{gguf_output_path}", flush=True)
+        print(f"[INFO] 执行命令：{' '.join(command)}", flush=True)
+        subprocess.run(command, check=True, cwd=REPO_ROOT)
+        print(f"[OK] GGUF 导出完成：{gguf_output_path}", flush=True)
+        return
+
+    intermediate_f16_path = gguf_output_path.with_name(f"{gguf_output_path.stem}.f16.gguf")
+    prepare_output_path(intermediate_f16_path, overwrite=True)
+    export_command = build_gguf_command(
         model_path=model_path,
-        gguf_output_path=gguf_output_path,
+        gguf_output_path=intermediate_f16_path,
         llama_cpp_dir=llama_cpp_dir,
+        gguf_outtype="f16",
+    )
+    quantize_command = build_gguf_quantize_command(
+        llama_cpp_dir=llama_cpp_dir,
+        input_f16_path=intermediate_f16_path,
+        output_quantized_path=gguf_output_path,
         gguf_outtype=gguf_outtype,
     )
-    print(f"[INFO] 开始导出 GGUF({gguf_outtype.upper()})：{gguf_output_path}", flush=True)
-    print(f"[INFO] 执行命令：{' '.join(command)}", flush=True)
-    subprocess.run(command, check=True, cwd=REPO_ROOT)
+    print(f"[INFO] 开始导出 GGUF(F16) 中间文件：{intermediate_f16_path}", flush=True)
+    print(f"[INFO] 执行命令：{' '.join(export_command)}", flush=True)
+    subprocess.run(export_command, check=True, cwd=REPO_ROOT)
+    print(f"[INFO] 开始量化 GGUF({gguf_outtype.upper()})：{gguf_output_path}", flush=True)
+    print(f"[INFO] 执行命令：{' '.join(quantize_command)}", flush=True)
+    subprocess.run(quantize_command, check=True, cwd=REPO_ROOT)
+    if keep_gguf_f16:
+        print(f"[OK] GGUF 中间文件已保留：{intermediate_f16_path}", flush=True)
+    else:
+        intermediate_f16_path.unlink(missing_ok=True)
     print(f"[OK] GGUF 导出完成：{gguf_output_path}", flush=True)
 
 
@@ -197,7 +253,28 @@ def _record_to_calibration_text(record: Any) -> str:
     return "\n".join(prompt_parts).strip()
 
 
-def load_calibration_texts(dataset_path: Path, sample_limit: int) -> list[str]:
+def _render_calibration_chat_text(record: dict[str, Any], tokenizer: Any) -> str:
+    instruction = str(record.get("instruction", "") or "").strip()
+    input_text = str(record.get("input", "") or "").strip()
+    if not instruction:
+        return ""
+
+    user_content = instruction
+    if input_text:
+        user_content = f"{instruction}\n\n[input]\n{input_text}"
+
+    messages = build_eval_messages(
+        instruction=user_content,
+        cfg_system_prompt=DEFAULT_EVAL_SYSTEM_PROMPT,
+        sample_system_prompt=str(record.get("system", "") or "").strip(),
+    )
+
+    if tokenizer is not None and hasattr(tokenizer, "apply_chat_template"):
+        return str(tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)).strip()
+    return _record_to_calibration_text(record)
+
+
+def load_calibration_texts(dataset_path: Path, sample_limit: int, *, tokenizer: Any | None = None) -> list[str]:
     if sample_limit <= 0:
         raise ValueError("awq_calibration_samples 必须大于 0。")
     if not dataset_path.exists():
@@ -209,7 +286,10 @@ def load_calibration_texts(dataset_path: Path, sample_limit: int) -> list[str]:
 
     texts: list[str] = []
     for record in records:
-        text = _record_to_calibration_text(record)
+        if isinstance(record, dict):
+            text = _render_calibration_chat_text(record, tokenizer)
+        else:
+            text = _record_to_calibration_text(record)
         if text:
             texts.append(text)
         if len(texts) >= sample_limit:
@@ -254,16 +334,19 @@ def run_awq_export(
     AutoAWQForCausalLM, AutoTokenizer = _import_awq_components()
 
     print(f"[INFO] 开始导出 AWQ：{awq_output_path}", flush=True)
-    calibration_texts = load_calibration_texts(calibration_dataset_path, calibration_samples)
-    print(
-        f"[INFO] 已加载 {len(calibration_texts)} 条校准文本，数据集：{calibration_dataset_path}",
-        flush=True,
-    )
-
     tokenizer = AutoTokenizer.from_pretrained(
         str(model_path),
         trust_remote_code=trust_remote_code,
         use_fast=True,
+    )
+    calibration_texts = load_calibration_texts(
+        calibration_dataset_path,
+        calibration_samples,
+        tokenizer=tokenizer,
+    )
+    print(
+        f"[INFO] 已加载 {len(calibration_texts)} 条校准文本，数据集：{calibration_dataset_path}",
+        flush=True,
     )
     model = AutoAWQForCausalLM.from_pretrained(
         str(model_path),
@@ -315,6 +398,7 @@ def main() -> None:
             llama_cpp_dir=args.llama_cpp_dir,
             gguf_outtype=args.gguf_outtype,
             overwrite=args.overwrite,
+            keep_gguf_f16=args.keep_gguf_f16,
         )
 
     if args.export in {"all", "awq"}:

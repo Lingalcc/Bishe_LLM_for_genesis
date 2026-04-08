@@ -1,0 +1,222 @@
+{
+  "mode": "local",
+  "model_path": "model/qwen2.5-3b-genesis-merged-awq",
+  "backend": "vllm",
+  "quantization": "awq_marlin",
+  "dataset_file": "data_prepare/splits/test.json",
+  "seed": 42,
+  "num_samples_evaluated": 20,
+  "num_valid_rows_in_dataset": 295,
+  "parse_ok": 0,
+  "parse_ok_rate": 0.0,
+  "exact_match": 0,
+  "exact_match_rate": 0.0,
+  "action_match": 0,
+  "action_match_rate": 0.0,
+  "avg_latency_sec": 1.5417870304501775,
+  "avg_throughput_tps": 83.11785786239182,
+  "avg_peak_vram_mb": 0.0,
+  "max_peak_vram_mb": 0.0,
+  "details": [
+    {
+      "dataset_index": 57,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.7239082979976956,
+      "throughput_tps": 74.24988913196304,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 12,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.4987452210007177,
+      "throughput_tps": 85.40477607964209,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 140,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.521155477999855,
+      "throughput_tps": 84.1465595405838,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 125,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5219756309998047,
+      "throughput_tps": 84.10121515277824,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 114,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.4931165419984609,
+      "throughput_tps": 85.72673090117834,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 71,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5615753599995514,
+      "throughput_tps": 81.96850647031006,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 52,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5128659420006443,
+      "throughput_tps": 84.6076287702863,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 279,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5226378609986568,
+      "throughput_tps": 84.06463761254976,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 44,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.51164895400143,
+      "throughput_tps": 84.67574410128485,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 216,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5254037150007207,
+      "throughput_tps": 83.91221205327898,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 16,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5796068080016994,
+      "throughput_tps": 81.03282370751994,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 15,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.6586979790008627,
+      "throughput_tps": 77.16896120962443,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 47,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5498113300018304,
+      "throughput_tps": 82.59069831412887,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 111,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5227125310011616,
+      "throughput_tps": 84.06051529361346,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 119,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5157736410001235,
+      "throughput_tps": 84.4453264905334,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 258,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5283489069988718,
+      "throughput_tps": 83.75050972578376,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 13,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.515262729000824,
+      "throughput_tps": 84.47379952676866,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 287,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5047907590014802,
+      "throughput_tps": 85.06166005759881,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 101,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.5483135559989023,
+      "throughput_tps": 82.6705931134344,
+      "peak_vram_mb": 0.0
+    },
+    {
+      "dataset_index": 214,
+      "parse_ok": false,
+      "exact_match": false,
+      "action_match": false,
+      "error": "no valid JSON found",
+      "latency_sec": 1.519389367000258,
+      "throughput_tps": 84.2443699949746,
+      "peak_vram_mb": 0.0
+    }
+  ]
+}

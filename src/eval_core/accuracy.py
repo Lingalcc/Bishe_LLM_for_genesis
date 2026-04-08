@@ -51,6 +51,7 @@ class AccuracyEvalConfig:
     max_new_tokens: int = 512
     max_model_len: int = 4096
     gpu_memory_utilization: float = 0.9
+    vllm_dtype: str | None = None
     trust_remote_code: bool = True
     use_flash_attention: bool = False
 
@@ -127,6 +128,7 @@ def _run_local_accuracy_eval(cfg: AccuracyEvalConfig, *, dataset_file: Path) -> 
     }
     if cfg.backend == "vllm":
         engine_cfg["gpu_memory_utilization"] = cfg.gpu_memory_utilization
+        engine_cfg["vllm_dtype"] = cfg.vllm_dtype
     engine = build_inference_engine(engine_cfg)
 
     total = len(selected)
@@ -282,6 +284,7 @@ def run_accuracy_from_merged_config(config: dict[str, Any]) -> dict[str, Any]:
         max_new_tokens=int(section.get("max_new_tokens", AccuracyEvalConfig.max_new_tokens)),
         max_model_len=int(section.get("max_model_len", AccuracyEvalConfig.max_model_len)),
         gpu_memory_utilization=float(section.get("gpu_memory_utilization", AccuracyEvalConfig.gpu_memory_utilization)),
+        vllm_dtype=str(section.get("vllm_dtype")) if section.get("vllm_dtype") else None,
         trust_remote_code=bool(section.get("trust_remote_code", AccuracyEvalConfig.trust_remote_code)),
         use_flash_attention=bool(section.get("use_flash_attention", AccuracyEvalConfig.use_flash_attention)),
         system_prompt=str(section.get("system_prompt", AccuracyEvalConfig.system_prompt)),

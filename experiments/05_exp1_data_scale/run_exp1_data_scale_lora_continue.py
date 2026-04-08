@@ -41,7 +41,7 @@ def generate_exp_num_arr(minimum: int, maximum: int, step: int) -> list[int]:
     return values
 
 
-DATA_SIZES = generate_exp_num_arr(1800, 3600, 200)
+DATA_SIZES = [1800, 2000,2200,2400]
 SLEEP_SECONDS = 10
 FINETUNE_METHOD = "lora"
 EXPECTED_SOURCE_SIZE = 4000
@@ -51,7 +51,7 @@ SOURCE_DATASET_PATH = REPO_ROOT / "data_prepare/genesis_franka_toolcall_alpaca.j
 SPLIT_DIR = REPO_ROOT / "data_prepare/splits_4000_exp1_lora_continue"
 TRAIN_JSON_PATH = SPLIT_DIR / "train.json"
 VAL_JSON_PATH = SPLIT_DIR / "val.json"
-TEST_JSON_PATH = SPLIT_DIR / "test.json"
+TEST_JSON_PATH = REPO_ROOT / "data_prepare/splits/test.json"
 SPLIT_METADATA_PATH = SPLIT_DIR / "split_metadata.json"
 DEFAULT_CONDA_ENV_NAME = "llm_genesis"
 
@@ -69,11 +69,11 @@ HF_DATASETS_CACHE_PATH = HF_CACHE_ROOT / "datasets"
 TRANSFORMERS_CACHE_PATH = HF_CACHE_ROOT / "transformers"
 
 REPORTS_DIR = EXPERIMENT_DIR / "reports"
-DETAIL_REPORTS_DIR = REPORTS_DIR / "lora_continue"
+DETAIL_REPORTS_DIR = REPORTS_DIR / "lora_continue_old_test"
 LOGS_DIR = EXPERIMENT_DIR / "logs/lora_continue"
-RESULTS_CSV_PATH = REPORTS_DIR / "exp1_data_scale_results.csv"
-CHART_PATH = REPORTS_DIR / "exp1_data_scale_chart.png"
-PROGRESS_STATE_PATH = REPORTS_DIR / "progress_state.json"
+RESULTS_CSV_PATH = REPORTS_DIR / "exp1_data_scale_old_test_results.csv"
+CHART_PATH = REPORTS_DIR / "exp1_data_scale_old_test_chart.png"
+PROGRESS_STATE_PATH = REPORTS_DIR / "progress_state_old_test.json"
 
 TRAIN_TOTAL_STEPS_RE = re.compile(r"Total optimization steps = (?P<steps>\d+)")
 TRAIN_LOSS_RE = re.compile(r"\{'loss': (?P<loss>[0-9.]+).*?'epoch': (?P<epoch>[0-9.]+)\}")
@@ -495,6 +495,14 @@ def _build_eval_report_path(data_size: int) -> Path:
     return DETAIL_REPORTS_DIR / f"accuracy_report_size_{data_size}.json"
 
 
+def _has_reusable_model(model_output_dir: Path) -> bool:
+    required_files = [
+        model_output_dir / "adapter_config.json",
+        model_output_dir / "adapter_model.safetensors",
+    ]
+    return all(path.exists() for path in required_files)
+
+
 def main(force_resplit: bool = False) -> None:
     split_metadata = _ensure_split(force_resplit=force_resplit)
     runner_prefix = _resolve_runner_prefix()
@@ -591,34 +599,37 @@ def main(force_resplit: bool = False) -> None:
             print(f"\n[dataset] Writing first {data_size} samples to {effective_train_file}", flush=True)
             _write_json(effective_train_file, subset)
 
-            if model_output_dir.exists():
-                print(f"[cleanup] Removing previous output for {run_tag}: {model_output_dir}", flush=True)
-                shutil.rmtree(model_output_dir)
-
             eval_config_path = _prepare_eval_config(model_output_dir, eval_report_path)
+            if _has_reusable_model(model_output_dir):
+                print(
+                    f"[reuse] Found existing model for {run_tag}, skip finetune and evaluate directly: {model_output_dir}",
+                    flush=True,
+                )
+            else:
+                if model_output_dir.exists():
+                    print(f"[cleanup] Removing incomplete output for {run_tag}: {model_output_dir}", flush=True)
+                    shutil.rmtree(model_output_dir)
 
-            finetune_cmd = [
-                *runner_prefix,
-                "cli.py",
-                "finetune",
-                "start",
-                "--base-config",
-                str(BASE_CONFIG_PATH),
-                "--config",
-                str(train_config_path),
-                "--finetune-method",
-                FINETUNE_METHOD,
-                f"model_name_or_path={BASE_MODEL_PATH}",
-                f"output_dir={model_output_dir}",
-                "preprocessing_num_workers=1",
-                "dataloader_num_workers=0",
-            ]
-            _run_subprocess(
-                finetune_cmd,
-                cwd=REPO_ROOT,
-                stage=f"train/{run_tag}",
-                log_path=train_log_path,
-            )
+                finetune_cmd = [
+                    *runner_prefix,
+                    "cli.py",
+                    "finetune",
+                    "start",
+                    "--base-config",
+                    str(BASE_CONFIG_PATH),
+                    "--config",
+                    str(train_config_path),
+                    "--finetune-method",
+                    FINETUNE_METHOD,
+                    f"model_name_or_path={BASE_MODEL_PATH}",
+                    f"output_dir={model_output_dir}",
+                ]
+                _run_subprocess(
+                    finetune_cmd,
+                    cwd=REPO_ROOT,
+                    stage=f"train/{run_tag}",
+                    log_path=train_log_path,
+                )
 
             eval_cmd = [
                 *runner_prefix,

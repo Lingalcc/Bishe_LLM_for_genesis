@@ -1,10 +1,10 @@
 {
   "timestamp": {
-    "utc": "2026-03-31T04:50:22.772419Z",
-    "epoch_sec": 1774932622
+    "utc": "2026-04-07T12:19:18.693070Z",
+    "epoch_sec": 1775564358
   },
   "git": {
-    "commit_hash": "eef7cbe3be10a07ee8a1904d26b2cee44dcf0ad8",
+    "commit_hash": "2fe777ea3d27cb97822d75b3f8e232033a04451e",
     "dirty": true,
     "branch": "believe"
   },
@@ -46,18 +46,19 @@
       "experiments/11_exp7_vllm/run_exp7_vllm_benchmark.py"
     ],
     "cli_args": {
+      "base_config": "/home/lin/Bishe_LLM_for_genesis/configs/base.yaml",
       "gpu_id": null,
       "results_dir": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/reports",
-      "model_path": "/home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct",
-      "tokenizer_path": "[REDACTED]",
-      "hf_repo_id": "Qwen/Qwen2.5-3B-Instruct",
-      "num_samples": 200,
+      "benchmark_prompts_file": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json",
+      "benchmark_num_samples": 200,
+      "accuracy_num_samples": 200,
       "batch_size": 1,
       "max_new_tokens": "[REDACTED]",
       "max_model_len": 2048,
-      "memory_budgets_gb": "8,6,4,2",
-      "total_gpu_memory_mb": null,
-      "benchmark_prompts_file": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json",
+      "gpu_memory_utilization": 0.9,
+      "test_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "dataset_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+      "accuracy_seed": 42,
       "sleep_seconds": 15,
       "vram_poll_interval": 0.2,
       "auto_install_deps": false,
@@ -73,19 +74,29 @@
       "exists": true,
       "sha256": "a74eebf34722c3c541f1ef7b74171b1bc997f6cf12a92bd21203f9acaf46ecf2",
       "size_bytes": 637
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "exists": true,
+      "sha256": "299ceb37d777b3e5ead9c562e051a0887d22027386cb49fa93429ee95af47936",
+      "size_bytes": 100694
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+      "exists": true,
+      "sha256": "cf9c2f2481f00a15986dab04806ea778622f1ece8dd97bf7189e238bdc5b08d4",
+      "size_bytes": 1458033
     }
   ],
   "extra": {
     "entry": "experiments/11_exp7_vllm/run_exp7_vllm_benchmark.py",
-    "stage": "vllm_memory_budget_benchmark",
-    "summary_path": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/reports/exp7_vllm_memory_budget_summary.json",
+    "stage": "exp7_engine_compare",
     "gpu_id": 0,
-    "total_gpu_memory_mb": 8188,
-    "memory_budgets_gb": [
-      8.0,
-      6.0,
-      4.0,
-      2.0
+    "summary_path": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/reports/exp7_vllm_summary.json",
+    "cases": [
+      "Transformers_16bit",
+      "vLLM_AWQ",
+      "vLLM_GGUF"
     ]
   }
 }

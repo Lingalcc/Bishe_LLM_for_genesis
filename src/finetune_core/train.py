@@ -604,14 +604,50 @@ def _extract_output_dir(config_path: Path) -> Path | None:
     return None
 
 
+def _infer_runtime_dataset_info_entry(dataset_file: Path) -> dict[str, Any]:
+    """Infer minimal dataset_info entry for local JSON split files."""
+    entry: dict[str, Any] = {"file_name": str(dataset_file)}
+
+    try:
+        payload = json.loads(dataset_file.read_text(encoding="utf-8"))
+    except Exception:
+        return entry
+
+    if not isinstance(payload, list) or not payload:
+        return entry
+
+    first_row = next((row for row in payload if isinstance(row, dict)), None)
+    if first_row is None:
+        return entry
+
+    if "conversations" in first_row:
+        entry["formatting"] = "sharegpt"
+        entry["columns"] = {"messages": "conversations"}
+        return entry
+
+    if "instruction" in first_row and "output" in first_row:
+        columns: dict[str, Any] = {
+            "prompt": "instruction",
+            "response": "output",
+        }
+        if "input" in first_row:
+            columns["query"] = "input"
+        else:
+            columns["query"] = None
+        entry["columns"] = columns
+        return entry
+
+    return entry
+
+
 def _build_split_dataset_overrides(train_file: Path, val_file: Path) -> tuple[str, ...]:
     """Create a runtime dataset_info.json so LLaMA Factory reads explicit train/val files."""
     runtime_dataset_dir = (REPO_ROOT / ".cache" / "llamafactory_dataset_splits").resolve()
     runtime_dataset_dir.mkdir(parents=True, exist_ok=True)
     dataset_info_path = runtime_dataset_dir / "dataset_info.json"
     dataset_info = {
-        "__train_split__": {"file_name": str(train_file)},
-        "__val_split__": {"file_name": str(val_file)},
+        "__train_split__": _infer_runtime_dataset_info_entry(train_file),
+        "__val_split__": _infer_runtime_dataset_info_entry(val_file),
     }
     dataset_info_path.write_text(
         json.dumps(dataset_info, ensure_ascii=False, indent=2),

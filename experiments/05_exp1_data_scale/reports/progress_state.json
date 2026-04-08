@@ -7,7 +7,11 @@
     1000,
     1200,
     1400,
-    1600
+    1600,
+    1800,
+    2000,
+    2200,
+    2400
   ],
   "results": [
     {
@@ -49,10 +53,30 @@
       "data_size": 1600,
       "exact_match_rate": 0.395,
       "action_match_rate": 0.705
+    },
+    {
+      "data_size": 1800,
+      "exact_match_rate": 0.36,
+      "action_match_rate": 0.565
+    },
+    {
+      "data_size": 2000,
+      "exact_match_rate": 0.375,
+      "action_match_rate": 0.62
+    },
+    {
+      "data_size": 2200,
+      "exact_match_rate": 0.38,
+      "action_match_rate": 0.63
+    },
+    {
+      "data_size": 2400,
+      "exact_match_rate": 0.385,
+      "action_match_rate": 0.61
     }
   ],
-  "last_started_size": 1800,
+  "last_started_size": 2600,
   "last_status": "interrupted",
   "last_error": "KeyboardInterrupt",
-  "updated_at": "2026-04-01 11:10:23"
+  "updated_at": "2026-04-02 11:46:23"
 }
