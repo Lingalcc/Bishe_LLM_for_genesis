@@ -50,6 +50,7 @@ class InferenceBenchmarkSmokeTests(unittest.TestCase):
                 quantization="4bit",
                 max_model_len=8192,
                 gpu_memory_utilization=0.85,
+                dtype=None,
             )
 
     def test_smoke_single_and_batch_outputs_required_fields(self) -> None:

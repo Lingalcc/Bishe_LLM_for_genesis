@@ -1,0 +1,50 @@
+{
+  "experiment": "exp12_final_compare",
+  "cases": [
+    {
+      "name": "top18_rank8_spec_tokens8_thr065",
+      "label": "Top18 Spec t8 thr0.65",
+      "model_path": "output/exp13_exp11_ablation/top18_rank8",
+      "target_model_path": "output/exp13_exp11_ablation/top18_rank8",
+      "assistant_model_path": "model/qwen2.5-0.5b-genesis-merged",
+      "runner": "speculative",
+      "backend": "transformers",
+      "quantization": null,
+      "num_samples_evaluated": 20,
+      "parse_ok_rate": 0.95,
+      "exact_match_rate": 0.15,
+      "action_match_rate": 0.55,
+      "avg_latency_sec": 12.924695,
+      "avg_throughput_tps": 6.917,
+      "avg_peak_vram_mb": 0.0,
+      "max_peak_vram_mb": 0.0,
+      "report_file": "experiments/16_exp12_final_compare/reports/top18_rank8_spec_tokens8_thr065.json"
+    }
+  ],
+  "best_case": {
+    "name": "top18_rank8_spec_tokens8_thr065",
+    "label": "Top18 Spec t8 thr0.65",
+    "model_path": "output/exp13_exp11_ablation/top18_rank8",
+    "target_model_path": "output/exp13_exp11_ablation/top18_rank8",
+    "assistant_model_path": "model/qwen2.5-0.5b-genesis-merged",
+    "runner": "speculative",
+    "backend": "transformers",
+    "quantization": null,
+    "num_samples_evaluated": 20,
+    "parse_ok_rate": 0.95,
+    "exact_match_rate": 0.15,
+    "action_match_rate": 0.55,
+    "avg_latency_sec": 12.924695,
+    "avg_throughput_tps": 6.917,
+    "avg_peak_vram_mb": 0.0,
+    "max_peak_vram_mb": 0.0,
+    "report_file": "experiments/16_exp12_final_compare/reports/top18_rank8_spec_tokens8_thr065.json"
+  },
+  "selection_rules": [
+    "exact_match_rate",
+    "action_match_rate",
+    "parse_ok_rate",
+    "avg_latency_sec_asc"
+  ],
+  "run_meta_file": "experiments/16_exp12_final_compare/reports/run_meta.json"
+}

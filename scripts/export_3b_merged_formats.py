@@ -6,6 +6,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -300,12 +301,14 @@ def load_calibration_texts(dataset_path: Path, sample_limit: int, *, tokenizer: 
     return texts
 
 
-def _import_awq_components() -> tuple[Any, Any]:
+def _import_awq_components() -> tuple[Any, Any, Any]:
     try:
-        from awq import AutoAWQForCausalLM
+        from llmcompressor import oneshot
+        from llmcompressor.modifiers.awq import AWQModifier
     except ImportError as exc:
         raise RuntimeError(
-            "未检测到 AWQ 依赖。请先安装 `autoawq` 或兼容的 `awq` 包后再执行 AWQ 导出。"
+            "未检测到 llmcompressor AWQ 依赖。"
+            "请先安装 `llmcompressor` 后再执行 AWQ 导出。"
         ) from exc
 
     try:
@@ -313,7 +316,24 @@ def _import_awq_components() -> tuple[Any, Any]:
     except ImportError as exc:
         raise RuntimeError("缺少 transformers 依赖，无法执行 AWQ 导出。") from exc
 
-    return AutoAWQForCausalLM, AutoTokenizer
+    return oneshot, AWQModifier, AutoTokenizer
+
+
+def write_calibration_dataset(
+    calibration_texts: list[str],
+    *,
+    output_dir: Path,
+) -> Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "train.json"
+    payload = [{"text": text} for text in calibration_texts if text.strip()]
+    if not payload:
+        raise ValueError("校准文本为空，无法生成 llmcompressor 校准数据集。")
+    output_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return output_path
 
 
 def run_awq_export(
@@ -331,9 +351,9 @@ def run_awq_export(
     overwrite: bool,
 ) -> None:
     prepare_output_path(awq_output_path, overwrite=overwrite)
-    AutoAWQForCausalLM, AutoTokenizer = _import_awq_components()
+    oneshot, AWQModifier, AutoTokenizer = _import_awq_components()
 
-    print(f"[INFO] 开始导出 AWQ：{awq_output_path}", flush=True)
+    print(f"[INFO] 开始导出 AWQ(llmcompressor)：{awq_output_path}", flush=True)
     tokenizer = AutoTokenizer.from_pretrained(
         str(model_path),
         trust_remote_code=trust_remote_code,
@@ -348,39 +368,63 @@ def run_awq_export(
         f"[INFO] 已加载 {len(calibration_texts)} 条校准文本，数据集：{calibration_dataset_path}",
         flush=True,
     )
-    model = AutoAWQForCausalLM.from_pretrained(
-        str(model_path),
-        trust_remote_code=trust_remote_code,
-        low_cpu_mem_usage=True,
-        safetensors=True,
-        device_map="auto",
+
+    if version.upper() not in {"GEMM", "GEMV"}:
+        raise ValueError(f"当前脚本仅支持 AWQ 版本 GEMM/GEMV，收到：{version}")
+    if w_bit != 4:
+        raise ValueError(f"当前 llmcompressor AWQ 导出仅验证过 4bit，收到：{w_bit}")
+
+    recipe = [
+        AWQModifier(
+            ignore=["lm_head"],
+            config_groups={
+                "group_0": {
+                    "targets": ["Linear"],
+                    "input_activations": None,
+                    "output_activations": None,
+                    "weights": {
+                        "num_bits": w_bit,
+                        "type": "int",
+                        "symmetric": not zero_point,
+                        "strategy": "group",
+                        "group_size": group_size,
+                    },
+                }
+            },
+        )
+    ]
+    print(
+        f"[INFO] AWQ 量化配置：w_bit={w_bit}, group_size={group_size}, "
+        f"zero_point={zero_point}, version={version.upper()}",
+        flush=True,
     )
 
-    quant_config = {
-        "zero_point": zero_point,
-        "q_group_size": group_size,
-        "w_bit": w_bit,
-        "version": version,
-    }
-    print(f"[INFO] AWQ 量化配置：{quant_config}", flush=True)
-
-    quantize_kwargs = {
-        "quant_config": quant_config,
-        "calib_data": calibration_texts,
-        "max_calib_seq_len": max_calib_seq_len,
-    }
-    try:
-        model.quantize(tokenizer, **quantize_kwargs)
-    except TypeError:
-        print("[WARN] 当前 AWQ 版本不支持 max_calib_seq_len，回退到基础 quantize 调用。", flush=True)
-        model.quantize(
-            tokenizer,
-            quant_config=quant_config,
-            calib_data=calibration_texts,
+    with tempfile.TemporaryDirectory(prefix="llmcompressor_awq_", dir=str(REPO_ROOT / "tmp")) as tmp_dir:
+        tmp_root = Path(tmp_dir)
+        llmcompressor_dataset_path = write_calibration_dataset(
+            calibration_texts,
+            output_dir=tmp_root / "calibration_dataset",
+        )
+        llmcompressor_dataset_dir = llmcompressor_dataset_path.parent
+        log_dir = tmp_root / "logs"
+        print(f"[INFO] 临时校准数据集：{llmcompressor_dataset_path}", flush=True)
+        oneshot(
+            model=str(model_path),
+            tokenizer=str(model_path),
+            trust_remote_code_model=trust_remote_code,
+            dataset="json",
+            dataset_path=str(llmcompressor_dataset_dir),
+            text_column="text",
+            num_calibration_samples=len(calibration_texts),
+            shuffle_calibration_samples=False,
+            max_seq_length=max_calib_seq_len,
+            pad_to_max_length=True,
+            recipe=recipe,
+            output_dir=str(awq_output_path),
+            log_dir=str(log_dir),
+            sequential_offload_device="cpu",
         )
 
-    model.save_quantized(str(awq_output_path))
-    tokenizer.save_pretrained(str(awq_output_path))
     print(f"[OK] AWQ 导出完成：{awq_output_path}", flush=True)
 
 

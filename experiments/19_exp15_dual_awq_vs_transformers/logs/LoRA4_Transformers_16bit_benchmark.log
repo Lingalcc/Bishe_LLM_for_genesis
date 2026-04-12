@@ -1,0 +1,56 @@
+$ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval benchmark --backend transformers --model-path /home/lin/Bishe_LLM_for_genesis/model/qwen2.5-3b-genesis-merged --batch-size 1 --num-samples 20 --max-new-tokens 128 --max-model-len 2048 --gpu-memory-utilization 0.9 --output-json /home/lin/Bishe_LLM_for_genesis/experiments/19_exp15_dual_awq_vs_transformers/reports/LoRA4_Transformers_16bit_benchmark.json --require-gpu --use-chat --tokenizer-path /home/lin/Bishe_LLM_for_genesis/model/qwen2.5-3b-genesis-merged --prompts-file /home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json
+
+[vram]
+{
+  "target_pid": 30389,
+  "vram_summary": {
+    "peak_vram_mb": 7744.0,
+    "avg_vram_mb": 7381.2,
+    "peak_delta_vram_mb": 5343.0,
+    "avg_delta_vram_mb": 4980.2,
+    "target_pid": 30389,
+    "num_snapshots": 162,
+    "per_gpu": {
+      "0": {
+        "peak_vram_mb": 7744.0,
+        "avg_vram_mb": 7381.2,
+        "baseline_vram_mb": 2401.0,
+        "peak_delta_vram_mb": 5343.0,
+        "avg_delta_vram_mb": 4980.2,
+        "total_vram_mb": 8188.0,
+        "peak_utilization": 94.6,
+        "num_samples": 162,
+        "sample_source": "gpu_total"
+      }
+    }
+  }
+}
+
+[stdout]
+[ok] backend          : transformers
+[ok] quantization     : None
+[ok] batch_size       : 1
+[ok] num_samples      : 20
+[ok] avg_latency (s)  : 1.9884
+[ok] p50_latency (s)  : 1.6816
+[ok] p95_latency (s)  : 3.7099
+[ok] throughput       : 0.5029 samples/s
+[ok] token_count      : tokenizer_exact
+[ok] prompt_sampling  : cycle_shuffle
+[ok] avg_ttft (s)     : N/A
+[ok] avg_tpot (s)     : N/A
+[ok] avg sec/output tok: 0.037133
+[ok] peak_memory (MB) : 6038.00
+[ok] errors           : 0
+[ok] json report      : /home/lin/Bishe_LLM_for_genesis/experiments/19_exp15_dual_awq_vs_transformers/reports/LoRA4_Transformers_16bit_benchmark.json
+
+
+[stderr]
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:04<00:04,  4.71s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.58s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.90s/it]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+

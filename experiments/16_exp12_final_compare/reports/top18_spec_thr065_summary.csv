@@ -1,0 +1,2 @@
+name,label,model_path,target_model_path,assistant_model_path,runner,backend,quantization,num_samples_evaluated,parse_ok_rate,exact_match_rate,action_match_rate,avg_latency_sec,avg_throughput_tps,avg_peak_vram_mb,max_peak_vram_mb,report_file
+top18_rank8_spec_tokens8_thr065,Top18 Spec t8 thr0.65,output/exp13_exp11_ablation/top18_rank8,output/exp13_exp11_ablation/top18_rank8,model/qwen2.5-0.5b-genesis-merged,speculative,transformers,,20,0.95,0.15,0.55,12.924695,6.917,0.0,0.0,experiments/16_exp12_final_compare/reports/top18_rank8_spec_tokens8_thr065.json

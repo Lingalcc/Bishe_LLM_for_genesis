@@ -8,7 +8,11 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 from src.eval_core.performance_monitor import estimate_tokens_from_text
-from src.utils.vllm_compat import apply_vllm_transformers_config_patch, ensure_vllm_environment_compatible
+from src.utils.vllm_compat import (
+    apply_vllm_transformers_config_patch,
+    ensure_vllm_environment_compatible,
+    resolve_vllm_quantization,
+)
 
 
 def _resolve_model_path(model_path: str | Path) -> str:
@@ -443,20 +447,21 @@ class VLLMInferenceEngine:
             "max_model_len": self.max_model_len,
             "gpu_memory_utilization": self.gpu_memory_utilization,
         }
+        vllm_quantization = resolve_vllm_quantization(self.base_model_path, self.quantization)
         if self.tokenizer_path:
             llm_kwargs["tokenizer"] = self.tokenizer_path
         if _is_gguf_model_path(self.base_model_path) or self.quantization == "gguf_q4_k_m":
             llm_kwargs["load_format"] = "gguf"
-        elif self.quantization:
-            if self.quantization == "4bit":
+        elif vllm_quantization:
+            if vllm_quantization == "4bit":
                 llm_kwargs["quantization"] = "bitsandbytes"
                 llm_kwargs["load_format"] = "bitsandbytes"
-            elif self.quantization in {"awq", "bitsandbytes"}:
-                llm_kwargs["quantization"] = self.quantization
-                if self.quantization == "bitsandbytes":
+            elif vllm_quantization in {"awq", "bitsandbytes", "compressed-tensors"}:
+                llm_kwargs["quantization"] = vllm_quantization
+                if vllm_quantization == "bitsandbytes":
                     llm_kwargs["load_format"] = "bitsandbytes"
             else:
-                llm_kwargs["quantization"] = self.quantization
+                llm_kwargs["quantization"] = vllm_quantization
 
         self._SamplingParams = SamplingParams
         self._lora_request = None

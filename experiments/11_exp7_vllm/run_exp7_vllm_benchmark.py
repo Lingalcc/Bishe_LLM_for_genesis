@@ -29,6 +29,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.utils.plotting import configure_report_matplotlib, pick_plot_text
+from src.finetune_core.metrics import GPUMonitor
 from src.utils.run_meta import record_run_meta
 from src.utils.vllm_compat import get_vllm_environment_compat_error
 
@@ -311,6 +312,49 @@ def run_command(command: list[str], *, log_path: Path, gpu_id: int) -> subproces
     return result
 
 
+def run_command_with_process_vram(
+    command: list[str],
+    *,
+    log_path: Path,
+    gpu_id: int,
+    poll_interval_sec: float,
+) -> tuple[subprocess.CompletedProcess[str], dict[str, Any]]:
+    env = build_runtime_env(gpu_id=gpu_id)
+    proc = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        cwd=str(REPO_ROOT),
+        env=env,
+    )
+    monitor = GPUMonitor(gpu_indices=[gpu_id], interval_sec=max(0.05, float(poll_interval_sec)), target_pid=proc.pid)
+    monitor.start()
+    stdout = ""
+    stderr = ""
+    try:
+        stdout, stderr = proc.communicate()
+    finally:
+        monitor.stop()
+
+    vram_summary = monitor.summary()
+    ensure_dir(log_path.parent)
+    log_payload = {
+        "target_pid": proc.pid,
+        "vram_summary": vram_summary,
+    }
+    log_path.write_text(
+        f"$ {' '.join(command)}\n\n[vram]\n{json.dumps(log_payload, ensure_ascii=False, indent=2)}\n\n[stdout]\n{stdout}\n\n[stderr]\n{stderr}\n",
+        encoding="utf-8",
+    )
+    if proc.returncode != 0:
+        raise subprocess.CalledProcessError(proc.returncode, command, output=stdout, stderr=stderr)
+    return (
+        subprocess.CompletedProcess(command, proc.returncode, stdout=stdout, stderr=stderr),
+        vram_summary,
+    )
+
+
 def persist_failure_log(command: list[str], exc: subprocess.CalledProcessError, *, log_path: Path) -> None:
     ensure_dir(log_path.parent)
     stdout = exc.stdout if isinstance(exc.stdout, str) else ""
@@ -363,6 +407,37 @@ def monitor_vram(stop_event: threading.Event) -> None:
 
     stop_event.peak_vram_mb = peak_vram_mb
     stop_event.samples = samples
+
+
+def extract_process_peak_vram_mb(vram_summary: dict[str, Any] | None) -> float:
+    if not isinstance(vram_summary, dict):
+        return 0.0
+    value = vram_summary.get("peak_vram_mb", 0.0)
+    try:
+        return float(value or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def inject_accuracy_process_vram_metrics(accuracy_report: dict[str, Any], vram_summary: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(accuracy_report, dict):
+        accuracy_report = {}
+    peak_vram_mb = extract_process_peak_vram_mb(vram_summary)
+    avg_vram_mb = 0.0
+    if isinstance(vram_summary, dict):
+        try:
+            avg_vram_mb = float(vram_summary.get("avg_vram_mb", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            avg_vram_mb = 0.0
+        accuracy_report["process_vram_summary"] = vram_summary
+    accuracy_report["avg_peak_vram_mb"] = avg_vram_mb
+    accuracy_report["max_peak_vram_mb"] = peak_vram_mb
+    samples = accuracy_report.get("samples")
+    if isinstance(samples, list):
+        for item in samples:
+            if isinstance(item, dict):
+                item["peak_vram_mb"] = peak_vram_mb
+    return accuracy_report
 
 
 def load_json_if_exists(path: Path) -> dict[str, Any]:
@@ -631,17 +706,19 @@ def run_single_case(
     benchmark_report: dict[str, Any] = {}
     accuracy_report: dict[str, Any] = {}
     benchmark_peak_vram_mb = 0.0
+    benchmark_vram_summary: dict[str, Any] = {}
+    accuracy_vram_summary: dict[str, Any] = {}
 
     benchmark_command = build_benchmark_command(case_cfg, artifact, args=args, output_json=benchmark_json)
-    stop_event = threading.Event()
-    stop_event.gpu_id = gpu_id
-    stop_event.poll_interval_sec = max(0.05, float(args.vram_poll_interval))
-    monitor_thread = threading.Thread(target=monitor_vram, args=(stop_event,), daemon=True)
-    monitor_thread.start()
 
     try:
         print_info(f"[{name}] 开始执行 benchmark")
-        run_command(benchmark_command, log_path=benchmark_log, gpu_id=gpu_id)
+        _, benchmark_vram_summary = run_command_with_process_vram(
+            benchmark_command,
+            log_path=benchmark_log,
+            gpu_id=gpu_id,
+            poll_interval_sec=args.vram_poll_interval,
+        )
         benchmark_status = "success"
         benchmark_report = load_json_if_exists(benchmark_json)
     except subprocess.CalledProcessError as exc:
@@ -649,12 +726,7 @@ def run_single_case(
         benchmark_status = classify_failure(exc)
         print_error(f"[{name}] benchmark 失败，已记录日志：{benchmark_log}")
     finally:
-        stop_event.set()
-        monitor_thread.join(timeout=5)
-        benchmark_peak_vram_mb = float(getattr(stop_event, "peak_vram_mb", 0.0) or 0.0)
-        monitor_error = getattr(stop_event, "monitor_error", None)
-        if monitor_error:
-            print_warning(f"[{name}] benchmark 显存监控异常：{monitor_error}")
+        benchmark_peak_vram_mb = extract_process_peak_vram_mb(benchmark_vram_summary)
         cleanup_runtime_state()
         print_info(f"[{name}] benchmark 后冷却 {args.sleep_seconds} 秒")
         time.sleep(args.sleep_seconds)
@@ -670,9 +742,16 @@ def run_single_case(
 
     try:
         print_info(f"[{name}] 开始执行 accuracy")
-        run_command(accuracy_command, log_path=accuracy_log, gpu_id=gpu_id)
+        _, accuracy_vram_summary = run_command_with_process_vram(
+            accuracy_command,
+            log_path=accuracy_log,
+            gpu_id=gpu_id,
+            poll_interval_sec=args.vram_poll_interval,
+        )
         accuracy_status = "success"
         accuracy_report = load_json_if_exists(accuracy_json)
+        accuracy_report = inject_accuracy_process_vram_metrics(accuracy_report, accuracy_vram_summary)
+        accuracy_json.write_text(json.dumps(accuracy_report, ensure_ascii=False, indent=2), encoding="utf-8")
     except subprocess.CalledProcessError as exc:
         persist_failure_log(accuracy_command, exc, log_path=accuracy_log)
         accuracy_status = classify_failure(exc)

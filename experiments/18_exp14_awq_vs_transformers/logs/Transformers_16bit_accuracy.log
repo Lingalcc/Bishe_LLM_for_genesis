@@ -1,0 +1,21 @@
+$ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval accuracy --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/18_exp14_awq_vs_transformers/.cache/Transformers_16bit_accuracy_override.yaml
+
+[stdout]
+[ok] evaluated samples : 20
+[ok] parse ok          : 20 (1.0000)
+[ok] exact match       : 8 (0.4000)
+[ok] action match      : 13 (0.6500)
+[ok] avg latency (sec) : 2.864
+[ok] avg throughput    : 28.9 tokens/s
+[ok] peak VRAM (MB)    : 6040
+
+
+[stderr]
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.00it/s]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.64it/s]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+

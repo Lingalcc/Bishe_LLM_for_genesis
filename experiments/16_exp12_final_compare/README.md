@@ -1,23 +1,27 @@
 # 实验16 Exp12：最终方案总对比
 
-本实验用于把论文中的“最终推荐方案”与两个核心基线放到**同一测试口径**下统一评测，输出可直接放入论文主表的结构化结果。
+本实验用于把论文中的最终候选方案放到**同一测试口径**下统一评测，输出可直接放入论文主表的结构化结果。
 
 默认回答的问题是：
 
-- 基座模型在当前任务上的表现如何？
-- 训练后的主线 LoRA 模型提升了多少？
-- 最终推荐模型是否在准确率与资源开销之间取得了更好的平衡？
+- 原始 `LoRA rank4` 模型在 `Transformers 16bit` 部署下的准确率与性能如何？
+- 同一个 `LoRA rank4` 模型启用投机解码后，延迟和吞吐能改善多少？
+- `Top18 rank8` 模型在普通部署与投机解码下，是否优于 `LoRA rank4`？
 
 ## 默认对比方案
 
-- `base_model`
-  - 基座模型 `model/Qwen_Qwen2.5-3B-Instruct`
-- `lora_rank4`
-  - 当前主线 LoRA 适配器 `output/qwen2.5-3b-genesis-lora-rank-4`
-- `final_merged`
-  - 最终推荐合并模型 `model/qwen2.5-3b-genesis-merged`
+- `lora_rank4_transformers_16bit`
+  - 原始 `LoRA rank4` 微调模型，`Transformers 16bit` 普通解码
+- `lora_rank4_speculative`
+  - 原始 `LoRA rank4` 微调模型，`Transformers` 投机解码
+  - 草稿模型固定为 `model/qwen2.5-0.5b-genesis-merged`
+- `top18_rank8_transformers_16bit`
+  - `Top18 rank8` 微调模型，`Transformers 16bit` 普通解码
+- `top18_rank8_speculative`
+  - `Top18 rank8` 微调模型，`Transformers` 投机解码
+  - 草稿模型固定为 `model/qwen2.5-0.5b-genesis-merged`
 
-你可以直接修改配置文件中的 `cases`，替换为你实际想用于论文结论的模型。
+其中普通 case 走现有 accuracy 评测链路，投机解码 case 复用 `exp8` 的 speculative decoding 实现，但会额外在总表里补齐 `exact_match_rate / action_match_rate`，保证四组结果可以直接横向比较。
 
 ## 统一指标
 
@@ -52,10 +56,11 @@ python experiments/16_exp12_final_compare/run_exp12_final_compare.py \
 - `reports/final_compare_summary.csv`
 - `reports/final_compare_summary.md`
 - `reports/<case_name>_accuracy.json`
+- `reports/<case_name>.json`
 - `reports/run_meta.json`
 
 ## 解读建议
 
 - 论文主表优先引用 `final_compare_summary.csv / md`
-- 若答辩老师追问单个方案细节，可进一步打开对应的 `<case_name>_accuracy.json`
-- 若最终推荐方案不是当前默认的 `final_merged`，只需要改配置，不需要改脚本
+- 若答辩老师追问单个方案细节，可进一步打开对应的单 case JSON 报告
+- 若你要替换模型路径或 speculative 参数，只需要修改 `configs/compare.yaml`

@@ -1,0 +1,50 @@
+{
+  "experiment": "exp12_final_compare",
+  "cases": [
+    {
+      "name": "lora_rank4_speculative_smoke",
+      "label": "LoRA Rank4 Spec Smoke",
+      "model_path": "model/qwen2.5-3b-genesis-lora-rank-4",
+      "target_model_path": "model/qwen2.5-3b-genesis-lora-rank-4",
+      "assistant_model_path": "model/qwen2.5-0.5b-genesis-merged",
+      "runner": "speculative",
+      "backend": "transformers",
+      "quantization": null,
+      "num_samples_evaluated": 5,
+      "parse_ok_rate": 1.0,
+      "exact_match_rate": 0.2,
+      "action_match_rate": 0.8,
+      "avg_latency_sec": 2.05702,
+      "avg_throughput_tps": 35.488,
+      "avg_peak_vram_mb": 7277.6,
+      "max_peak_vram_mb": 7280.0,
+      "report_file": "experiments/16_exp12_final_compare/reports/lora_rank4_speculative_smoke.json"
+    }
+  ],
+  "best_case": {
+    "name": "lora_rank4_speculative_smoke",
+    "label": "LoRA Rank4 Spec Smoke",
+    "model_path": "model/qwen2.5-3b-genesis-lora-rank-4",
+    "target_model_path": "model/qwen2.5-3b-genesis-lora-rank-4",
+    "assistant_model_path": "model/qwen2.5-0.5b-genesis-merged",
+    "runner": "speculative",
+    "backend": "transformers",
+    "quantization": null,
+    "num_samples_evaluated": 5,
+    "parse_ok_rate": 1.0,
+    "exact_match_rate": 0.2,
+    "action_match_rate": 0.8,
+    "avg_latency_sec": 2.05702,
+    "avg_throughput_tps": 35.488,
+    "avg_peak_vram_mb": 7277.6,
+    "max_peak_vram_mb": 7280.0,
+    "report_file": "experiments/16_exp12_final_compare/reports/lora_rank4_speculative_smoke.json"
+  },
+  "selection_rules": [
+    "exact_match_rate",
+    "action_match_rate",
+    "parse_ok_rate",
+    "avg_latency_sec_asc"
+  ],
+  "run_meta_file": "experiments/16_exp12_final_compare/reports/run_meta.json"
+}

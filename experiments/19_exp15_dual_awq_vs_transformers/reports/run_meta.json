@@ -1,0 +1,105 @@
+{
+  "timestamp": {
+    "utc": "2026-04-12T08:05:03.035851Z",
+    "epoch_sec": 1775981103
+  },
+  "git": {
+    "commit_hash": "8e3f8beeee240bc6c3bdc64dc5e9c293acee8c22",
+    "dirty": true,
+    "branch": "main"
+  },
+  "runtime": {
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "python_executable": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "dependencies": {
+    "torch": "2.9.1",
+    "transformers": "4.57.1",
+    "datasets": "4.0.0",
+    "accelerate": "1.11.0",
+    "bitsandbytes": "0.49.2",
+    "vllm": "0.16.0",
+    "pyyaml": "6.0.3",
+    "openai": "2.24.0",
+    "huggingface_hub": "0.36.0"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "gpu": {
+    "detected": true,
+    "count": 1,
+    "devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "total_memory_mb": 8187,
+        "compute_capability": "8.9"
+      }
+    ],
+    "source": "torch",
+    "cuda_version": "12.8"
+  },
+  "command": {
+    "argv": [
+      "experiments/19_exp15_dual_awq_vs_transformers/run_exp15_dual_awq_vs_transformers.py",
+      "--append-4gb-awq-cases",
+      "--skip-vllm-compat-check"
+    ],
+    "cli_args": {
+      "base_config": "/home/lin/Bishe_LLM_for_genesis/configs/base.yaml",
+      "gpu_id": null,
+      "results_dir": "/home/lin/Bishe_LLM_for_genesis/experiments/19_exp15_dual_awq_vs_transformers/reports",
+      "benchmark_prompts_file": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json",
+      "benchmark_num_samples": 20,
+      "accuracy_num_samples": 20,
+      "batch_size": 1,
+      "max_new_tokens": "[REDACTED]",
+      "max_model_len": 2048,
+      "gpu_memory_utilization": 0.9,
+      "test_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "dataset_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+      "accuracy_seed": 42,
+      "sleep_seconds": 10,
+      "vram_poll_interval": 0.2,
+      "auto_install_deps": false,
+      "auto_download_missing_models": false,
+      "skip_vllm_compat_check": true,
+      "hf_token": "[REDACTED]",
+      "append_4gb_awq_cases": true,
+      "existing_summary_json": "/home/lin/Bishe_LLM_for_genesis/experiments/19_exp15_dual_awq_vs_transformers/reports/exp15_dual_awq_vs_transformers_summary.json",
+      "extended_output_prefix": "exp15_dual_awq_vs_transformers_with_4gb_awq"
+    }
+  },
+  "random_seed": null,
+  "config_snapshot": {},
+  "data_files": [
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/experiments/11_exp7_vllm/prompts/default_prompts.json",
+      "exists": true,
+      "sha256": "a74eebf34722c3c541f1ef7b74171b1bc997f6cf12a92bd21203f9acaf46ecf2",
+      "size_bytes": 637
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "exists": true,
+      "sha256": "299ceb37d777b3e5ead9c562e051a0887d22027386cb49fa93429ee95af47936",
+      "size_bytes": 100694
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+      "exists": true,
+      "sha256": "cf9c2f2481f00a15986dab04806ea778622f1ece8dd97bf7189e238bdc5b08d4",
+      "size_bytes": 1458033
+    }
+  ],
+  "extra": {
+    "entry": "experiments/19_exp15_dual_awq_vs_transformers/run_exp15_dual_awq_vs_transformers.py",
+    "stage": "exp15_dual_awq_vs_transformers_with_4gb_awq",
+    "comparison_scope": "Existing four cases + 4GB AWQ extension for LoRA4 / Top18 rank8",
+    "result_csv": "/home/lin/Bishe_LLM_for_genesis/experiments/19_exp15_dual_awq_vs_transformers/reports/exp15_dual_awq_vs_transformers_with_4gb_awq_comparison.csv",
+    "result_markdown": "/home/lin/Bishe_LLM_for_genesis/experiments/19_exp15_dual_awq_vs_transformers/reports/exp15_dual_awq_vs_transformers_with_4gb_awq_report.md",
+    "result_summary": "/home/lin/Bishe_LLM_for_genesis/experiments/19_exp15_dual_awq_vs_transformers/reports/exp15_dual_awq_vs_transformers_with_4gb_awq_summary.json"
+  }
+}

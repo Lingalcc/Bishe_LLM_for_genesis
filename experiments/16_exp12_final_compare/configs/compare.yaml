@@ -29,21 +29,47 @@ final_compare:
     - parse_ok_rate
     - avg_latency_sec_asc
   cases:
-    - name: base_model
-      label: Base Model
-      model_path: model/Qwen_Qwen2.5-3B-Instruct
+    - name: lora_rank4_transformers_16bit
+      label: LoRA Rank4 + Transformers 16bit
+      runner: accuracy
+      model_path: model/qwen2.5-3b-genesis-lora-rank-4
       backend: transformers
       quantization: null
-      report_file: experiments/16_exp12_final_compare/reports/base_model_accuracy.json
-    - name: lora_rank4
-      label: LoRA Rank4
-      model_path: output/qwen2.5-3b-genesis-lora-rank-4
+      report_file: experiments/16_exp12_final_compare/reports/lora_rank4_transformers_16bit.json
+    - name: lora_rank4_speculative
+      label: LoRA Rank4 + Speculative
+      runner: speculative
+      target_model_path: model/qwen2.5-3b-genesis-lora-rank-4
+      assistant_model_path: model/qwen2.5-0.5b-genesis-merged
+      batch_size: 1
+      warmup_samples: 5
+      assistant_num_tokens: 8
+      assistant_confidence_threshold: 0.55
+      assistant_num_tokens_schedule: constant
+      prefer_same_gpu: true
+      preferred_cuda_device: 0
+      allow_auto_device_map_fallback: true
+      prefer_flash_attention_2: true
+      report_file: experiments/16_exp12_final_compare/reports/lora_rank4_speculative.json
+    - name: top18_rank8_transformers_16bit
+      label: Top18 Rank8 + Transformers 16bit
+      runner: accuracy
+      model_path: output/exp13_exp11_ablation/top18_rank8
       backend: transformers
       quantization: null
-      report_file: experiments/16_exp12_final_compare/reports/lora_rank4_accuracy.json
-    - name: final_merged
-      label: Final Merged
-      model_path: model/qwen2.5-3b-genesis-merged
-      backend: transformers
-      quantization: null
-      report_file: experiments/16_exp12_final_compare/reports/final_merged_accuracy.json
+      report_file: experiments/16_exp12_final_compare/reports/top18_rank8_transformers_16bit.json
+    - name: top18_rank8_speculative
+      label: Top18 Rank8 + Speculative
+      runner: speculative
+      target_model_path: output/exp13_exp11_ablation/top18_rank8
+      assistant_model_path: model/qwen2.5-0.5b-genesis-merged
+      batch_size: 1
+      warmup_samples: 5
+      assistant_num_tokens: 8
+      assistant_confidence_threshold: 0.55
+      assistant_num_tokens_schedule: constant
+      prefer_same_gpu: true
+      preferred_cuda_device: 0
+      allow_auto_device_map_fallback: true
+      prefer_flash_attention_2: true
+      report_file: experiments/16_exp12_final_compare/reports/top18_rank8_speculative.json

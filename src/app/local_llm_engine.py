@@ -12,9 +12,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from src.utils.vllm_compat import apply_vllm_transformers_config_patch, ensure_vllm_environment_compatible
+from src.utils.vllm_compat import (
+    apply_vllm_transformers_config_patch,
+    ensure_vllm_environment_compatible,
+    resolve_vllm_quantization,
+)
 
-QuantizationMode = Literal["awq", "4bit", "8bit"]
+QuantizationMode = Literal["awq", "compressed-tensors", "4bit", "8bit"]
 BackendMode = Literal["auto", "vllm", "transformers"]
 
 
@@ -243,11 +247,11 @@ class LocalLLMEngine:
                 "Supported values: 'auto', 'vllm', 'transformers'."
             )
 
-        supported_quant = {None, "awq", "4bit", "8bit"}
+        supported_quant = {None, "awq", "compressed-tensors", "4bit", "8bit"}
         if self.quantization not in supported_quant:
             raise ValueError(
                 f"Unsupported quantization={self.quantization!r}. "
-                "Supported values: None, 'awq', '4bit', '8bit'."
+                "Supported values: None, 'awq', 'compressed-tensors', '4bit', '8bit'."
             )
 
         if self.max_model_len <= 0:
@@ -303,10 +307,11 @@ class LocalLLMEngine:
             "gpu_memory_utilization": self.gpu_memory_utilization,
             "dtype": "auto",
         }
+        vllm_quantization = resolve_vllm_quantization(self.model_path, self.quantization)
 
-        if self.quantization == "awq":
-            kwargs["quantization"] = "awq"
-        elif self.quantization in {"4bit", "8bit"}:
+        if vllm_quantization in {"awq", "compressed-tensors"}:
+            kwargs["quantization"] = vllm_quantization
+        elif vllm_quantization in {"4bit", "8bit"}:
             # Let vLLM handle bitsandbytes when available; otherwise fallback
             # to transformers in `_initialize_backend`.
             kwargs["quantization"] = "bitsandbytes"

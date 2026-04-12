@@ -4,13 +4,21 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from pathlib import Path
+import shutil
 
 import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import activations as transformer_activations
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def patch_awq_transformers_compat() -> None:
+    # 某些环境中的 autoawq 仍依赖已从新版 transformers 中移除的旧名称。
+    if not hasattr(transformer_activations, "PytorchGELUTanh") and hasattr(transformer_activations, "GELUTanh"):
+        transformer_activations.PytorchGELUTanh = transformer_activations.GELUTanh
 
 
 @dataclass(frozen=True)
@@ -45,6 +53,14 @@ def parse_args() -> argparse.Namespace:
         default="all",
         help="选择要执行的合并任务，默认同时执行两组。",
     )
+    parser.add_argument("--base-model-path", type=Path, default=None, help="自定义基础模型目录。")
+    parser.add_argument("--adapter-path", type=Path, default=None, help="自定义 LoRA 适配器目录。")
+    parser.add_argument("--output-path", type=Path, default=None, help="自定义 merged 模型输出目录。")
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="若输出目录已存在则先删除再重建。",
+    )
     return parser.parse_args()
 
 
@@ -63,9 +79,32 @@ def validate_task(task: MergeTask) -> None:
         raise FileNotFoundError(f"LoRA 适配器目录不存在：{task.adapter_path}")
 
 
-def merge_lora(task: MergeTask) -> None:
+def build_custom_task(args: argparse.Namespace) -> MergeTask | None:
+    custom_values = [args.base_model_path, args.adapter_path, args.output_path]
+    if all(value is None for value in custom_values):
+        return None
+    if any(value is None for value in custom_values):
+        raise ValueError("使用自定义合并模式时，必须同时提供 --base-model-path、--adapter-path、--output-path。")
+    return MergeTask(
+        name="自定义合并任务",
+        base_model_path=args.base_model_path.resolve(),
+        adapter_path=args.adapter_path.resolve(),
+        output_path=args.output_path.resolve(),
+    )
+
+
+def prepare_output_path(output_path: Path, *, overwrite: bool) -> None:
+    if output_path.exists():
+        if not overwrite:
+            raise FileExistsError(f"输出目录已存在，请先删除或加 --overwrite：{output_path}")
+        shutil.rmtree(output_path)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+
+def merge_lora(task: MergeTask, *, overwrite: bool) -> None:
     validate_task(task)
-    task.output_path.mkdir(parents=True, exist_ok=True)
+    prepare_output_path(task.output_path, overwrite=overwrite)
+    patch_awq_transformers_compat()
 
     print(f"[INFO] 开始合并 {task.name}", flush=True)
     print(f"[INFO] Base Model    : {task.base_model_path}", flush=True)
@@ -90,8 +129,10 @@ def merge_lora(task: MergeTask) -> None:
 
 def main() -> None:
     args = parse_args()
-    for task in select_tasks(args.task):
-        merge_lora(task)
+    custom_task = build_custom_task(args)
+    tasks = (custom_task,) if custom_task is not None else select_tasks(args.task)
+    for task in tasks:
+        merge_lora(task, overwrite=args.overwrite)
 
 
 if __name__ == "__main__":
