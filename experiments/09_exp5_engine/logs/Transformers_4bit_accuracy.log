@@ -1,21 +1,47 @@
 $ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval accuracy --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/Transformers_4bit_accuracy_override.yaml
 
+[vram]
+{
+  "target_pid": 30448,
+  "vram_summary": {
+    "peak_vram_mb": 4348.0,
+    "avg_vram_mb": 4309.3,
+    "peak_delta_vram_mb": 3147.0,
+    "avg_delta_vram_mb": 3108.3,
+    "target_pid": 30448,
+    "num_snapshots": 2349,
+    "per_gpu": {
+      "0": {
+        "peak_vram_mb": 4348.0,
+        "avg_vram_mb": 4309.3,
+        "baseline_vram_mb": 1201.0,
+        "peak_delta_vram_mb": 3147.0,
+        "avg_delta_vram_mb": 3108.3,
+        "total_vram_mb": 8188.0,
+        "peak_utilization": 53.1,
+        "num_samples": 2349,
+        "sample_source": "gpu_total"
+      }
+    }
+  }
+}
+
 [stdout]
 [ok] evaluated samples : 200
-[ok] parse ok          : 10 (0.0500)
-[ok] exact match       : 3 (0.0150)
-[ok] action match      : 9 (0.0450)
-[ok] avg latency (sec) : 3.610
-[ok] avg throughput    : 17.3 tokens/s
-[ok] peak VRAM (MB)    : 3008
+[ok] parse ok          : 193 (0.9650)
+[ok] exact match       : 50 (0.2500)
+[ok] action match      : 107 (0.5350)
+[ok] avg latency (sec) : 3.795
+[ok] avg throughput    : 21.2 tokens/s
+[ok] peak VRAM (MB)    : 3010
 
 
 [stderr]
 `torch_dtype` is deprecated! Use `dtype` instead!
 
 Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
-Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.71s/it]
-Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.07s/it]
-Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.16s/it]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.09s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  1.86s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.04s/it]
 The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
 

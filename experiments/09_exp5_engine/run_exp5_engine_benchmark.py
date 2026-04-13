@@ -2,13 +2,11 @@
 from __future__ import annotations
 
 import argparse
-import gc
+import importlib.util
 import json
 import math
 import os
-import subprocess
 import sys
-import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -20,490 +18,548 @@ EXPERIMENT_DIR = Path(__file__).resolve().parent
 RESULTS_DIR = EXPERIMENT_DIR / "reports"
 LOGS_DIR = EXPERIMENT_DIR / "logs"
 TEMP_DIR = EXPERIMENT_DIR / ".cache"
+PREQUANTIZED_MODEL_DIR = TEMP_DIR / "prequantized_models"
+PREQUANTIZED_EXPORT_SCRIPT = EXPERIMENT_DIR / "export_prequantized_bnb_model.py"
 DEFAULT_BENCHMARK_PROMPTS = EXPERIMENT_DIR / "prompts" / "default_prompts.json"
+DEFAULT_BASE_CONFIG = REPO_ROOT / "configs" / "base.yaml"
+DEFAULT_TEST_FILE = REPO_ROOT / "data_prepare" / "splits" / "test.json"
+DEFAULT_DATASET_FILE = REPO_ROOT / "data_prepare" / "genesis_franka_toolcall_alpaca.json"
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.utils.plotting import configure_report_matplotlib, pick_plot_text
-
-BATCH_SIZE = 1
-NUM_SAMPLES = 200
-MAX_NEW_TOKENS = 128
-MAX_MODEL_LEN = 4096
-GPU_MEMORY_UTILIZATION = 0.9
-POST_RUN_SLEEP_SECONDS = 15
-VRAM_LIMIT_MB = 8192
-VRAM_POLL_INTERVAL_SEC = 0.2
+from src.utils.run_meta import record_run_meta
+from src.utils.vllm_compat import get_vllm_environment_compat_error
 
 
-# Exp5 当前实验口径：
-# 1. 只评测三种推理引擎的速度与资源占用，不统计准确率；
-# 2. 对比对象收敛为 transformers / vllm / llama.cpp；
-# 3. 结论解释层级限定为“本地部署栈”端到端表现，不直接外推为纯引擎上限；
-# 4. 默认矩阵强制 GPU-only 运行。
-test_configs: list[dict[str, Any]] = [
+MODEL_ARTIFACTS: dict[str, dict[str, Any]] = {
+    "merged_fp16": {
+        "model_path": REPO_ROOT / "model" / "qwen2.5-3b-genesis-merged",
+        "tokenizer_path": REPO_ROOT / "model" / "qwen2.5-3b-genesis-merged",
+        "hf_repo_id": None,
+        "allow_patterns": None,
+    },
+    "merged_awq": {
+        "model_path": REPO_ROOT / "model" / "qwen2.5-3b-genesis-merged-awq",
+        "tokenizer_path": REPO_ROOT / "model" / "qwen2.5-3b-genesis-merged-awq",
+        "hf_repo_id": None,
+        "allow_patterns": None,
+    },
+}
+
+
+CASE_CONFIGS: list[dict[str, Any]] = [
     {
-        "name": "Transformers_BNB_4bit",
+        "name": "Transformers_16bit",
+        "family": "Transformers",
         "backend": "transformers",
-        "quant": "4bit",
-        "artifact_key": "base_fp16",
+        "runtime_quantization": None,
+        "report_quantization": "16bit",
+        "artifact_key": "merged_fp16",
+        "stack_label": "Transformers + FP16",
+        "format_label": "HF Safetensors",
+        "quant_note": "直接加载 merged safetensors 模型，作为未量化基线。",
+    },
+    {
+        "name": "Transformers_8bit",
+        "family": "Transformers",
+        "backend": "transformers",
+        "runtime_quantization": "8bit",
+        "report_quantization": "8bit",
+        "artifact_key": "merged_fp16",
+        "stack_label": "Transformers + bitsandbytes 8bit",
+        "format_label": "HF Safetensors",
+        "quant_note": "运行时使用 bitsandbytes 8bit 量化加载 merged 模型。",
+    },
+    {
+        "name": "Transformers_4bit",
+        "family": "Transformers",
+        "backend": "transformers",
+        "runtime_quantization": "4bit",
+        "report_quantization": "4bit",
+        "artifact_key": "merged_fp16",
         "stack_label": "Transformers + bitsandbytes 4bit",
-        "quant_note": "运行时 4bit（bitsandbytes NF4）",
+        "format_label": "HF Safetensors",
+        "quant_note": "运行时使用 bitsandbytes NF4 4bit 量化加载 merged 模型。",
     },
     {
-        "name": "vLLM_BNB_4bit",
+        "name": "vLLM_16bit",
+        "family": "vLLM",
         "backend": "vllm",
-        "quant": "4bit",
-        "artifact_key": "base_fp16",
-        "stack_label": "vLLM + bitsandbytes 4bit",
-        "quant_note": "运行时 4bit（vLLM bitsandbytes）",
+        "runtime_quantization": None,
+        "vllm_dtype": "float16",
+        "gpu_memory_utilization": 0.90,
+        "report_quantization": "16bit",
+        "artifact_key": "merged_fp16",
+        "stack_label": "vLLM + FP16",
+        "format_label": "HF Safetensors",
+        "quant_note": "vLLM 直接加载 merged safetensors 模型，作为 vLLM 未量化基线。",
     },
     {
-        "name": "LlamaCPP_GGUF_Q4_K_M",
-        "backend": "llama.cpp",
-        "quant": "gguf_q4_k_m",
-        "artifact_key": "llamacpp_gguf_q4",
-        "stack_label": "llama.cpp + GGUF Q4_K_M",
-        "quant_note": "离线量化 GGUF Q4_K_M",
+        "name": "vLLM_8bit",
+        "family": "vLLM",
+        "backend": "vllm",
+        "runtime_quantization": "bitsandbytes",
+        "vllm_dtype": "float16",
+        "gpu_memory_utilization": 0.85,
+        "bitsandbytes_mode": "8bit",
+        "report_quantization": "8bit",
+        "artifact_key": "merged_fp16",
+        "stack_label": "vLLM + bitsandbytes 8bit",
+        "format_label": "HF Pre-Quantized BNB",
+        "quant_note": "先将 merged 模型导出为 bitsandbytes 8bit 预量化目录，再由 vLLM 直接读取该目录。",
+    },
+    {
+        "name": "vLLM_4bit",
+        "family": "vLLM",
+        "backend": "vllm",
+        "runtime_quantization": "bitsandbytes",
+        "vllm_dtype": "float16",
+        "gpu_memory_utilization": 0.85,
+        "bitsandbytes_mode": "4bit",
+        "report_quantization": "4bit",
+        "artifact_key": "merged_fp16",
+        "stack_label": "vLLM + bitsandbytes 4bit",
+        "format_label": "HF Pre-Quantized BNB",
+        "quant_note": "先将 merged 模型导出为 bitsandbytes 4bit 预量化目录，再由 vLLM 直接读取该目录。",
+    },
+    {
+        "name": "vLLM_AWQ",
+        "family": "vLLM",
+        "backend": "vllm",
+        "runtime_quantization": "compressed-tensors",
+        "vllm_dtype": "float16",
+        "gpu_memory_utilization": 0.80,
+        "report_quantization": "awq",
+        "artifact_key": "merged_awq",
+        "stack_label": "vLLM + AWQ",
+        "format_label": "Compressed Tensors (AWQ)",
+        "quant_note": "加载 llmcompressor 导出的 AWQ 压缩目录，走 vLLM compressed-tensors 兼容路径。",
     },
 ]
 
 
-MODEL_ARTIFACTS: dict[str, dict[str, Any]] = {
-    "base_fp16": {
-        "model_path": REPO_ROOT / "model" / "Qwen_Qwen2.5-3B-Instruct",
-        "tokenizer_path": REPO_ROOT / "model" / "Qwen_Qwen2.5-3B-Instruct",
-        "hf_repo_id": "Qwen/Qwen2.5-3B-Instruct",
-        "allow_patterns": None,
-    },
-    "llamacpp_gguf_q4": {
-        "model_path": REPO_ROOT / "model" / "Qwen_Qwen2.5-3B-Instruct-GGUF" / "qwen2.5-3b-instruct-q4_k_m.gguf",
-        "tokenizer_path": REPO_ROOT / "model" / "Qwen_Qwen2.5-3B-Instruct",
-        "hf_repo_id": "Qwen/Qwen2.5-3B-Instruct-GGUF",
-        "allow_patterns": ["*Q4_K_M*.gguf", "*.gguf"],
-        "download_hint": "若官方 GGUF 仓库失效，请在 MODEL_ARTIFACTS['llamacpp_gguf_q4'] 中替换为新的可用仓库 ID。",
-    },
-}
+def _load_exp7_module() -> Any:
+    module_path = REPO_ROOT / "experiments" / "11_exp7_vllm" / "run_exp7_vllm_benchmark.py"
+    spec = importlib.util.spec_from_file_location("exp7_vllm_benchmark_module", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"无法加载 exp7 模块：{module_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
-BACKEND_DEPENDENCIES: dict[str, list[dict[str, str]]] = {
-    "transformers": [
-        {"import_name": "transformers", "pip_name": "transformers"},
-        {"import_name": "torch", "pip_name": "torch"},
-    ],
-    "vllm": [
-        {"import_name": "vllm", "pip_name": "vllm"},
-        {"import_name": "torch", "pip_name": "torch"},
-    ],
-    "llama.cpp": [
-        {"import_name": "llama_cpp", "pip_name": "llama-cpp-python"},
-    ],
-}
+EXP7 = _load_exp7_module()
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="实验09 Exp5：三种本地推理引擎速度与资源基准。")
+    parser = argparse.ArgumentParser(
+        description="实验09 Exp5：Transformers / vLLM 的 7 组量化部署性能与精度对比。"
+    )
+    parser.add_argument("--base-config", type=Path, default=DEFAULT_BASE_CONFIG)
     parser.add_argument("--gpu-id", type=int, default=None, help="nvidia-smi 监控的物理 GPU 编号，默认自动推断。")
     parser.add_argument("--results-dir", type=Path, default=RESULTS_DIR)
-    parser.add_argument("--num-samples", type=int, default=NUM_SAMPLES)
-    parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
-    parser.add_argument("--max-new-tokens", type=int, default=MAX_NEW_TOKENS)
-    parser.add_argument("--max-model-len", type=int, default=MAX_MODEL_LEN)
-    parser.add_argument("--gpu-memory-utilization", type=float, default=GPU_MEMORY_UTILIZATION)
     parser.add_argument("--benchmark-prompts-file", type=Path, default=DEFAULT_BENCHMARK_PROMPTS)
-    parser.add_argument("--sleep-seconds", type=int, default=POST_RUN_SLEEP_SECONDS)
-    parser.add_argument("--vram-poll-interval", type=float, default=VRAM_POLL_INTERVAL_SEC)
-    parser.add_argument("--auto-install-deps", action="store_true", help="缺少后端依赖时自动执行 pip install。")
-    parser.add_argument("--auto-download-missing-models", action="store_true", help="缺少模型资产时尝试从 Hugging Face 下载。")
-    parser.add_argument("--hf-token", type=str, default=os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_TOKEN") or "")
+    parser.add_argument("--benchmark-num-samples", type=int, default=200)
+    parser.add_argument("--accuracy-num-samples", type=int, default=200)
+    parser.add_argument("--batch-size", type=int, default=1)
+    parser.add_argument("--max-new-tokens", type=int, default=128)
+    parser.add_argument("--max-model-len", type=int, default=2048)
+    parser.add_argument("--gpu-memory-utilization", type=float, default=0.90)
+    parser.add_argument("--test-file", type=Path, default=DEFAULT_TEST_FILE)
+    parser.add_argument("--dataset-file", type=Path, default=DEFAULT_DATASET_FILE)
+    parser.add_argument("--accuracy-seed", type=int, default=42)
+    parser.add_argument("--sleep-seconds", type=int, default=15)
+    parser.add_argument("--vram-poll-interval", type=float, default=0.2)
+    parser.add_argument("--auto-install-deps", action="store_true", help="缺少依赖时自动执行 pip install。")
+    parser.add_argument("--auto-download-missing-models", action="store_true", help="缺少模型资产时尝试自动下载。")
+    parser.add_argument("--skip-vllm-compat-check", action="store_true", help="显式跳过当前 vLLM 环境兼容性保守检查。")
+    parser.add_argument(
+        "--auto-export-bnb-models",
+        action="store_true",
+        help="当 vLLM 8bit/4bit 的预量化目录缺失时，自动调用导出脚本生成。",
+    )
+    parser.add_argument(
+        "--force-reexport-bnb-models",
+        action="store_true",
+        help="强制重新导出 vLLM 8bit/4bit 的预量化目录，会覆盖旧导出结果。",
+    )
+    parser.add_argument(
+        "--case-names",
+        type=str,
+        default="",
+        help="只运行指定 case，使用逗号分隔，例如 vLLM_16bit,vLLM_8bit。",
+    )
+    parser.add_argument(
+        "--reuse-existing-summary",
+        type=Path,
+        default=None,
+        help="先读取已有 summary.json 中的 rows，再把本轮新结果按 Name 合并进去。",
+    )
+    parser.add_argument(
+        "--hf-token",
+        type=str,
+        default=os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_TOKEN") or "",
+    )
     return parser.parse_args(argv)
 
 
-def print_info(message: str) -> None:
-    print(f"[INFO] {message}", flush=True)
+def _clone_artifact(artifact: dict[str, Any]) -> dict[str, Any]:
+    return dict(artifact)
 
 
-def print_warning(message: str) -> None:
-    print(f"\033[1;33m[WARN]\033[0m {message}", flush=True)
+def _read_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
-def print_error(message: str) -> None:
-    print(f"\033[1;31m[ERROR]\033[0m {message}", flush=True)
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def infer_gpu_id(explicit_gpu_id: int | None) -> int:
-    if explicit_gpu_id is not None:
-        return int(explicit_gpu_id)
-    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "").strip()
-    if visible:
-        first = visible.split(",")[0].strip()
-        if first.isdigit():
-            return int(first)
-    return 0
+def _prequantized_dir_name(source_model_dir: Path, mode: str) -> str:
+    normalized = str(mode).strip().lower()
+    return f"{source_model_dir.name}-bnb-{normalized}"
 
 
-def monitor_vram(stop_event: threading.Event) -> None:
-    peak_vram_mb = 0.0
-    samples: list[float] = []
-    gpu_id = int(getattr(stop_event, "gpu_id", 0))
-    poll_interval_sec = float(getattr(stop_event, "poll_interval_sec", 0.5))
-    query_cmd = [
-        "nvidia-smi",
-        "-i",
-        str(gpu_id),
-        "--query-gpu=memory.used",
-        "--format=csv,noheader,nounits",
-    ]
-
-    while not stop_event.is_set():
-        try:
-            result = subprocess.run(
-                query_cmd,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            values = [float(line.strip()) for line in result.stdout.splitlines() if line.strip()]
-            if values:
-                current = max(values)
-                peak_vram_mb = max(peak_vram_mb, current)
-                samples.append(current)
-        except Exception as exc:
-            stop_event.monitor_error = str(exc)
-            break
-        stop_event.wait(poll_interval_sec)
-
-    stop_event.peak_vram_mb = peak_vram_mb
-    stop_event.samples = samples
-
-
-def ensure_dir(path: Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
-
-
-def maybe_import(module_name: str) -> bool:
-    try:
-        __import__(module_name)
-        return True
-    except Exception:
-        return False
-
-
-def install_python_package(package_name: str) -> None:
-    print_info(f"检测到缺失依赖，准备安装：{package_name}")
-    subprocess.run(
-        [sys.executable, "-m", "pip", "install", package_name],
-        check=True,
-        text=True,
-    )
-
-
-def ensure_backend_dependencies(
-    backend: str,
+def _ensure_python_dependencies(
+    dependencies: list[dict[str, str]],
     *,
-    quantization: str,
     auto_install: bool,
 ) -> tuple[bool, str | None]:
-    deps = list(BACKEND_DEPENDENCIES.get(backend, []))
-    quant_text = quantization.strip().lower()
-    if backend in {"transformers", "vllm"} and "4bit" in quant_text:
-        deps.append({"import_name": "bitsandbytes", "pip_name": "bitsandbytes"})
-
-    for dep in deps:
-        if maybe_import(dep["import_name"]):
+    for dep in dependencies:
+        if EXP7.maybe_import(dep["import_name"]):
             continue
         if not auto_install:
             return False, f"缺少依赖 {dep['import_name']}，可使用 --auto-install-deps 自动安装。"
         try:
-            install_python_package(dep["pip_name"])
-        except subprocess.CalledProcessError as exc:
-            return False, f"安装依赖 {dep['pip_name']} 失败: {exc}"
-        if not maybe_import(dep["import_name"]):
+            EXP7.install_python_package(dep["pip_name"])
+        except Exception as exc:
+            return False, f"安装依赖 {dep['pip_name']} 失败：{exc}"
+        if not EXP7.maybe_import(dep["import_name"]):
             return False, f"依赖 {dep['import_name']} 安装后仍不可用。"
     return True, None
 
 
-def download_model_from_hf(
-    *,
-    repo_id: str,
-    target_dir: Path,
-    hf_token: str,
-    allow_patterns: list[str] | None = None,
-) -> None:
-    from huggingface_hub import snapshot_download
-
-    ensure_dir(target_dir)
-    snapshot_download(
-        repo_id=repo_id,
-        local_dir=str(target_dir),
-        local_dir_use_symlinks=False,
-        token=hf_token or None,
-        allow_patterns=allow_patterns,
-    )
-
-
-def ensure_model_artifact(
-    artifact: dict[str, Any],
-    *,
-    auto_download: bool,
-    hf_token: str,
-) -> tuple[bool, str | None]:
-    model_path = Path(artifact["model_path"])
-    if model_path.exists():
-        return True, None
-
-    repo_id = artifact.get("hf_repo_id")
-    if not auto_download:
-        hint = artifact.get("download_hint")
-        if hint:
-            return False, f"模型缺失：{model_path}。{hint}"
-        return False, f"模型缺失：{model_path}。可使用 --auto-download-missing-models 自动下载。"
-    if not repo_id:
-        hint = artifact.get("download_hint") or "请在配置区补充 hf_repo_id。"
-        return False, f"模型缺失：{model_path}。{hint}"
-
+def _validate_prequantized_bnb_dir(model_dir: Path, *, mode: str) -> tuple[bool, str]:
+    if not model_dir.exists():
+        return False, f"目录不存在：{model_dir}"
+    config_path = model_dir / "config.json"
+    if not config_path.exists():
+        return False, f"缺少配置文件：{config_path}"
     try:
-        target_dir = model_path if model_path.suffix == "" else model_path.parent
-        print_info(f"模型不存在，开始从 Hugging Face 下载：{repo_id} -> {target_dir}")
-        download_model_from_hf(
-            repo_id=repo_id,
-            target_dir=target_dir,
-            hf_token=hf_token,
-            allow_patterns=artifact.get("allow_patterns"),
-        )
+        payload = _read_json(config_path)
     except Exception as exc:
-        return False, f"下载模型失败：{repo_id} -> {model_path}，错误：{exc}"
+        return False, f"读取配置失败：{config_path}，错误：{exc}"
 
-    if not model_path.exists():
-        if model_path.suffix and model_path.parent.exists():
-            exact_matches = list(model_path.parent.rglob(model_path.name))
-            if exact_matches:
-                artifact["model_path"] = exact_matches[0]
-                return True, None
-            if model_path.suffix.lower() == ".gguf":
-                gguf_matches = list(model_path.parent.rglob("*.gguf"))
-                if gguf_matches:
-                    artifact["model_path"] = gguf_matches[0]
-                    return True, None
-        return False, f"模型下载完成后仍未找到目标路径：{model_path}"
-    return True, None
+    quant_cfg = payload.get("quantization_config")
+    if not isinstance(quant_cfg, dict):
+        return False, "config.json 中缺少 quantization_config。"
+    if str(quant_cfg.get("quant_method") or "").strip().lower() != "bitsandbytes":
+        return False, "config.json 的 quantization_config.quant_method 不是 bitsandbytes。"
 
+    normalized = str(mode).strip().lower()
+    if normalized == "8bit" and not bool(quant_cfg.get("load_in_8bit")):
+        return False, "config.json 未声明 load_in_8bit=true。"
+    if normalized == "4bit" and not bool(quant_cfg.get("load_in_4bit")):
+        return False, "config.json 未声明 load_in_4bit=true。"
 
-def map_quantization_for_cli(raw_quant: str) -> str | None:
-    text = raw_quant.strip().lower()
-    if text in {"", "none", "null"}:
-        return None
-    return raw_quant
+    has_weights = any(model_dir.glob("*.safetensors")) or any(model_dir.glob("*.bin")) or any(model_dir.glob("*.pt"))
+    if not has_weights:
+        return False, "目录中未找到模型权重文件。"
+    return True, ""
 
 
-def clone_artifact(artifact: dict[str, Any]) -> dict[str, Any]:
-    return dict(artifact)
-
-
-def make_runtime_plan(
+def _build_prequantized_export_command(
     *,
-    backend: str,
-    quantization: str | None,
-    artifact: dict[str, Any],
-) -> dict[str, Any]:
-    return {
-        "backend": backend,
-        "quantization": quantization,
-        "artifact": artifact,
-    }
+    source_model_dir: Path,
+    output_dir: Path,
+    mode: str,
+    force: bool,
+) -> list[str]:
+    command = [
+        sys.executable,
+        str(PREQUANTIZED_EXPORT_SCRIPT.resolve()),
+        "--source-model-dir",
+        str(source_model_dir.resolve()),
+        "--output-dir",
+        str(output_dir.resolve()),
+        "--mode",
+        str(mode),
+    ]
+    if force:
+        command.append("--force")
+    return command
 
 
-def prepare_runtime_plan(
-    plan: dict[str, Any],
+def _prepare_prequantized_bnb_artifact(
+    case_cfg: dict[str, Any],
     *,
     args: argparse.Namespace,
-) -> tuple[bool, str, str | None]:
-    quant_text = str(plan.get("quantization") or "none")
-    ok, reason = ensure_backend_dependencies(
-        str(plan["backend"]),
-        quantization=quant_text,
-        auto_install=args.auto_install_deps,
-    )
-    if not ok:
-        return False, "dependency_missing", reason
+    gpu_id: int,
+) -> tuple[bool, str]:
+    mode = str(case_cfg.get("bitsandbytes_mode") or "").strip().lower()
+    if not mode:
+        return True, ""
 
-    ok, reason = ensure_model_artifact(
-        plan["artifact"],
+    source_model_dir = Path(MODEL_ARTIFACTS[str(case_cfg["artifact_key"])]["model_path"])
+    target_dir = PREQUANTIZED_MODEL_DIR / _prequantized_dir_name(source_model_dir, mode)
+    target_path_text = str(target_dir.resolve()) if target_dir.exists() else str(target_dir)
+    case_cfg["prepared_model_path"] = target_path_text
+    case_cfg["model_override_path"] = target_path_text
+
+    ok, reason = _validate_prequantized_bnb_dir(target_dir, mode=mode)
+    if ok and not args.force_reexport_bnb_models:
+        case_cfg["artifact"]["model_path"] = target_dir
+        case_cfg["artifact"]["tokenizer_path"] = target_dir
+        return True, ""
+
+    if not args.auto_export_bnb_models:
+        command_preview = " ".join(
+            [
+                "python",
+                str(PREQUANTIZED_EXPORT_SCRIPT.relative_to(REPO_ROOT)),
+                "--source-model-dir",
+                str(source_model_dir),
+                "--output-dir",
+                str(target_dir),
+                "--mode",
+                mode,
+            ]
+        )
+        if args.force_reexport_bnb_models and target_dir.exists():
+            command_preview += " --force"
+        if reason:
+            return False, f"缺少可用的预量化目录：{reason}。请先执行 `{command_preview}`，或为主实验脚本增加 `--auto-export-bnb-models`。"
+        return False, f"缺少可用的预量化目录：{target_dir}。请先执行 `{command_preview}`，或为主实验脚本增加 `--auto-export-bnb-models`。"
+
+    export_log_path = LOGS_DIR / f"export_{target_dir.name}.log"
+    command = _build_prequantized_export_command(
+        source_model_dir=source_model_dir,
+        output_dir=target_dir,
+        mode=mode,
+        force=bool(args.force_reexport_bnb_models),
+    )
+    EXP7.print_info(f"[{case_cfg['name']}] 开始导出预量化模型目录：{target_dir}")
+    try:
+        EXP7.run_command(command, log_path=export_log_path, gpu_id=gpu_id)
+    except Exception as exc:
+        if hasattr(EXP7, "persist_failure_log") and hasattr(exc, "returncode"):
+            try:
+                EXP7.persist_failure_log(command, exc, log_path=export_log_path)
+            except Exception:
+                pass
+        return False, f"导出预量化目录失败，详见日志：{export_log_path}。错误：{exc}"
+
+    ok, reason = _validate_prequantized_bnb_dir(target_dir, mode=mode)
+    if not ok:
+        return False, f"导出完成后校验失败：{reason}"
+
+    case_cfg["artifact"]["model_path"] = target_dir
+    case_cfg["artifact"]["tokenizer_path"] = target_dir
+    case_cfg["prepared_model_path"] = str(target_dir.resolve())
+    case_cfg["model_override_path"] = str(target_dir.resolve())
+    return True, ""
+
+
+def prepare_case(case_cfg: dict[str, Any], *, args: argparse.Namespace, gpu_id: int) -> tuple[bool, str]:
+    if str(case_cfg["backend"]) == "vllm":
+        compat_error = get_vllm_environment_compat_error()
+        if compat_error:
+            return False, compat_error
+
+    ok, reason = EXP7.ensure_backend_dependencies(str(case_cfg["backend"]), auto_install=args.auto_install_deps)
+    if not ok:
+        return False, reason or "依赖检查失败。"
+
+    if case_cfg.get("bitsandbytes_mode"):
+        ok, reason = _ensure_python_dependencies(
+            [
+                {"import_name": "transformers", "pip_name": "transformers"},
+                {"import_name": "bitsandbytes", "pip_name": "bitsandbytes"},
+                {"import_name": "torch", "pip_name": "torch"},
+            ],
+            auto_install=args.auto_install_deps,
+        )
+        if not ok:
+            return False, reason or "BNB 预量化导出依赖检查失败。"
+        ok, reason = _prepare_prequantized_bnb_artifact(case_cfg, args=args, gpu_id=gpu_id)
+        if not ok:
+            return False, reason or "BNB 预量化目录准备失败。"
+
+    ok, reason = EXP7.ensure_model_artifact(
+        case_cfg["artifact"],
         auto_download=args.auto_download_missing_models,
         hf_token=args.hf_token,
     )
     if not ok:
-        return False, "model_missing", reason
-
-    return True, "ready", None
-
-
-def build_benchmark_command(
-    cfg: dict[str, Any],
-    artifact: dict[str, Any],
-    *,
-    args: argparse.Namespace,
-    output_json: Path,
-) -> list[str]:
-    command = [
-        sys.executable,
-        str(REPO_ROOT / "cli.py"),
-        "eval",
-        "benchmark",
-        "--backend",
-        str(cfg["backend"]),
-        "--model-path",
-        str(Path(artifact["model_path"]).resolve()),
-        "--batch-size",
-        str(args.batch_size),
-        "--num-samples",
-        str(args.num_samples),
-        "--max-new-tokens",
-        str(args.max_new_tokens),
-        "--max-model-len",
-        str(args.max_model_len),
-        "--gpu-memory-utilization",
-        str(args.gpu_memory_utilization),
-        "--output-json",
-        str(output_json),
-        "--require-gpu",
-        "--use-chat",
-    ]
-    tokenizer_path = artifact.get("tokenizer_path")
-    if tokenizer_path:
-        command.extend(["--tokenizer-path", str(Path(tokenizer_path).resolve())])
-
-    prompts_file = Path(args.benchmark_prompts_file)
-    if prompts_file.exists():
-        command.extend(["--prompts-file", str(prompts_file.resolve())])
-
-    quant = map_quantization_for_cli(str(cfg["quant"]))
-    if quant is not None:
-        command.extend(["--quantization", quant])
-    return command
+        return False, reason or "模型检查失败。"
+    return True, ""
 
 
-def build_runtime_env(*, gpu_id: int) -> dict[str, str]:
-    env = dict(os.environ)
-    env["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-    return env
+def build_case_matrix() -> list[dict[str, Any]]:
+    cases: list[dict[str, Any]] = []
+    for cfg in CASE_CONFIGS:
+        case = dict(cfg)
+        artifact = _clone_artifact(MODEL_ARTIFACTS[str(cfg["artifact_key"])])
+        case["artifact"] = artifact
+        case["prepared_model_path"] = ""
+        case["model_override_path"] = ""
+        cases.append(case)
+    return cases
 
 
-def run_command(
-    command: list[str],
-    *,
-    log_path: Path,
-    gpu_id: int,
-) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(
-        command,
-        check=True,
-        capture_output=True,
-        text=True,
-        cwd=str(REPO_ROOT),
-        env=build_runtime_env(gpu_id=gpu_id),
-    )
-    ensure_dir(log_path.parent)
-    log_path.write_text(
-        f"$ {' '.join(command)}\n\n[stdout]\n{result.stdout}\n\n[stderr]\n{result.stderr}\n",
-        encoding="utf-8",
-    )
-    return result
+def parse_case_names(raw: str) -> list[str]:
+    if not raw.strip():
+        return []
+    requested = [item.strip() for item in raw.split(",") if item.strip()]
+    allowed = {case["name"] for case in CASE_CONFIGS}
+    invalid = [name for name in requested if name not in allowed]
+    if invalid:
+        raise ValueError(f"不支持的 case 名称: {invalid}；可选值: {sorted(allowed)}")
+    return requested
 
 
-def persist_failure_log(
-    command: list[str],
-    exc: subprocess.CalledProcessError,
-    *,
-    log_path: Path,
-) -> None:
-    ensure_dir(log_path.parent)
-    stdout = exc.stdout if isinstance(exc.stdout, str) else ""
-    stderr = exc.stderr if isinstance(exc.stderr, str) else ""
-    log_path.write_text(
-        f"$ {' '.join(command)}\n\n[returncode]\n{exc.returncode}\n\n[stdout]\n{stdout}\n\n[stderr]\n{stderr}\n",
-        encoding="utf-8",
-    )
+def filter_cases(cases: list[dict[str, Any]], selected_names: list[str]) -> list[dict[str, Any]]:
+    if not selected_names:
+        return cases
+    selected = set(selected_names)
+    return [case for case in cases if case["name"] in selected]
 
 
-def cleanup_runtime_state() -> None:
-    gc.collect()
+def _case_palette(df: pd.DataFrame) -> list[str]:
+    palette: list[str] = []
+    for _, row in df.iterrows():
+        name = str(row.get("Name", ""))
+        status = str(row.get("Overall Status", "")).lower()
+        if "oom" in status:
+            palette.append("#e45756")
+        elif "failed" in status or "precheck" in status or "missing" in status:
+            palette.append("#9d9d9d")
+        elif name.startswith("Transformers_"):
+            palette.append("#4c78a8")
+        elif name == "vLLM_AWQ":
+            palette.append("#f58518")
+        else:
+            palette.append("#54a24b")
+    return palette
+
+
+def _bar_values(series: pd.Series) -> list[float]:
+    values: list[float] = []
+    for value in series.tolist():
+        if isinstance(value, (int, float)) and not math.isnan(float(value)):
+            values.append(float(value))
+        else:
+            values.append(0.0)
+    return values
+
+
+def _status_labels(df: pd.DataFrame, benchmark: bool = True) -> list[str]:
+    labels: list[str] = []
+    column = "Benchmark Status" if benchmark else "Accuracy Status"
+    for _, row in df.iterrows():
+        status = str(row.get(column, "")).strip()
+        labels.append("" if status == "success" else status.upper())
+    return labels
+
+
+def _annotate_non_success(ax: Any, xs: list[float], values: list[float], labels: list[str]) -> None:
+    ymax = max(values) if values else 0.0
+    baseline = ymax * 0.03 if ymax > 0 else 0.03
+    for x, value, label in zip(xs, values, labels):
+        if not label:
+            continue
+        y = value + baseline if value > 0 else baseline
+        ax.text(x, y, label, rotation=90, ha="center", va="bottom", fontsize=9, color="#b22222")
+
+
+def draw_figures(df: pd.DataFrame, *, output_dir: Path) -> None:
+    os.environ.setdefault("MPLCONFIGDIR", str((TEMP_DIR / "matplotlib").resolve()))
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    configure_report_matplotlib(matplotlib)
+
     try:
-        import torch
-
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            if hasattr(torch.cuda, "ipc_collect"):
-                torch.cuda.ipc_collect()
-            torch.cuda.synchronize()
+        import seaborn as sns
     except Exception:
-        pass
+        sns = None
 
+    EXP7.ensure_dir(output_dir)
+    if sns is not None:
+        sns.set_theme(style="whitegrid", context="talk")
+    else:
+        plt.style.use("seaborn-v0_8-whitegrid")
 
-def load_json_if_exists(path: Path) -> dict[str, Any]:
-    if not path.exists():
-        return {}
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+    labels = df["Name"].tolist()
+    x = list(range(len(df)))
+    colors = _case_palette(df)
 
+    fig1, ax1 = plt.subplots(figsize=(18, 8))
+    latency_values = _bar_values(df["Benchmark Avg Latency (s)"])
+    ax1.bar(x, latency_values, color=colors)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(labels, rotation=18)
+    ax1.set_title(pick_plot_text("图1：7 组部署方案平均延迟对比", "Figure 1: Avg Benchmark Latency Across 7 Cases"))
+    ax1.set_xlabel(pick_plot_text("方案", "Case"))
+    ax1.set_ylabel("Seconds")
+    _annotate_non_success(ax1, x, latency_values, _status_labels(df, benchmark=True))
+    fig1.tight_layout()
+    fig1.savefig(output_dir / "exp5_engine_latency_bar.png", dpi=300, bbox_inches="tight")
+    plt.close(fig1)
 
-def looks_like_oom(exc: subprocess.CalledProcessError | None, *, quantization: str) -> bool:
-    if exc is None:
-        return False
-    text = "\n".join(
-        [
-            exc.stdout if isinstance(exc.stdout, str) else "",
-            exc.stderr if isinstance(exc.stderr, str) else "",
-        ]
-    ).lower()
-    if any(token in text for token in ["out of memory", "cuda oom", "cuda error: out of memory", "cublas_status_alloc_failed"]):
-        return True
-    if "free memory on device" in text and "less than desired gpu memory utilization" in text:
-        return True
-    return False
+    fig2, ax2 = plt.subplots(figsize=(18, 8))
+    throughput_values = _bar_values(df["Benchmark Token Throughput (tokens/s)"])
+    ax2.bar(x, throughput_values, color=colors)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(labels, rotation=18)
+    ax2.set_title(pick_plot_text("图2：7 组部署方案 Token 吞吐对比", "Figure 2: Benchmark Token Throughput Across 7 Cases"))
+    ax2.set_xlabel(pick_plot_text("方案", "Case"))
+    ax2.set_ylabel("Tokens / Second")
+    _annotate_non_success(ax2, x, throughput_values, _status_labels(df, benchmark=True))
+    fig2.tight_layout()
+    fig2.savefig(output_dir / "exp5_engine_throughput_bar.png", dpi=300, bbox_inches="tight")
+    plt.close(fig2)
 
+    fig3, ax3 = plt.subplots(figsize=(18, 8))
+    width = 0.24
+    parse_values = _bar_values(df["Parse OK Rate"])
+    exact_values = _bar_values(df["Exact Match Rate"])
+    action_values = _bar_values(df["Action Match Rate"])
+    ax3.bar([item - width for item in x], parse_values, width=width, color="#72b7b2", label="Parse OK")
+    ax3.bar(x, exact_values, width=width, color="#f58518", label="Exact Match")
+    ax3.bar([item + width for item in x], action_values, width=width, color="#e45756", label="Action Match")
+    ax3.set_xticks(x)
+    ax3.set_xticklabels(labels, rotation=18)
+    ax3.set_ylim(0.0, 1.0)
+    ax3.set_title(pick_plot_text("图3：7 组部署方案精度对比", "Figure 3: Accuracy Across 7 Cases"))
+    ax3.set_xlabel(pick_plot_text("方案", "Case"))
+    ax3.set_ylabel("Rate")
+    ax3.legend()
+    _annotate_non_success(ax3, x, action_values, _status_labels(df, benchmark=False))
+    fig3.tight_layout()
+    fig3.savefig(output_dir / "exp5_engine_accuracy_bar.png", dpi=300, bbox_inches="tight")
+    plt.close(fig3)
 
-def classify_failure(exc: subprocess.CalledProcessError | None) -> str:
-    if exc is None:
-        return "failed"
-    text = "\n".join(
-        [
-            exc.stdout if isinstance(exc.stdout, str) else "",
-            exc.stderr if isinstance(exc.stderr, str) else "",
-        ]
-    ).lower()
-    if looks_like_oom(exc, quantization="none"):
-        return "oom"
-    if "no module named" in text or "缺少" in text:
-        return "dependency_missing"
-    return "failed"
-
-
-def to_peak_vram_display(value: float | str | None, *, oom: bool) -> float | str:
-    if oom:
-        return "OOM"
-    if isinstance(value, (int, float)) and float(value) > 0:
-        return round(float(value), 2)
-    return math.nan
-
-
-def peak_vram_for_plot(value: Any) -> float:
-    if isinstance(value, (int, float)):
-        return float(value)
-    text = str(value).strip().lower()
-    if text == "oom":
-        return float(VRAM_LIMIT_MB)
-    return math.nan
-
-
-def _get_float(report: dict[str, Any], key: str) -> float:
-    value = report.get(key, math.nan)
-    if isinstance(value, (int, float)):
-        return float(value)
-    return math.nan
+    fig4, ax4 = plt.subplots(figsize=(18, 8))
+    benchmark_vram = _bar_values(df["Benchmark Peak VRAM (MB)"])
+    accuracy_vram = _bar_values(df["Accuracy Max Peak VRAM (MB)"])
+    ax4.bar([item - 0.18 for item in x], benchmark_vram, width=0.36, color="#b279a2", label="Benchmark Peak VRAM")
+    ax4.bar([item + 0.18 for item in x], accuracy_vram, width=0.36, color="#bab0ab", label="Accuracy Max VRAM")
+    ax4.set_xticks(x)
+    ax4.set_xticklabels(labels, rotation=18)
+    ax4.set_title(pick_plot_text("图4：7 组部署方案显存对比", "Figure 4: VRAM Across 7 Cases"))
+    ax4.set_xlabel(pick_plot_text("方案", "Case"))
+    ax4.set_ylabel("MB")
+    ax4.legend()
+    _annotate_non_success(ax4, x, benchmark_vram, _status_labels(df, benchmark=True))
+    fig4.tight_layout()
+    fig4.savefig(output_dir / "exp5_engine_memory_bar.png", dpi=300, bbox_inches="tight")
+    plt.close(fig4)
 
 
 def _fmt_metric(value: Any, *, digits: int = 4) -> str:
@@ -515,335 +571,323 @@ def _fmt_metric(value: Any, *, digits: int = 4) -> str:
     return text or "-"
 
 
-def summarize_case_result(
-    cfg: dict[str, Any],
-    benchmark_report: dict[str, Any],
-    *,
-    batch_size: int,
-    num_samples: int,
-    peak_vram_mb: float | str | None,
-    status: str,
-    benchmark_ok: bool,
-    benchmark_status: str,
-    benchmark_path: Path,
-    benchmark_plan: dict[str, Any],
-) -> dict[str, Any]:
-    benchmark_artifact = benchmark_plan["artifact"]
-    return {
-        "Name": cfg["name"],
-        "Stack Label": cfg.get("stack_label", cfg["name"]),
-        "Backend": cfg["backend"],
-        "Quantization": cfg["quant"],
-        "Quantization Note": cfg.get("quant_note", ""),
-        "Comparison Scope": "deployment_stack_only",
-        "Execution Policy": "gpu_only",
-        "Batch Size": batch_size,
-        "Num Samples": num_samples,
-        "Avg Latency (s)": _get_float(benchmark_report, "avg_latency") if benchmark_ok else math.nan,
-        "P50 Latency (s)": _get_float(benchmark_report, "p50_latency") if benchmark_ok else math.nan,
-        "P95 Latency (s)": _get_float(benchmark_report, "p95_latency") if benchmark_ok else math.nan,
-        "Sample Throughput (samples/s)": _get_float(benchmark_report, "sample_throughput_sps") if benchmark_ok else math.nan,
-        "Peak VRAM (MB)": peak_vram_mb,
-        "Avg Process RSS (MB)": _get_float(benchmark_report, "avg_process_rss_mb") if benchmark_ok else math.nan,
-        "Max Process RSS (MB)": _get_float(benchmark_report, "max_process_rss_mb") if benchmark_ok else math.nan,
-        "Status": status,
-        "Benchmark Status": benchmark_status,
-        "Benchmark Report": str(benchmark_path.resolve()),
-        "Model Path": str(Path(benchmark_artifact["model_path"]).resolve()),
-        "Tokenizer Path": str(Path(benchmark_artifact["tokenizer_path"]).resolve()) if benchmark_artifact.get("tokenizer_path") else "",
-    }
-
-
-def draw_figures(df: pd.DataFrame, *, output_dir: Path) -> None:
-    os.environ.setdefault("MPLCONFIGDIR", str((TEMP_DIR / "matplotlib").resolve()))
-    import matplotlib
-
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    configure_report_matplotlib(matplotlib)
-
-    try:
-        import seaborn as sns
-    except Exception:
-        sns = None
-
-    ensure_dir(output_dir)
-    if sns is not None:
-        sns.set_theme(style="whitegrid", context="talk")
-    else:
-        plt.style.use("seaborn-v0_8-whitegrid")
-
-    plot_df = df.copy()
-    plot_df["Peak_VRAM_Plot_MB"] = plot_df["Peak VRAM (MB)"].apply(peak_vram_for_plot)
-
-    fig1, ax1 = plt.subplots(figsize=(16, 8))
-    x = list(range(len(plot_df)))
-    width = 0.25
-    avg_values = [float(v) if isinstance(v, (int, float)) and not math.isnan(float(v)) else 0.0 for v in plot_df["Avg Latency (s)"].tolist()]
-    p50_values = [float(v) if isinstance(v, (int, float)) and not math.isnan(float(v)) else 0.0 for v in plot_df["P50 Latency (s)"].tolist()]
-    p95_values = [float(v) if isinstance(v, (int, float)) and not math.isnan(float(v)) else 0.0 for v in plot_df["P95 Latency (s)"].tolist()]
-    ax1.bar([idx - width for idx in x], avg_values, width=width, color="#4c78a8", label="Avg Latency")
-    ax1.bar(x, p50_values, width=width, color="#72b7b2", label="P50 Latency")
-    ax1.bar([idx + width for idx in x], p95_values, width=width, color="#f58518", label="P95 Latency")
-    ax1.set_xticks(x)
-    ax1.set_xticklabels(plot_df["Name"].tolist(), rotation=18)
-    ax1.set_title(pick_plot_text("图1：端到端延迟对比", "Figure 1: End-to-End Latency"))
-    ax1.set_xlabel(pick_plot_text("部署方案", "Deployment Stack"))
-    ax1.set_ylabel("Seconds")
-    ax1.legend()
-    fig1.tight_layout()
-    fig1.savefig(output_dir / "exp5_engine_latency_bar.png", dpi=300, bbox_inches="tight")
-    plt.close(fig1)
-
-    fig2, ax2 = plt.subplots(figsize=(16, 8))
-    throughput_values = [
-        float(v) if isinstance(v, (int, float)) and not math.isnan(float(v)) else 0.0
-        for v in plot_df["Sample Throughput (samples/s)"].tolist()
-    ]
-    ax2.bar(plot_df["Name"], throughput_values, color="#54a24b", edgecolor="#222222", linewidth=0.8)
-    ax2.set_title(pick_plot_text("图2：样本吞吐对比", "Figure 2: Sample Throughput"))
-    ax2.set_xlabel(pick_plot_text("部署方案", "Deployment Stack"))
-    ax2.set_ylabel("Samples / Second")
-    ax2.tick_params(axis="x", rotation=18)
-    fig2.tight_layout()
-    fig2.savefig(output_dir / "exp5_engine_throughput_bar.png", dpi=300, bbox_inches="tight")
-    plt.close(fig2)
-
-    fig3, ax3 = plt.subplots(figsize=(16, 8))
-    rss_values = [
-        float(v) if isinstance(v, (int, float)) and not math.isnan(float(v)) else 0.0
-        for v in plot_df["Avg Process RSS (MB)"].tolist()
-    ]
-    peak_values = [
-        float(v) if isinstance(v, (int, float)) and not math.isnan(float(v)) else float(VRAM_LIMIT_MB)
-        for v in plot_df["Peak_VRAM_Plot_MB"].tolist()
-    ]
-    ax3.bar([idx - 0.2 for idx in x], peak_values, width=0.4, color="#e45756", label="Peak VRAM")
-    ax3.bar([idx + 0.2 for idx in x], rss_values, width=0.4, color="#b279a2", label="Avg RSS")
-    ax3.axhline(VRAM_LIMIT_MB, color="red", linestyle="--", linewidth=1.8, label="8GB VRAM Limit")
-    ax3.set_xticks(x)
-    ax3.set_xticklabels(plot_df["Name"].tolist(), rotation=18)
-    ax3.set_title(pick_plot_text("图3：显存与进程内存占用对比", "Figure 3: VRAM vs Process RSS"))
-    ax3.set_xlabel(pick_plot_text("部署方案", "Deployment Stack"))
-    ax3.set_ylabel("MB")
-    ax3.legend()
-    fig3.tight_layout()
-    fig3.savefig(output_dir / "exp5_engine_memory_bar.png", dpi=300, bbox_inches="tight")
-    plt.close(fig3)
-
-
 def write_markdown_report(df: pd.DataFrame, *, output_path: Path) -> None:
-    ensure_dir(output_path.parent)
+    EXP7.ensure_dir(output_path.parent)
     lines: list[str] = [
-        "# Exp5 速度基准报告",
+        "# Exp5 七组推理部署对比实验报告",
         "",
-        "## 口径修正",
+        "## 实验目标",
         "",
-        "- 本报告只统计三种推理引擎的速度与资源占用，不再统计准确率。",
-        "- 参与方案均为未针对当前任务微调的基座模型，因此不使用 Action Match Rate、Exact Match 等任务指标。",
-        "- 当前结果仅解释为“本地部署栈”的端到端表现，不将其写成同构量化下的纯推理引擎优劣结论。",
-        "- Exp5 在执行层面强制 GPU-only：子进程会绑定 `CUDA_VISIBLE_DEVICES`，并向 benchmark CLI 显式传入 `--require-gpu`。",
-        "- 当前实验矩阵固定为三种引擎：`transformers`、`vllm`、`llama.cpp`。",
-        "- 三组方案统一使用相同的 prompts、batch size、num samples、max_new_tokens 和 max_model_len。",
-        "- `vLLM_BNB_4bit` 与 `Transformers_BNB_4bit` 共享同一基座模型与 bitsandbytes 4bit 设定，适合观察不同部署栈的端到端差异。",
-        "- `Transformers_BNB_4bit` 与 `LlamaCPP_GGUF_Q4_K_M` 同属 4bit 部署方案，但底层量化格式分别为 `bitsandbytes 4bit` 与 `GGUF Q4_K_M`，属于不同实现路径。",
+        "- 在同一份 `qwen2.5-3b-genesis-merged` 任务模型上，对比 `Transformers` 与 `vLLM` 的 16bit / 8bit / 4bit 部署表现。",
+        "- 额外纳入 `vLLM + AWQ` 作为第 7 组，观察预量化压缩目录在速度、显存与精度上的落点。",
+        "- 如果某组在 benchmark 或 accuracy 阶段出现显存不足，实验会记录其状态并继续执行后续组别。",
         "",
-        "## 统计指标",
+        "## 对比矩阵",
         "",
-        "- `Avg Latency (s)`：平均端到端时延",
-        "- `P50 Latency (s)`：中位数时延",
-        "- `P95 Latency (s)`：尾部时延",
-        "- `Sample Throughput (samples/s)`：样本吞吐",
-        "- `Peak VRAM (MB)`：通过 `nvidia-smi` 采样得到的峰值显存",
-        "- `Avg Process RSS (MB)`：进程常驻内存均值",
-        "",
-        "## 当前结果",
-        "",
-        "| 方案 | Backend | Quantization | 量化备注 | Avg Latency (s) | P50 (s) | P95 (s) | Samples/s | Peak VRAM (MB) | Avg RSS (MB) | 状态 |",
-        "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
 
     for _, row in df.iterrows():
         lines.append(
-            "| {name} | {backend} | {quant} | {quant_note} | {avg} | {p50} | {p95} | {throughput} | {peak} | {rss} | {status} |".format(
+            f"- `{row['Name']}`：{row['Stack Label']}；量化标签 `{row['Quantization']}`；格式 `{row['Model Format']}`。"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## 速度结果",
+            "",
+            "| 方案 | Family | Backend | 量化 | Avg Latency (s) | P95 (s) | Samples/s | Tokens/s | Peak VRAM (MB) | 状态 |",
+            "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+
+    for _, row in df.iterrows():
+        lines.append(
+            "| {name} | {family} | {backend} | {quant} | {avg} | {p95} | {sps} | {tps} | {vram} | {status} |".format(
                 name=row["Name"],
+                family=row["Family"],
                 backend=row["Backend"],
                 quant=row["Quantization"],
-                quant_note=row["Quantization Note"],
-                avg=_fmt_metric(row["Avg Latency (s)"]),
-                p50=_fmt_metric(row["P50 Latency (s)"]),
-                p95=_fmt_metric(row["P95 Latency (s)"]),
-                throughput=_fmt_metric(row["Sample Throughput (samples/s)"]),
-                peak=_fmt_metric(row["Peak VRAM (MB)"], digits=2),
-                rss=_fmt_metric(row["Avg Process RSS (MB)"], digits=2),
-                status=row["Status"],
+                avg=_fmt_metric(row["Benchmark Avg Latency (s)"]),
+                p95=_fmt_metric(row["Benchmark P95 Latency (s)"]),
+                sps=_fmt_metric(row["Benchmark Sample Throughput (samples/s)"]),
+                tps=_fmt_metric(row["Benchmark Token Throughput (tokens/s)"]),
+                vram=_fmt_metric(row["Benchmark Peak VRAM (MB)"], digits=2),
+                status=row["Benchmark Status"],
             )
         )
 
     lines.extend(
         [
             "",
-            "## 解读建议",
+            "## 精度结果",
             "",
-            "- 如果关注交互响应，优先看 `Avg Latency` 与 `P95 Latency`。",
-            "- 如果关注端侧落地约束，优先看 `Peak VRAM` 是否接近 `8GB` 上限。",
-            "- 如果需要进一步追究“为什么某个部署栈更慢”，应继续下钻具体运行参数，例如 `llama.cpp` 的 `n_batch`、线程数、GPU offload 策略，或 `vllm` 的 `gpu_memory_utilization` 与 `max_model_len`，而不是仅凭当前报告直接归因到引擎本身。",
+            "| 方案 | Parse OK | Exact Match | Action Match | Accuracy Avg Latency (s) | Accuracy Tokens/s | Accuracy Max VRAM (MB) | 状态 |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+
+    for _, row in df.iterrows():
+        lines.append(
+            "| {name} | {parse} | {exact} | {action} | {lat} | {tps} | {vram} | {status} |".format(
+                name=row["Name"],
+                parse=_fmt_metric(row["Parse OK Rate"]),
+                exact=_fmt_metric(row["Exact Match Rate"]),
+                action=_fmt_metric(row["Action Match Rate"]),
+                lat=_fmt_metric(row["Accuracy Avg Latency (s)"]),
+                tps=_fmt_metric(row["Accuracy Avg Throughput (tokens/s)"]),
+                vram=_fmt_metric(row["Accuracy Max Peak VRAM (MB)"], digits=2),
+                status=row["Accuracy Status"],
+            )
+        )
+
+    failed_df = df[df["Overall Status"] != "success"].copy()
+    lines.extend(["", "## 异常记录", ""])
+    if failed_df.empty:
+        lines.append("- 本轮 7 组方案都完成了 benchmark 与 accuracy。")
+    else:
+        for _, row in failed_df.iterrows():
+            lines.append(
+                f"- `{row['Name']}`：benchmark=`{row['Benchmark Status']}`，accuracy=`{row['Accuracy Status']}`，overall=`{row['Overall Status']}`。"
+            )
+
+    success_df = df[df["Overall Status"] == "success"].copy()
+    lines.extend(["", "## 结果分析", ""])
+    if success_df.empty:
+        lines.append("- 当前没有方案同时完成 benchmark 与 accuracy，请优先检查 `logs/` 下对应日志。")
+    else:
+        fastest_row = success_df.sort_values("Benchmark Avg Latency (s)", ascending=True).iloc[0]
+        best_exact_row = success_df.sort_values("Exact Match Rate", ascending=False).iloc[0]
+        best_action_row = success_df.sort_values("Action Match Rate", ascending=False).iloc[0]
+        lowest_vram_row = success_df.sort_values("Benchmark Peak VRAM (MB)", ascending=True).iloc[0]
+        lines.append(
+            f"- 速度最优方案为 `{fastest_row['Name']}`，benchmark 平均延迟为 `{float(fastest_row['Benchmark Avg Latency (s)']):.4f}s`。"
+        )
+        lines.append(
+            f"- `Exact Match` 最高方案为 `{best_exact_row['Name']}`，精确匹配率为 `{float(best_exact_row['Exact Match Rate']):.4f}`。"
+        )
+        lines.append(
+            f"- `Action Match` 最高方案为 `{best_action_row['Name']}`，动作匹配率为 `{float(best_action_row['Action Match Rate']):.4f}`。"
+        )
+        lines.append(
+            f"- 显存占用最低的成功方案为 `{lowest_vram_row['Name']}`，benchmark 峰值显存为 `{float(lowest_vram_row['Benchmark Peak VRAM (MB)']):.2f} MB`。"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## 说明",
+            "",
+            "- `Transformers 8bit/4bit` 与 `vLLM 8bit/4bit` 都使用同一份 merged 模型，只是运行时后端和量化路径不同。",
+            "- `vLLM 8bit/4bit` 使用的是预先导出的 bitsandbytes 量化目录，不再走运行时从 FP16 safetensors 现量化的路径。",
+            "- `vLLM_AWQ` 使用的是预先压缩好的 AWQ 目录，因此它与运行时 bitsandbytes 量化并不是完全同构的量化路径。",
             "",
         ]
     )
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def run_single_config(
-    cfg: dict[str, Any],
-    benchmark_plan: dict[str, Any],
-    *,
-    args: argparse.Namespace,
-    results_dir: Path,
-    gpu_id: int,
-) -> dict[str, Any]:
-    name = str(cfg["name"])
-    benchmark_json = results_dir / f"{name}_benchmark.json"
-    benchmark_log = LOGS_DIR / f"{name}_benchmark.log"
+def _blank_row(case_cfg: dict[str, Any], reason: str) -> dict[str, Any]:
+    artifact = case_cfg["artifact"]
+    return {
+        "Name": case_cfg["name"],
+        "Family": case_cfg["family"],
+        "Stack Label": case_cfg["stack_label"],
+        "Backend": case_cfg["backend"],
+        "Quantization": case_cfg["report_quantization"],
+        "Runtime Quantization": str(case_cfg.get("runtime_quantization") or ""),
+        "Model Format": case_cfg["format_label"],
+        "Quantization Note": case_cfg["quant_note"],
+        "Benchmark Num Samples": 0,
+        "Benchmark Avg Latency (s)": math.nan,
+        "Benchmark P50 Latency (s)": math.nan,
+        "Benchmark P95 Latency (s)": math.nan,
+        "Benchmark Sample Throughput (samples/s)": math.nan,
+        "Benchmark Token Throughput (tokens/s)": math.nan,
+        "Benchmark Peak VRAM (MB)": math.nan,
+        "Benchmark Avg Process RSS (MB)": math.nan,
+        "Accuracy Num Samples": 0,
+        "Parse OK Rate": math.nan,
+        "Exact Match Rate": math.nan,
+        "Action Match Rate": math.nan,
+        "Accuracy Avg Latency (s)": math.nan,
+        "Accuracy Avg Throughput (tokens/s)": math.nan,
+        "Accuracy Avg Peak VRAM (MB)": math.nan,
+        "Accuracy Max Peak VRAM (MB)": math.nan,
+        "Benchmark Status": "precheck_failed",
+        "Accuracy Status": "precheck_failed",
+        "Overall Status": reason,
+        "Benchmark Report": "",
+        "Accuracy Report": "",
+        "Model Path": str(Path(artifact["model_path"]).resolve()) if Path(artifact["model_path"]).exists() else str(artifact["model_path"]),
+        "Tokenizer Path": str(Path(artifact["tokenizer_path"]).resolve()) if artifact.get("tokenizer_path") and Path(artifact["tokenizer_path"]).exists() else str(artifact.get("tokenizer_path") or ""),
+        "Prepared Model Path": str(case_cfg.get("prepared_model_path", "")),
+        "Model Override Path": str(case_cfg.get("model_override_path", "")),
+    }
 
-    benchmark_ok = False
-    benchmark_status = str(benchmark_plan.get("status", "skipped"))
 
-    stop_event = threading.Event()
-    stop_event.gpu_id = gpu_id
-    stop_event.poll_interval_sec = max(0.05, float(args.vram_poll_interval))
-    monitor_thread = threading.Thread(target=monitor_vram, args=(stop_event,), daemon=True)
-    monitor_thread.start()
+def _run_case_rows(cases: list[dict[str, Any]], *, args: argparse.Namespace, results_dir: Path, gpu_id: int) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for case_cfg in cases:
+        ok, reason = prepare_case(case_cfg, args=args, gpu_id=gpu_id)
+        if not ok:
+            EXP7.print_error(f"[{case_cfg['name']}] 预检查失败：{reason}")
+            rows.append(_blank_row(case_cfg, reason))
+            continue
 
-    try:
-        if bool(benchmark_plan.get("enabled", False)):
-            benchmark_command = build_benchmark_command(
-                cfg,
-                benchmark_plan["artifact"],
-                args=args,
-                output_json=benchmark_json,
-            )
-            try:
-                print_info(f"[{name}] 开始执行 benchmark")
-                run_command(benchmark_command, log_path=benchmark_log, gpu_id=gpu_id)
-                benchmark_ok = True
-                benchmark_status = "success"
-            except subprocess.CalledProcessError as exc:
-                persist_failure_log(benchmark_command, exc, log_path=benchmark_log)
-                benchmark_status = classify_failure(exc)
-                print_error(f"[{name}] benchmark 执行失败，已记录日志：{benchmark_log}")
-        else:
-            print_warning(f"[{name}] 跳过 benchmark：{benchmark_plan.get('reason')}")
-    finally:
-        stop_event.set()
-        monitor_thread.join(timeout=5)
-        peak_vram_mb = float(getattr(stop_event, "peak_vram_mb", 0.0) or 0.0)
-        monitor_error = getattr(stop_event, "monitor_error", None)
-        if monitor_error:
-            print_warning(f"[{name}] nvidia-smi 监控异常：{monitor_error}")
+        row = EXP7.run_single_case(case_cfg, args=args, results_dir=results_dir, gpu_id=gpu_id)
+        row["Family"] = case_cfg["family"]
+        row["Prepared Model Path"] = str(case_cfg.get("prepared_model_path", ""))
+        row["Model Override Path"] = str(case_cfg.get("model_override_path", ""))
+        rows.append(row)
+    return rows
 
-        cleanup_runtime_state()
-        print_info(f"[{name}] 冷却 {args.sleep_seconds} 秒，等待显存彻底释放")
-        time.sleep(args.sleep_seconds)
 
-    status = benchmark_status
-    oom_flag = benchmark_status == "oom"
-    if oom_flag:
-        print_error(f"[{name}] benchmark 检测到疑似 OOM，显存标记为 OOM。")
+def _finalize_rows(rows: list[dict[str, Any]]) -> pd.DataFrame:
+    df = pd.DataFrame(rows)
+    preferred = ["Name", "Family", "Stack Label"]
+    columns = [col for col in preferred if col in df.columns] + [col for col in df.columns if col not in set(preferred)]
+    return df[columns]
 
-    benchmark_report = load_json_if_exists(benchmark_json) if benchmark_ok else {}
-    fallback_peak = float(benchmark_report.get("peak_memory", 0.0) or 0.0)
-    peak_display = to_peak_vram_display(max(peak_vram_mb, fallback_peak), oom=oom_flag)
 
-    return summarize_case_result(
-        cfg,
-        benchmark_report,
-        batch_size=args.batch_size,
-        num_samples=args.num_samples,
-        peak_vram_mb=peak_display,
-        status=status,
-        benchmark_ok=benchmark_ok,
-        benchmark_status=benchmark_status,
-        benchmark_path=benchmark_json,
-        benchmark_plan=benchmark_plan,
-    )
+def load_existing_rows(summary_path: Path) -> list[dict[str, Any]]:
+    payload = _read_json(summary_path)
+    rows = payload.get("rows", [])
+    if not isinstance(rows, list):
+        raise ValueError(f"已有 summary 的 rows 字段格式错误: {summary_path}")
+    cleaned: list[dict[str, Any]] = []
+    for item in rows:
+        if isinstance(item, dict) and item.get("Name"):
+            cleaned.append(dict(item))
+    return cleaned
+
+
+def merge_rows(existing_rows: list[dict[str, Any]], new_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged: dict[str, dict[str, Any]] = {}
+    for row in existing_rows:
+        name = str(row.get("Name", "")).strip()
+        if name:
+            merged[name] = dict(row)
+    for row in new_rows:
+        name = str(row.get("Name", "")).strip()
+        if name:
+            merged[name] = dict(row)
+
+    ordered: list[dict[str, Any]] = []
+    for case in CASE_CONFIGS:
+        name = str(case["name"])
+        if name in merged:
+            ordered.append(merged.pop(name))
+    for _, row in sorted(merged.items(), key=lambda item: item[0]):
+        ordered.append(row)
+    return ordered
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    ensure_dir(args.results_dir)
-    ensure_dir(LOGS_DIR)
-    ensure_dir(TEMP_DIR)
+    selected_names = parse_case_names(args.case_names)
 
-    gpu_id = infer_gpu_id(args.gpu_id)
-    print_info(f"实验09开始，目标 GPU = {gpu_id}，batch_size = {args.batch_size}，num_samples = {args.num_samples}")
+    if args.skip_vllm_compat_check:
+        os.environ["LLM_GENESIS_SKIP_VLLM_COMPAT_CHECK"] = "1"
 
-    rows: list[dict[str, Any]] = []
-    for cfg in test_configs:
-        benchmark_artifact = clone_artifact(MODEL_ARTIFACTS[str(cfg["artifact_key"])])
-        benchmark_plan = make_runtime_plan(
-            backend=str(cfg["backend"]),
-            quantization=map_quantization_for_cli(str(cfg["quant"])),
-            artifact=benchmark_artifact,
-        )
-        benchmark_enabled, benchmark_status, benchmark_reason = prepare_runtime_plan(benchmark_plan, args=args)
-        benchmark_plan["enabled"] = benchmark_enabled
-        benchmark_plan["status"] = "pending" if benchmark_enabled else benchmark_status
-        benchmark_plan["reason"] = benchmark_reason
+    EXP7.RESULTS_DIR = args.results_dir
+    EXP7.LOGS_DIR = LOGS_DIR
+    EXP7.TEMP_DIR = TEMP_DIR
 
-        row = run_single_config(
-            cfg,
-            benchmark_plan,
-            args=args,
-            results_dir=args.results_dir,
-            gpu_id=gpu_id,
-        )
-        rows.append(row)
+    EXP7.ensure_dir(args.results_dir)
+    EXP7.ensure_dir(LOGS_DIR)
+    EXP7.ensure_dir(TEMP_DIR)
+    EXP7.ensure_dir(PREQUANTIZED_MODEL_DIR)
 
-    df = pd.DataFrame(rows)
-    csv_path = args.results_dir / "exp5_engine_speed_comparison.csv"
+    gpu_id = EXP7.infer_gpu_id(args.gpu_id)
+    EXP7.print_info(
+        "Exp5 七组对比实验开始："
+        f" GPU={gpu_id}, benchmark_samples={args.benchmark_num_samples}, accuracy_samples={args.accuracy_num_samples}"
+    )
+
+    case_matrix = filter_cases(build_case_matrix(), selected_names)
+    if not case_matrix:
+        raise ValueError("本轮没有可执行的 case。")
+
+    rows = _run_case_rows(case_matrix, args=args, results_dir=args.results_dir, gpu_id=gpu_id)
+    if args.reuse_existing_summary is not None:
+        existing_rows = load_existing_rows(args.reuse_existing_summary)
+        rows = merge_rows(existing_rows, rows)
+
+    df = _finalize_rows(rows)
+
+    csv_path = args.results_dir / "exp5_engine_comparison.csv"
     df.to_csv(csv_path, index=False, encoding="utf-8-sig")
+
     draw_figures(df, output_dir=args.results_dir)
 
-    markdown_path = args.results_dir / "exp5_speed_report.md"
+    markdown_path = args.results_dir / "exp5_engine_report.md"
     write_markdown_report(df, output_path=markdown_path)
 
-    summary_path = args.results_dir / "exp5_engine_speed_summary.json"
+    success_df = df[df["Overall Status"] == "success"].copy()
     summary_payload = {
-        "results_csv": str(csv_path.resolve()),
-        "results_markdown": str(markdown_path.resolve()),
-        "num_cases": len(rows),
-        "comparison_scope": "本地部署栈端到端速度与资源对比，不解释为纯引擎优劣",
-        "execution_policy": {
-            "require_gpu": True,
-            "cuda_visible_devices_bound_to_requested_gpu": True,
-        },
-        "metric_policy": {
-            "include_accuracy_metrics": False,
-            "include_speed_metrics": True,
-            "include_resource_metrics": True,
-            "notes": [
-                "不统计准确率，因为参与方案均为未针对当前任务微调的基座模型。",
-                "当前 Exp5 只比较三种引擎：transformers、vllm、llama.cpp。",
-                "仅保留平均/分位延迟、样本吞吐、显存与进程 RSS 等速度与资源指标。",
-                "所有子进程均强制 GPU-only 执行；若无法在 GPU 上初始化，将直接失败而不是退回 CPU。",
-            ],
-        },
+        "experiment": "exp5_engine_quantized_compare",
+        "comparison_scope": "Transformers 16/8/4bit vs vLLM 16/8/4bit vs vLLM AWQ",
+        "benchmark_num_samples": int(args.benchmark_num_samples),
+        "accuracy_num_samples": int(args.accuracy_num_samples),
+        "gpu_id": gpu_id,
+        "skip_vllm_compat_check": bool(args.skip_vllm_compat_check),
+        "selected_case_names": selected_names,
+        "reuse_existing_summary": (
+            str(args.reuse_existing_summary.resolve()) if args.reuse_existing_summary is not None else ""
+        ),
         "fairness_notes": [
-            "三组方案统一使用相同的 prompts、batch size、num samples、max_new_tokens 与 max_model_len。",
-            "vLLM_BNB_4bit 与 Transformers_BNB_4bit 共用同一基座模型和 bitsandbytes 4bit 设定，可直接观察部署栈差异。",
-            "Transformers_BNB_4bit 与 LlamaCPP_GGUF_Q4_K_M 都属于 4bit GPU 部署方案，但量化格式不同。",
-            "当前结果反映部署栈整体表现，而不是同构量化条件下的纯引擎上限。",
+            "前六组都基于同一份 qwen2.5-3b-genesis-merged 模型资产，只改变后端和运行时量化方式。",
+            "vLLM 8bit/4bit 改为读取真正的 bitsandbytes 预量化目录，而不是从 FP16 safetensors 运行时现量化。",
+            "vLLM_AWQ 使用的是预压缩目录，因此它代表的是另一条部署路径，不应与运行时 BNB 量化简单等同。",
+            "benchmark 与 accuracy 分开执行；任一 case 出现 OOM 或初始化失败时，会记录状态并继续下一个 case。",
         ],
+        "best_benchmark_latency_case": (
+            success_df.sort_values("Benchmark Avg Latency (s)", ascending=True).iloc[0]["Name"]
+            if not success_df.empty
+            else None
+        ),
+        "best_exact_match_case": (
+            success_df.sort_values("Exact Match Rate", ascending=False).iloc[0]["Name"]
+            if not success_df.empty
+            else None
+        ),
+        "best_action_match_case": (
+            success_df.sort_values("Action Match Rate", ascending=False).iloc[0]["Name"]
+            if not success_df.empty
+            else None
+        ),
+        "lowest_benchmark_vram_case": (
+            success_df.sort_values("Benchmark Peak VRAM (MB)", ascending=True).iloc[0]["Name"]
+            if not success_df.empty
+            else None
+        ),
         "rows": rows,
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
+    summary_path = args.results_dir / "exp5_engine_summary.json"
     summary_path.write_text(json.dumps(summary_payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print_info(f"CSV 汇总已导出：{csv_path}")
-    print_info(f"Markdown 报告已导出：{markdown_path}")
-    print_info(f"JSON 摘要已导出：{summary_path}")
-    print_info(f"图表已导出到目录：{args.results_dir}")
+    record_run_meta(
+        args.results_dir,
+        cli_args=vars(args),
+        argv=sys.argv if argv is None else [sys.argv[0], *argv],
+        data_paths=[args.benchmark_prompts_file, args.test_file, args.dataset_file],
+        extra_meta={
+            "entry": "experiments/09_exp5_engine/run_exp5_engine_benchmark.py",
+            "stage": "exp5_engine_quantized_compare",
+            "comparison_scope": summary_payload["comparison_scope"],
+            "result_csv": str(csv_path.resolve()),
+            "result_markdown": str(markdown_path.resolve()),
+            "result_summary": str(summary_path.resolve()),
+            "cases": [case["name"] for case in CASE_CONFIGS],
+        },
+    )
+
+    EXP7.print_info(f"Exp5 对比实验完成，CSV 输出：{csv_path}")
+    EXP7.print_info(f"Markdown 报告：{markdown_path}")
+    EXP7.print_info(f"Summary JSON：{summary_path}")
+    EXP7.print_info(f"图表目录：{args.results_dir}")
     return 0
 
 

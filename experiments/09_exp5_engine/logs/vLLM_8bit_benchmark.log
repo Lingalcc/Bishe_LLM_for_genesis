@@ -1,0 +1,96 @@
+$ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval benchmark --backend vllm --model-path /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit --batch-size 1 --num-samples 200 --max-new-tokens 128 --max-model-len 2048 --gpu-memory-utilization 0.85 --output-json /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/vLLM_8bit_benchmark.json --require-gpu --use-chat --tokenizer-path /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit --prompts-file /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/prompts/default_prompts.json --quantization bitsandbytes --vllm-dtype float16
+
+[vram]
+{
+  "target_pid": 8347,
+  "vram_summary": {
+    "peak_vram_mb": 7947.0,
+    "avg_vram_mb": 7645.8,
+    "peak_delta_vram_mb": 7145.0,
+    "avg_delta_vram_mb": 6843.8,
+    "target_pid": 8347,
+    "num_snapshots": 5612,
+    "per_gpu": {
+      "0": {
+        "peak_vram_mb": 7947.0,
+        "avg_vram_mb": 7645.8,
+        "baseline_vram_mb": 802.0,
+        "peak_delta_vram_mb": 7145.0,
+        "avg_delta_vram_mb": 6843.8,
+        "total_vram_mb": 8188.0,
+        "peak_utilization": 97.1,
+        "num_samples": 5612,
+        "sample_source": "gpu_total"
+      }
+    }
+  }
+}
+
+[stdout]
+INFO 04-13 14:55:29 [utils.py:223] non-default args: {'tokenizer': '/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit', 'trust_remote_code': True, 'load_format': 'bitsandbytes', 'dtype': 'float16', 'max_model_len': 2048, 'gpu_memory_utilization': 0.85, 'disable_log_stats': True, 'quantization': 'bitsandbytes', 'model': '/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit'}
+INFO 04-13 14:55:29 [model.py:529] Resolved architecture: Qwen2ForCausalLM
+INFO 04-13 14:55:29 [model.py:1549] Using max model len 2048
+WARNING 04-13 14:55:30 [model.py:989] CUDA graph is not supported on BitsAndBytes 8bit yet, fallback to the eager mode.
+INFO 04-13 14:55:30 [scheduler.py:224] Chunked prefill is enabled with max_num_batched_tokens=8192.
+INFO 04-13 14:55:30 [vllm.py:689] Asynchronous scheduling is enabled.
+WARNING 04-13 14:55:30 [vllm.py:727] Enforce eager set, overriding optimization level to -O0
+INFO 04-13 14:55:30 [vllm.py:845] Cudagraph is disabled under eager mode
+WARNING 04-13 14:55:31 [interface.py:456] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.
+WARNING 04-13 14:55:31 [system_utils.py:140] We must use the `spawn` multiprocessing start method. Overriding VLLM_WORKER_MULTIPROC_METHOD to 'spawn'. See https://docs.vllm.ai/en/latest/usage/troubleshooting.html#python-multiprocessing for more information. Reasons: WSL is detected and NVML is not compatible with fork
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:35 [core.py:97] Initializing a V1 LLM engine (v0.16.0) with config: model='/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit', speculative_config=None, tokenizer='/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.float16, max_seq_len=2048, download_dir=None, load_format=bitsandbytes, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, disable_custom_all_reduce=False, quantization=bitsandbytes, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_fallback=False, disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False), seed=0, served_model_name=/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'level': None, 'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'splitting_ops': [], 'compile_mm_encoder': False, 'compile_sizes': [], 'compile_ranges_split_points': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'eliminate_noops': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'fuse_act_padding': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:36 [parallel_state.py:1234] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://10.135.14.109:47881 backend=nccl
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:46 [parallel_state.py:1445] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A
+(EngineCore_DP0 pid=8616) WARNING 04-13 14:55:46 [interface.py:456] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:46 [gpu_model_runner.py:4124] Starting to load model /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit...
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:47 [cuda.py:367] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:48 [bitsandbytes_loader.py:786] Loading weights with BitsAndBytes quantization. May take a while ...
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:50 [gpu_model_runner.py:4221] Model loading took 3.23 GiB memory and 3.620347 seconds
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:54 [gpu_worker.py:373] Available KV cache memory: 2.11 GiB
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:54 [kv_cache_utils.py:1307] GPU KV cache size: 61,376 tokens
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:54 [kv_cache_utils.py:1312] Maximum concurrency for 2,048 tokens per request: 29.97x
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:54 [kernel_warmup.py:44] Skipping FlashInfer autotune because it is disabled.
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:54 [core.py:278] init engine (profile, create kv cache, warmup model) took 3.63 seconds
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:54 [vllm.py:689] Asynchronous scheduling is enabled.
+(EngineCore_DP0 pid=8616) WARNING 04-13 14:55:54 [vllm.py:734] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+(EngineCore_DP0 pid=8616) INFO 04-13 14:55:54 [vllm.py:845] Cudagraph is disabled under eager mode
+INFO 04-13 14:55:55 [llm.py:355] Supported tasks: ['generate']
+[ok] backend          : vllm
+[ok] quantization     : bitsandbytes
+[ok] batch_size       : 1
+[ok] num_samples      : 200
+[ok] avg_latency (s)  : 9.0873
+[ok] p50_latency (s)  : 8.0534
+[ok] p95_latency (s)  : 18.6397
+[ok] throughput       : 0.1100 samples/s
+[ok] token_count      : tokenizer_exact
+[ok] prompt_sampling  : cycle_shuffle
+[ok] avg_ttft (s)     : N/A
+[ok] avg_tpot (s)     : N/A
+[ok] avg sec/output tok: 0.152554
+[ok] peak_memory (MB) : 0.00
+[ok] errors           : 0
+[ok] json report      : /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/vLLM_8bit_benchmark.json
+
+
+[stderr]
+The argument `trust_remote_code` is to be used with Auto classes. It has no effect here and is ignored.
+The argument `trust_remote_code` is to be used with Auto classes. It has no effect here and is ignored.
+[W413 14:55:46.285676688 socket.cpp:209] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+(EngineCore_DP0 pid=8616) 
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+(EngineCore_DP0 pid=8616) 
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  7.02it/s]
+(EngineCore_DP0 pid=8616) 
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  7.01it/s]
+(EngineCore_DP0 pid=8616) 
+(EngineCore_DP0 pid=8616) 
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+(EngineCore_DP0 pid=8616) 
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:02<00:00,  2.17s/it]
+(EngineCore_DP0 pid=8616) 
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:02<00:00,  2.17s/it]
+(EngineCore_DP0 pid=8616) 
+(EngineCore_DP0 pid=8616) /home/lin/miniconda3/envs/llm_genesis/lib/python3.11/site-packages/bitsandbytes/autograd/_functions.py:123: UserWarning: MatMul8bitLt: inputs will be cast from torch.bfloat16 to float16 during quantization
+(EngineCore_DP0 pid=8616)   warnings.warn(f"MatMul8bitLt: inputs will be cast from {A.dtype} to float16 during quantization")
+[rank0]:[W413 15:26:19.326991782 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+
