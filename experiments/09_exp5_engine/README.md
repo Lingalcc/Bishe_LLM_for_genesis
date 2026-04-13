@@ -1,70 +1,78 @@
-# 实验09 Exp5：本地部署栈速度基准
+# 实验09 Exp5：7 组推理部署性能与精度对比
 
-本实验用于在 `8GB VRAM` 消费级显卡、`Batch Size = 1` 的具身智能场景下，对三种本地推理引擎进行统一的**速度与资源占用**评测。
+本实验重写后的目标，是在同一套具身任务评测口径下，对以下 7 组部署方案做统一对比：
 
-本次修订后的口径有两点：
+- `Transformers_16bit`
+- `Transformers_8bit`
+- `Transformers_4bit`
+- `vLLM_16bit`
+- `vLLM_8bit`
+- `vLLM_4bit`
+- `vLLM_AWQ`
 
-- 只统计推理速度与资源指标，不再统计 `Action Match Rate`、`Exact Match Rate` 等任务准确率；
-- 所有方案都按 `GPU-only` 标准执行，无法在 GPU 上初始化时直接失败，不允许静默回退到 CPU；
-- 结果解释层级限定为“部署栈端到端表现”，不将结论写成“同构量化条件下的纯推理引擎优劣”。
+实验同时统计两类结果：
 
-原因也很直接：当前参与对比的模型都没有针对本任务做微调；同时尽管三组方案都在同一套 `GPU-only` benchmark 参数下运行，但其量化格式并不完全同构。
+- 推理性能：平均延迟、P95 延迟、样本吞吐、Token 吞吐、峰值显存、进程 RSS
+- 任务精度：`Parse OK Rate`、`Exact Match Rate`、`Action Match Rate`
 
-## 实验目标
+如果某一组在初始化、benchmark 或 accuracy 阶段出现 `OOM`、依赖缺失、模型缺失或其他失败，脚本会把状态记录到汇总表里，然后继续执行下一组，不会中断整轮实验。
 
-- 比较本地部署栈在端侧场景下的端到端时延
-- 观察尾部时延与吞吐差异
-- 对比显存与进程内存占用
-- 在 `OOM`、依赖缺失、模型缺失等情况下不中断整个实验流程
+## 实验口径
 
-## 当前实验矩阵
-
-- `Transformers_BNB_4bit`
-- `LlamaCPP_GGUF_Q4_K_M`
+- 前 6 组都基于同一份任务模型：`model/qwen2.5-3b-genesis-merged`
+- 第 7 组 `vLLM_AWQ` 使用压缩目录：`model/qwen2.5-3b-genesis-merged-awq`
+- benchmark 与 accuracy 分开执行，避免前一组残留显存影响后一组
+- 所有子进程都绑定同一块 GPU，并强制 `GPU-only`
+- `vLLM 8bit/4bit` 改为读取真正的 bitsandbytes 预量化目录，默认放在 `experiments/09_exp5_engine/.cache/prequantized_models/`
 
 说明：
 
-- 三组都属于当前仓库可直接复现的 GPU 本地部署方案；
-- benchmark 统一使用相同的 prompts、batch size、num samples、max_new_tokens、max_model_len；
-- `Transformers_BNB_4bit` 与 `vLLM_BNB_4bit` 共享同一基座模型与运行时 4bit 设定；
-- `Transformers_BNB_4bit` 与 `LlamaCPP_GGUF_Q4_K_M` 都属于 `4bit` GPU 部署方案，但量化格式不同；
-- 若后续要研究“纯引擎差异”，需要进一步统一模型格式、量化格式和关键运行参数。
-
-## 核心指标
-
-- `Avg Latency (s)`
-- `P50 Latency (s)`
-- `P95 Latency (s)`
-- `Sample Throughput (samples/s)`
-- `Peak VRAM (MB)`
-- `Avg Process RSS (MB)`
+- `Transformers 8bit/4bit` 与 `vLLM 8bit/4bit` 共享同一份 merged 模型资产，只改变运行后端和量化加载路径
+- `vLLM 8bit/4bit` 不再通过“只改 `config.json`”的方式伪装成预量化模型，而是先导出真正的 BNB 预量化权重目录
+- `vLLM_AWQ` 属于预压缩部署路径，与 bitsandbytes 预量化不是完全同构的方案，因此解读时应视为“部署方案对比”
 
 ## 目录结构
 
 - [run_exp5_engine_benchmark.py](/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/run_exp5_engine_benchmark.py)
-  - 速度基准主脚本
+  - 主实验脚本
+- [export_prequantized_bnb_model.py](/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/export_prequantized_bnb_model.py)
+  - 将 merged 模型导出为 bitsandbytes 8bit / 4bit 预量化目录
 - [prompts/default_prompts.json](/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/prompts/default_prompts.json)
-  - benchmark 默认提示词
+  - benchmark 默认 prompts
 - `reports/`
-  - Markdown、CSV、JSON、PNG 输出目录
+  - CSV / JSON / Markdown / PNG 汇总输出
 - `logs/`
-  - 每组 benchmark 子进程日志
+  - 每组 benchmark / accuracy 日志
 - `.cache/`
-  - Matplotlib 等临时缓存目录
+  - Matplotlib 缓存与 vLLM bitsandbytes 预量化模型目录
 
 ## 运行方法
+
+基础运行：
 
 ```bash
 python experiments/09_exp5_engine/run_exp5_engine_benchmark.py
 ```
 
-若希望自动补装推理引擎依赖：
+如果你希望由主脚本在发现 `vLLM_8bit/4bit` 目录缺失时自动导出预量化模型，可以加上：
+
+```bash
+python experiments/09_exp5_engine/run_exp5_engine_benchmark.py --auto-export-bnb-models
+```
+
+如果希望自动补装依赖：
 
 ```bash
 python experiments/09_exp5_engine/run_exp5_engine_benchmark.py --auto-install-deps
 ```
 
-若希望在模型缺失时自动从 Hugging Face 下载：
+如果当前环境中的 `vLLM / transformers / compressed-tensors` 组合已经在你机器上实测通过，但仓库的保守检查仍拦截了运行，可以手动跳过：
+
+```bash
+python experiments/09_exp5_engine/run_exp5_engine_benchmark.py --skip-vllm-compat-check
+```
+
+如果模型缺失并且你已经配置了下载源，可以打开自动下载：
 
 ```bash
 python experiments/09_exp5_engine/run_exp5_engine_benchmark.py \
@@ -72,44 +80,78 @@ python experiments/09_exp5_engine/run_exp5_engine_benchmark.py \
   --auto-download-missing-models
 ```
 
-## 配置说明
+如果你只想手动准备 `vLLM_8bit/4bit` 的预量化目录，再单独补跑这两组，可以先执行：
 
-主脚本顶部维护两块高扩展性配置区：
+```bash
+python experiments/09_exp5_engine/export_prequantized_bnb_model.py \
+  --source-model-dir model/qwen2.5-3b-genesis-merged \
+  --output-dir experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-8bit \
+  --mode 8bit
+```
 
-- `test_configs`
-  - 定义当前参与比较的部署方案
-- `MODEL_ARTIFACTS`
-  - 定义基础模型与 GGUF 模型的本地路径和可选 Hugging Face 仓库 ID
+```bash
+python experiments/09_exp5_engine/export_prequantized_bnb_model.py \
+  --source-model-dir model/qwen2.5-3b-genesis-merged \
+  --output-dir experiments/09_exp5_engine/.cache/prequantized_models/qwen2.5-3b-genesis-merged-bnb-4bit \
+  --mode 4bit
+```
 
-说明：
+导出完成后，再只跑缺失的两组：
 
-- 当前仓库已存在 `model/Qwen_Qwen2.5-3B-Instruct`，因此 `Transformers_BNB_4bit` 与 `vLLM_BNB_4bit` 都可以直接复用该基础模型并通过 `bitsandbytes` 以运行时 `4bit` 方式加载；
-- `model/Qwen_Qwen2.5-3B-Instruct-GGUF` 可用于 `LlamaCPP_GGUF_Q4_K_M`；
-- 当前实验不再把 `accuracy` 纳入结论，因此也不再生成 `<CaseName>_accuracy.json`；
-- 当前脚本会向 benchmark CLI 显式传入 `--require-gpu`，并把子进程 `CUDA_VISIBLE_DEVICES` 绑定到指定 GPU；
-- 若后续补齐更统一的模型资产，再扩展到同构量化的严格对比会更合适。
+```bash
+python experiments/09_exp5_engine/run_exp5_engine_benchmark.py \
+  --skip-vllm-compat-check \
+  --case-names vLLM_8bit,vLLM_4bit \
+  --reuse-existing-summary experiments/09_exp5_engine/reports/exp5_engine_summary.json
+```
+
+## 关键参数
+
+- `--benchmark-num-samples`
+  - benchmark 样本数，默认 `200`
+- `--accuracy-num-samples`
+  - accuracy 样本数，默认 `200`
+- `--batch-size`
+  - 默认 `1`
+- `--max-new-tokens`
+  - 默认 `128`
+- `--max-model-len`
+  - 默认 `2048`
+- `--gpu-id`
+  - 指定监控与运行用的 GPU 编号
+- `--sleep-seconds`
+  - 每组执行后的冷却时间，默认 `15`
+- `--auto-export-bnb-models`
+  - 当 `vLLM_8bit/4bit` 预量化目录缺失时，自动调用导出脚本补齐
+- `--force-reexport-bnb-models`
+  - 强制重导 `vLLM_8bit/4bit` 预量化目录
 
 ## 输出产物
 
 运行结束后会在 `experiments/09_exp5_engine/reports/` 下生成：
 
-- `exp5_engine_speed_comparison.csv`
-  - 全部部署方案的速度与资源汇总表
-- `exp5_engine_speed_summary.json`
-  - 结构化摘要，包含公平性说明
-- `exp5_speed_report.md`
-  - 人类可读的 Markdown 报告
+- `exp5_engine_comparison.csv`
+  - 7 组方案的结构化汇总表
+- `exp5_engine_summary.json`
+  - 包含状态、最佳方案和公平性说明的 JSON 摘要
+- `exp5_engine_report.md`
+  - 人类可读的实验报告
 - `exp5_engine_latency_bar.png`
-  - 图1：端到端延迟对比
+  - 图1：7 组平均延迟对比
 - `exp5_engine_throughput_bar.png`
-  - 图2：样本吞吐对比
+  - 图2：7 组 Token 吞吐对比
+- `exp5_engine_accuracy_bar.png`
+  - 图3：7 组精度对比
 - `exp5_engine_memory_bar.png`
-  - 图3：显存与进程内存占用对比
+  - 图4：7 组显存对比
 - `<CaseName>_benchmark.json`
-  - 单组 benchmark 原始报告
+  - 单组 benchmark 原始结果
+- `<CaseName>_accuracy.json`
+  - 单组 accuracy 原始结果
 
-## 解读建议
+## 建议解读顺序
 
-- 如果你关注交互体验，优先看 `Avg Latency` 与 `P95 Latency`；
-- 如果你关注能不能在端侧稳定落地，优先看 `Peak VRAM`；
-- 如果你想解释“为什么某个方案更慢”，需要继续下钻具体运行参数，而不是直接把当前结果归因为某个引擎天然更快或更慢。
+- 如果你关心交互速度，先看 `Benchmark Avg Latency (s)` 与 `Benchmark Token Throughput (tokens/s)`
+- 如果你关心模型能不能稳定落地，先看 `Benchmark Peak VRAM (MB)` 和状态字段是否为 `oom`
+- 如果你关心任务质量，先看 `Exact Match Rate` 与 `Action Match Rate`
+- 如果同一方案速度很好但 accuracy 很差，说明它更适合做部署优化参考，而不一定适合直接作为最终任务方案

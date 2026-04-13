@@ -1,0 +1,47 @@
+$ /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/cli.py eval accuracy --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/.cache/Transformers_8bit_accuracy_override.yaml
+
+[vram]
+{
+  "target_pid": 5211,
+  "vram_summary": {
+    "peak_vram_mb": 4767.0,
+    "avg_vram_mb": 4743.7,
+    "peak_delta_vram_mb": 3542.0,
+    "avg_delta_vram_mb": 3518.7,
+    "target_pid": 5211,
+    "num_snapshots": 6735,
+    "per_gpu": {
+      "0": {
+        "peak_vram_mb": 4767.0,
+        "avg_vram_mb": 4743.7,
+        "baseline_vram_mb": 1225.0,
+        "peak_delta_vram_mb": 3542.0,
+        "avg_delta_vram_mb": 3518.7,
+        "total_vram_mb": 8188.0,
+        "peak_utilization": 58.2,
+        "num_samples": 6735,
+        "sample_source": "gpu_total"
+      }
+    }
+  }
+}
+
+[stdout]
+[ok] evaluated samples : 200
+[ok] parse ok          : 200 (1.0000)
+[ok] exact match       : 60 (0.3000)
+[ok] action match      : 119 (0.5950)
+[ok] avg latency (sec) : 10.648
+[ok] avg throughput    : 7.7 tokens/s
+[ok] peak VRAM (MB)    : 3406
+
+
+[stderr]
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.92s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.66s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.85s/it]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+

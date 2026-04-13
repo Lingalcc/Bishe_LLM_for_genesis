@@ -82,11 +82,14 @@ def get_vllm_environment_compat_error() -> str | None:
         and Version(compressed_tensors_version) != Version("0.13.0")
     ):
         return (
-            "当前环境中的 vLLM / compressed-tensors 版本不兼容："
+            "当前环境中的 vLLM / compressed-tensors 版本与仓库默认锁定组合不一致："
             f" vllm={vllm_version}, compressed-tensors={compressed_tensors_version}。"
-            "仓库当前锁定的组合是 vllm==0.16.0 与 compressed-tensors==0.13.0。"
-            "请执行 `pip install compressed-tensors==0.13.0`，"
-            "或重新按 requirements.txt 同步环境。"
+            "仓库默认锁定的组合是 vllm==0.16.0 与 compressed-tensors==0.13.0。"
+            "这是一个保守拦截，不代表当前组合一定无法运行。"
+            "如果你确认当前环境已经在本仓库里实测可用，可设置 "
+            "`LLM_GENESIS_SKIP_VLLM_COMPAT_CHECK=1` 跳过检查；"
+            "否则再考虑执行 `pip install compressed-tensors==0.13.0` "
+            "或按 requirements.txt 同步环境。"
         )
     return None
 

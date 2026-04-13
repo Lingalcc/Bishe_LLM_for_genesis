@@ -1,0 +1,118 @@
+{
+  "timestamp": {
+    "utc": "2026-04-13T08:15:02.601344Z",
+    "epoch_sec": 1776068102
+  },
+  "git": {
+    "commit_hash": "a2a47df28d797fd525fa91a8871ab993e2c175ec",
+    "dirty": true,
+    "branch": "genesis"
+  },
+  "runtime": {
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "python_executable": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "dependencies": {
+    "torch": "2.9.1",
+    "transformers": "4.57.1",
+    "datasets": "4.0.0",
+    "accelerate": "1.11.0",
+    "bitsandbytes": "0.49.2",
+    "vllm": "0.16.0",
+    "pyyaml": "6.0.3",
+    "openai": "2.24.0",
+    "huggingface_hub": "0.36.0"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "gpu": {
+    "detected": true,
+    "count": 1,
+    "devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "total_memory_mb": 8187,
+        "compute_capability": "8.9"
+      }
+    ],
+    "source": "torch",
+    "cuda_version": "12.8"
+  },
+  "command": {
+    "argv": [
+      "experiments/09_exp5_engine/run_exp5_engine_benchmark.py",
+      "--skip-vllm-compat-check",
+      "--case-names",
+      "vLLM_8bit,vLLM_4bit",
+      "--reuse-existing-summary",
+      "experiments/09_exp5_engine/reports/exp5_engine_summary.json"
+    ],
+    "cli_args": {
+      "base_config": "/home/lin/Bishe_LLM_for_genesis/configs/base.yaml",
+      "gpu_id": null,
+      "results_dir": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports",
+      "benchmark_prompts_file": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/prompts/default_prompts.json",
+      "benchmark_num_samples": 200,
+      "accuracy_num_samples": 200,
+      "batch_size": 1,
+      "max_new_tokens": "[REDACTED]",
+      "max_model_len": 2048,
+      "gpu_memory_utilization": 0.9,
+      "test_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "dataset_file": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+      "accuracy_seed": 42,
+      "sleep_seconds": 15,
+      "vram_poll_interval": 0.2,
+      "auto_install_deps": false,
+      "auto_download_missing_models": false,
+      "skip_vllm_compat_check": true,
+      "auto_export_bnb_models": false,
+      "force_reexport_bnb_models": false,
+      "case_names": "vLLM_8bit,vLLM_4bit",
+      "reuse_existing_summary": "experiments/09_exp5_engine/reports/exp5_engine_summary.json",
+      "hf_token": "[REDACTED]"
+    }
+  },
+  "random_seed": null,
+  "config_snapshot": {},
+  "data_files": [
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/prompts/default_prompts.json",
+      "exists": true,
+      "sha256": "a74eebf34722c3c541f1ef7b74171b1bc997f6cf12a92bd21203f9acaf46ecf2",
+      "size_bytes": 637
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/splits/test.json",
+      "exists": true,
+      "sha256": "299ceb37d777b3e5ead9c562e051a0887d22027386cb49fa93429ee95af47936",
+      "size_bytes": 100694
+    },
+    {
+      "path": "/home/lin/Bishe_LLM_for_genesis/data_prepare/genesis_franka_toolcall_alpaca.json",
+      "exists": true,
+      "sha256": "cf9c2f2481f00a15986dab04806ea778622f1ece8dd97bf7189e238bdc5b08d4",
+      "size_bytes": 1458033
+    }
+  ],
+  "extra": {
+    "entry": "experiments/09_exp5_engine/run_exp5_engine_benchmark.py",
+    "stage": "exp5_engine_quantized_compare",
+    "comparison_scope": "Transformers 16/8/4bit vs vLLM 16/8/4bit vs vLLM AWQ",
+    "result_csv": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/exp5_engine_comparison.csv",
+    "result_markdown": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/exp5_engine_report.md",
+    "result_summary": "/home/lin/Bishe_LLM_for_genesis/experiments/09_exp5_engine/reports/exp5_engine_summary.json",
+    "cases": [
+      "Transformers_16bit",
+      "Transformers_8bit",
+      "Transformers_4bit",
+      "vLLM_16bit",
+      "vLLM_8bit",
+      "vLLM_4bit",
+      "vLLM_AWQ"
+    ]
+  }
+}

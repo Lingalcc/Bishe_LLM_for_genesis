@@ -1,0 +1,29 @@
+app:
+  interactive:
+    enabled: true
+    show_viewer: true
+  state_injection:
+    enable_instruction_to_action: true
+    enable_instruction_to_motion: true
+  inference:
+    mode: local
+    max_retries: 3
+    sleep_seconds: 0.0
+    local:
+      model_path: model/qwen2.5-3b-top18-rank8-merged-awq
+      backend: vllm
+      quantization: compressed-tensors
+      max_model_len: 2048
+      gpu_memory_utilization: 0.8
+      trust_remote_code: true
+      enable_prefix_caching: true
+      prefix_cache_max_entries: 8
+      generation:
+        temperature: 0.0
+        top_p: 1.0
+        max_new_tokens: 256
+
+exp16_genesis_show:
+  reports_dir: experiments/20_exp16_genesis_show/reports
+  show_examples_on_start: true
+  skip_vllm_compat_check: true

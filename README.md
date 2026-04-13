@@ -188,7 +188,57 @@ PYTHONPATH=. python experiments/04_sim_exp/run_e2e_sim.py \
 ### 计划中 / 未接入统一 CLI
 
 - 数据增强（`data augment`）
-- `app` 域下的仿真执行子命令（当前 CLI 仅 `run-instruction`）
+- `app` 域下仍有更多展示型子命令可补充；当前统一 CLI 已提供 `run-instruction` 与 `interactive`
+
+## Exp16 Genesis Show（最终演示入口）
+
+这个实验把当前最终部署策略接到 Genesis 交互执行链路上：
+
+- 模型：`model/qwen2.5-3b-top18-rank8-merged-awq`
+- 推理后端：`vllm`
+- 量化格式：`compressed-tensors`
+- 目标：用户直接输入自然语言，机械臂实时执行并显示结果
+
+推荐启动方式：
+
+```bash
+# 交互式展示
+python experiments/20_exp16_genesis_show/run_exp16_genesis_show.py
+
+# 单条指令直接执行
+python experiments/20_exp16_genesis_show/run_exp16_genesis_show.py \
+  --instruction "移动到方块上方10厘米处"
+
+# 继续复用统一 CLI 也可以
+python cli.py app interactive \
+  --config experiments/20_exp16_genesis_show/configs/genesis_show.yaml
+```
+
+当前执行器支持的核心动作：
+
+- `move_ee`
+- `open_gripper`
+- `close_gripper`
+- `wait`
+- `get_state`
+- `reset_scene`
+- `set_qpos`
+- `set_dofs_position`
+- `control_dofs_position`
+- `control_dofs_velocity`
+- `control_dofs_force`
+
+推荐现场演示的自然语言指令：
+
+1. `移动到方块上方10厘米处`
+2. `先张开夹爪，再移动到工作台中央上方30厘米处`
+3. `移动到方块上方，下降到方块高度后闭合夹爪，再抬起到更高位置`
+4. `读取当前机械臂状态`
+5. `将机械臂移动到x=0.5米、y=0.0米、z=0.3米的位置，保持朝下姿态`
+
+更完整的动作 JSON 示例、交互命令和演示建议见：
+
+- [experiments/20_exp16_genesis_show/README.md](/home/lin/Bishe_LLM_for_genesis/experiments/20_exp16_genesis_show/README.md)
 
 ## 运行与测试
 

@@ -1,0 +1,112 @@
+{
+  "turn_index": 1,
+  "instruction": "移动到方块上方10厘米处",
+  "scene_state": {
+    "entities": [
+      {
+        "name": "cube",
+        "category": "object",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "franka",
+        "category": "robot",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.0,
+            -0.7850000262260437,
+            0.0,
+            -2.3559999465942383,
+            0.0,
+            1.5709999799728394,
+            0.7850000262260437,
+            0.03999999910593033,
+            0.03999999910593033
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "ground",
+        "category": "plane",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [],
+          "qvel": []
+        }
+      }
+    ]
+  },
+  "model_raw": "",
+  "payload": {},
+  "results": [],
+  "elapsed_sec": 0.0,
+  "num_commands": 0,
+  "num_ok_commands": 0,
+  "execution_success": false,
+  "error": "RuntimeError: Failed to initialize local inference backend (mode='vllm').\nvllm init failed: RuntimeError: 当前环境中的 vLLM / compressed-tensors 版本不兼容： vllm=0.16.0, compressed-tensors=0.14.0.1。仓库当前锁定的组合是 vllm==0.16.0 与 compressed-tensors==0.13.0。请执行 `pip install compressed-tensors==0.13.0`，或重新按 requirements.txt 同步环境。",
+  "timestamp": "2026-04-12T18:06:06"
+}
