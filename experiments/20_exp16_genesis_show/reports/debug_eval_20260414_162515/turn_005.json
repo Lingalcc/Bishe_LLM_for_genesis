@@ -1,0 +1,16 @@
+{
+  "turn_index": 5,
+  "instruction": "先张开夹爪，再移动到工作台中央上方30厘米处",
+  "scene_state": null,
+  "scene_state_after": null,
+  "model_raw": "",
+  "payload": {},
+  "results": [],
+  "elapsed_sec": 0.0,
+  "num_commands": 0,
+  "num_ok_commands": 0,
+  "execution_success": false,
+  "snap_path": null,
+  "error": "RuntimeError: model prediction failed: move_ee.pos must be list[3] numbers",
+  "timestamp": "2026-04-14T16:26:42"
+}

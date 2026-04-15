@@ -68,6 +68,10 @@ def extract_first_json(text: str) -> Any:
         except json.JSONDecodeError:
             pass
 
+    partial = _recover_partial_commands_payload(payload)
+    if partial is not None:
+        return partial
+
     decoder = json.JSONDecoder()
     for idx, ch in enumerate(payload):
         if ch not in "{[":
@@ -79,6 +83,39 @@ def extract_first_json(text: str) -> Any:
             continue
 
     raise ValueError("no valid JSON found")
+
+
+def _recover_partial_commands_payload(text: str) -> dict[str, Any] | None:
+    match = re.search(r'"commands"\s*:\s*\[', text)
+    if match is None:
+        return None
+
+    decoder = json.JSONDecoder()
+    idx = match.end()
+    recovered: list[dict[str, Any]] = []
+
+    while idx < len(text):
+        while idx < len(text) and text[idx] in " \t\r\n,":
+            idx += 1
+        if idx >= len(text) or text[idx] == "]":
+            break
+        if text[idx] != "{":
+            break
+        try:
+            obj, end = decoder.raw_decode(text[idx:])
+        except json.JSONDecodeError:
+            break
+        if not isinstance(obj, dict):
+            break
+        action = obj.get("action")
+        if not isinstance(action, str) or not action.strip():
+            break
+        recovered.append(obj)
+        idx += end
+
+    if not recovered:
+        return None
+    return {"commands": recovered}
 
 
 def normalize_payload(payload: Any) -> dict[str, Any]:

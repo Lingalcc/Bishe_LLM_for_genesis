@@ -1,0 +1,18 @@
+test:
+  accuracy_eval:
+    mode: local
+    backend: transformers
+    model_path: model/qwen2.5-3b-top18-rank8-merged
+    tokenizer_path: model/qwen2.5-3b-top18-rank8-merged
+    quantization: null
+    early_exit_enabled: true
+    exit_layers: 10,14,18,22,28
+    tau_importance: 0.6
+    tau_confidence: 0.2
+    importance_file: experiments/13_exp11/reports/layer_scores.json
+    early_exit_warmup_tokens: 8
+    early_exit_min_streak: 2
+    early_exit_protect_open_string: true
+    early_exit_draft_only_layers: null
+    early_exit_fallback_on_invalid_json: false
+    report_file: experiments/21_exp17_iidee/reports/exp17_expA_string_guard_report.json

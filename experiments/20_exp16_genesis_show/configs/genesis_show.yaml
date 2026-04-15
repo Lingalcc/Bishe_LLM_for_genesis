@@ -21,7 +21,7 @@ app:
       generation:
         temperature: 0.0
         top_p: 1.0
-        max_new_tokens: 256
+        max_new_tokens: 512
 
 exp16_genesis_show:
   reports_dir: experiments/20_exp16_genesis_show/reports

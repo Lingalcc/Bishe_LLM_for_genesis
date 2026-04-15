@@ -110,6 +110,7 @@ app:
     robot_file: xml/franka_emika_panda/panda.xml
     genesis_repo: null
     asset_root: null
+    gravity: [0.0, 0.0, -9.81]
   state_injection:
     enable_instruction_to_action: true
     enable_instruction_to_motion: true

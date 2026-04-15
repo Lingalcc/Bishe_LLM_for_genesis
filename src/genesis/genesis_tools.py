@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from src.protocols.toolcall import validate_payload
@@ -54,6 +55,7 @@ class GenesisManager:
         self.gs: Any | None = None
         self.scene: Any | None = None
         self._records: dict[str, _EntityRecord] = {}
+        self._cameras: dict[str, Any] = {}
         self._built = False
 
         if self.auto_init:
@@ -184,6 +186,47 @@ class GenesisManager:
         scene.build()
         self._built = True
 
+    def add_camera(
+        self,
+        name: str,
+        *,
+        model: str = "pinhole",
+        res: tuple[int, int] = (1280, 720),
+        pos: tuple[float, float, float] = (2.5, -1.6, 1.4),
+        lookat: tuple[float, float, float] = (0.5, 0.0, 0.3),
+        up: tuple[float, float, float] = (0.0, 0.0, 1.0),
+        fov: float = 35.0,
+        aperture: float = 2.0,
+        focus_dist: float | None = None,
+        gui: bool = False,
+        spp: int = 256,
+        denoise: bool | None = None,
+        near: float = 0.05,
+        far: float = 100.0,
+        env_idx: int | None = None,
+        debug: bool = True,
+    ) -> Any:
+        scene = self._require_scene()
+        camera = scene.add_camera(
+            model=model,
+            res=res,
+            pos=pos,
+            lookat=lookat,
+            up=up,
+            fov=fov,
+            aperture=aperture,
+            focus_dist=focus_dist,
+            GUI=gui,
+            spp=spp,
+            denoise=denoise,
+            near=near,
+            far=far,
+            env_idx=env_idx,
+            debug=debug,
+        )
+        self._cameras[name] = camera
+        return camera
+
     def step(self, n_steps: int = 1) -> None:
         scene = self._require_scene()
         for _ in range(max(1, int(n_steps))):
@@ -191,6 +234,45 @@ class GenesisManager:
 
     def get_entities(self) -> dict[str, Any]:
         return {name: rec.entity for name, rec in self._records.items() if rec.entity is not None}
+
+    def get_camera(self, name: str) -> Any:
+        camera = self._cameras.get(name)
+        if camera is None:
+            raise KeyError(f"camera not found: {name}")
+        return camera
+
+    def render_camera(
+        self,
+        name: str,
+        *,
+        rgb: bool = True,
+        depth: bool = False,
+        segmentation: bool = False,
+        colorize_seg: bool = False,
+        normal: bool = False,
+        antialiasing: bool = False,
+        force_render: bool = True,
+    ) -> tuple[Any, Any, Any, Any]:
+        camera = self.get_camera(name)
+        return camera.render(
+            rgb=rgb,
+            depth=depth,
+            segmentation=segmentation,
+            colorize_seg=colorize_seg,
+            normal=normal,
+            antialiasing=antialiasing,
+            force_render=force_render,
+        )
+
+    def save_camera_rgb(self, name: str, path: str | Path) -> Path:
+        from PIL import Image
+
+        out_path = Path(path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        rgb_arr, _, _, _ = self.render_camera(name)
+        image = Image.fromarray(rgb_arr)
+        image.save(out_path)
+        return out_path
 
     def get_entity(self, name: str) -> Any:
         rec = self._records.get(name)
@@ -251,6 +333,7 @@ class GenesisManager:
     def release(self, *, destroy_runtime: bool = True) -> None:
         self.scene = None
         self._records.clear()
+        self._cameras.clear()
         self._built = False
         if destroy_runtime and self.gs is not None:
             try:
@@ -272,6 +355,11 @@ class GenesisRobot:
         default_command_steps: int = 120,
         default_init_qpos: list[float] | None = None,
         default_init_steps: int = 120,
+        default_hold_kp: list[float] | None = None,
+        default_hold_kv: list[float] | None = None,
+        default_hold_force_lower: list[float] | None = None,
+        default_hold_force_upper: list[float] | None = None,
+        default_hold_steps: int = 60,
     ) -> None:
         self.manager = manager
         self.robot_name = robot_name
@@ -282,9 +370,19 @@ class GenesisRobot:
         self.default_command_steps = int(default_command_steps)
         self.default_init_qpos = list(default_init_qpos) if default_init_qpos is not None else None
         self.default_init_steps = int(default_init_steps)
+        self.default_hold_kp = list(default_hold_kp) if default_hold_kp is not None else None
+        self.default_hold_kv = list(default_hold_kv) if default_hold_kv is not None else None
+        self.default_hold_force_lower = (
+            list(default_hold_force_lower) if default_hold_force_lower is not None else None
+        )
+        self.default_hold_force_upper = (
+            list(default_hold_force_upper) if default_hold_force_upper is not None else None
+        )
+        self.default_hold_steps = int(default_hold_steps)
 
         self.robot = self.manager.get_entity(robot_name)
         self._ee_link = self._resolve_ee_link()
+        self._default_hold_qpos = list(default_init_qpos) if default_init_qpos is not None else None
 
     def _resolve_ee_link(self) -> Any | None:
         robot = self.robot
@@ -300,7 +398,9 @@ class GenesisRobot:
     def move_to_default_pose(self) -> None:
         if self.default_init_qpos is None:
             return
-        self._set_qpos(self.default_init_qpos, steps=self.default_init_steps)
+        self._apply_default_hold_controller()
+        self._hard_set_qpos(self.default_init_qpos, steps=self.default_init_steps)
+        self._hold_qpos(self.default_init_qpos, steps=max(1, self.default_hold_steps))
 
     def execute_json(self, payload_like: str | dict[str, Any] | list[dict[str, Any]]) -> list[dict[str, Any]]:
         commands = self._normalize_commands(payload_like)
@@ -400,6 +500,10 @@ class GenesisRobot:
         return [int(v) for v in value]
 
     def _set_qpos(self, qpos: list[float], *, steps: int) -> None:
+        self._hard_set_qpos(qpos, steps=steps)
+        self._hold_qpos(qpos, steps=max(1, min(steps, self.default_hold_steps)))
+
+    def _hard_set_qpos(self, qpos: list[float], *, steps: int) -> None:
         qpos_try = False
         for name in ("set_qpos",):
             fn = getattr(self.robot, name, None)
@@ -434,6 +538,85 @@ class GenesisRobot:
         if qpos_try:
             return
         self.manager.step(max(1, steps))
+
+    def _hold_qpos(self, qpos: list[float], *, steps: int) -> None:
+        arm_values = qpos[: len(self.arm_dofs_idx_local)]
+        if arm_values:
+            self._control_dofs_position(
+                arm_values,
+                dofs_idx_local=self.arm_dofs_idx_local,
+                steps=max(1, steps),
+            )
+        if len(qpos) > len(self.arm_dofs_idx_local) and self.gripper_dofs_idx_local:
+            gripper_values = qpos[
+                len(self.arm_dofs_idx_local) : len(self.arm_dofs_idx_local) + len(self.gripper_dofs_idx_local)
+            ]
+            if gripper_values:
+                self._control_dofs_position(
+                    gripper_values,
+                    dofs_idx_local=self.gripper_dofs_idx_local,
+                    steps=max(1, steps),
+                )
+
+    def _apply_default_hold_controller(self) -> None:
+        dofs_idx_local = self.arm_dofs_idx_local + self.gripper_dofs_idx_local
+        if not dofs_idx_local:
+            return
+        if self.default_hold_kp is not None:
+            self._try_set_dofs_kp(self.default_hold_kp, dofs_idx_local=dofs_idx_local)
+        if self.default_hold_kv is not None:
+            self._try_set_dofs_kv(self.default_hold_kv, dofs_idx_local=dofs_idx_local)
+        if self.default_hold_force_lower is not None and self.default_hold_force_upper is not None:
+            self._try_set_dofs_force_range(
+                self.default_hold_force_lower,
+                self.default_hold_force_upper,
+                dofs_idx_local=dofs_idx_local,
+            )
+
+    def _try_set_dofs_kp(self, values: list[float], *, dofs_idx_local: list[int]) -> None:
+        for call in (
+            lambda: _call_first(self.robot, ["set_dofs_kp"], kp=values, dofs_idx_local=dofs_idx_local),
+            lambda: _call_first(self.robot, ["set_dofs_kp"], values, dofs_idx_local),
+        ):
+            try:
+                call()
+                return
+            except Exception:
+                continue
+
+    def _try_set_dofs_kv(self, values: list[float], *, dofs_idx_local: list[int]) -> None:
+        for call in (
+            lambda: _call_first(self.robot, ["set_dofs_kv"], kv=values, dofs_idx_local=dofs_idx_local),
+            lambda: _call_first(self.robot, ["set_dofs_kv"], values, dofs_idx_local),
+        ):
+            try:
+                call()
+                return
+            except Exception:
+                continue
+
+    def _try_set_dofs_force_range(
+        self,
+        lower: list[float],
+        upper: list[float],
+        *,
+        dofs_idx_local: list[int],
+    ) -> None:
+        for call in (
+            lambda: _call_first(
+                self.robot,
+                ["set_dofs_force_range"],
+                lower=lower,
+                upper=upper,
+                dofs_idx_local=dofs_idx_local,
+            ),
+            lambda: _call_first(self.robot, ["set_dofs_force_range"], lower, upper, dofs_idx_local),
+        ):
+            try:
+                call()
+                return
+            except Exception:
+                continue
 
     def _set_gripper(self, position: float, *, steps: int) -> None:
         values = [float(position) for _ in self.gripper_dofs_idx_local]

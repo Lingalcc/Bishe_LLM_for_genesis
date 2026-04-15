@@ -1,0 +1,171 @@
+[
+  {
+    "turn_index": 1,
+    "instruction": "打开夹爪",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_001.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_001.png",
+    "execution_success": true,
+    "actions": [
+      "open_gripper"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ]
+  },
+  {
+    "turn_index": 2,
+    "instruction": "关闭夹爪",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_002.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_002.png",
+    "execution_success": true,
+    "actions": [
+      "close_gripper"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ]
+  },
+  {
+    "turn_index": 3,
+    "instruction": "移动到方块上方10厘米处",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_003.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_003.png",
+    "execution_success": true,
+    "actions": [
+      "move_ee"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.5125131607055664,
+      -0.27232471108436584,
+      0.1376829892396927
+    ]
+  },
+  {
+    "turn_index": 4,
+    "instruction": "移动到方块上方10厘米处，夹爪朝下",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_004.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_004.png",
+    "execution_success": true,
+    "actions": [
+      "move_ee",
+      "close_gripper"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.2520061433315277,
+      -0.8546859622001648,
+      0.31018954515457153
+    ]
+  },
+  {
+    "turn_index": 5,
+    "instruction": "先张开夹爪，再移动到工作台中央上方30厘米处",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_005.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_005.png",
+    "execution_success": true,
+    "actions": [
+      "open_gripper",
+      "move_ee"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.6420048475265503,
+      -0.19233174622058868,
+      0.12713322043418884
+    ]
+  },
+  {
+    "turn_index": 6,
+    "instruction": "读取当前机械臂状态",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_006.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_006.png",
+    "execution_success": true,
+    "actions": [
+      "get_state"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ]
+  },
+  {
+    "turn_index": 7,
+    "instruction": "移动到方块上方，下降到方块高度后闭合夹爪，再抬起到更高位置",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_007.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_007.png",
+    "execution_success": true,
+    "actions": [
+      "move_ee",
+      "close_gripper",
+      "move_ee",
+      "move_ee"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.8898475170135498,
+      -0.001027813763357699,
+      0.047630760818719864
+    ]
+  },
+  {
+    "turn_index": 8,
+    "instruction": "移动到方块上方，张开夹爪，下降后夹住，再抬起",
+    "report_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/turn_008.json",
+    "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_008.png",
+    "execution_success": true,
+    "actions": [
+      "move_ee",
+      "open_gripper",
+      "move_ee",
+      "close_gripper",
+      "move_ee"
+    ],
+    "cube_before": [
+      0.6499999761581421,
+      0.0,
+      0.019999999552965164
+    ],
+    "cube_after": [
+      0.9418618083000183,
+      -0.018737807869911194,
+      0.04982174560427666
+    ]
+  }
+]

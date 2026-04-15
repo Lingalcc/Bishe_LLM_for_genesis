@@ -1,0 +1,11 @@
+metric,value
+num_samples,20
+parse_ok_rate,0.85
+exact_match_rate,0.3
+action_match_rate,0.6
+execution_success_rate,0.7
+command_success_rate,0.9166666666666666
+avg_end_to_end_sec,20.31469544705002
+avg_num_commands,1.8
+total_commands,36
+ok_commands,33

@@ -1,0 +1,239 @@
+{
+  "timestamp": {
+    "utc": "2026-04-14T08:36:40.536110Z",
+    "epoch_sec": 1776155800
+  },
+  "git": {
+    "commit_hash": "00343199543ae40a22d1c54361b210d9639cb37a",
+    "dirty": true,
+    "branch": "genesis"
+  },
+  "runtime": {
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "python_executable": "/home/lin/miniconda3/envs/llm_genesis/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "dependencies": {
+    "torch": "2.9.1",
+    "transformers": "4.57.1",
+    "datasets": "4.0.0",
+    "accelerate": "1.11.0",
+    "bitsandbytes": "0.49.2",
+    "vllm": "0.16.0",
+    "pyyaml": "6.0.3",
+    "openai": "2.24.0",
+    "huggingface_hub": "0.36.0"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "gpu": {
+    "detected": true,
+    "count": 1,
+    "devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "total_memory_mb": 8187,
+        "compute_capability": "8.9"
+      }
+    ],
+    "source": "torch",
+    "cuda_version": "12.8"
+  },
+  "command": {
+    "argv": [
+      "experiments/20_exp16_genesis_show/run_exp16_genesis_show.py"
+    ],
+    "cli_args": {
+      "config": "/home/lin/Bishe_LLM_for_genesis/experiments/20_exp16_genesis_show/configs/genesis_show.yaml",
+      "base_config": "/home/lin/Bishe_LLM_for_genesis/configs/base.yaml",
+      "instruction": "",
+      "interactive": false,
+      "print_raw": false,
+      "disable_sim_state": false,
+      "hide_viewer": false,
+      "list_examples": false,
+      "snap_dir": null,
+      "strict_vllm_compat_check": false
+    }
+  },
+  "random_seed": 42,
+  "config_snapshot": {
+    "dataset_prepare": {
+      "generate": {
+        "num_samples": 1000,
+        "seed": 42,
+        "batch_size": 20,
+        "state_context_ratio": 0.7,
+        "simple_ratio": 0.3,
+        "medium_ratio": 0.4,
+        "complex_ratio": 0.3,
+        "max_workers": 1,
+        "out_dir": "data_prepare",
+        "alpaca_file": "genesis_franka_toolcall_alpaca.json",
+        "sharegpt_file": "genesis_franka_toolcall_sharegpt.json",
+        "stats_file": "genesis_franka_toolcall_stats.json",
+        "append_to_existing": false,
+        "api_base": "https://api.siliconflow.cn/v1",
+        "model": "deepseek-ai/DeepSeek-V3",
+        "api_key": "[REDACTED]",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "temperature": 0.9,
+        "max_tokens": "[REDACTED]",
+        "timeout": 120,
+        "max_retries": 5,
+        "sleep_seconds": 0.5,
+        "dedup_max_rounds": 8
+      },
+      "calibration": {
+        "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+        "max_print_errors": 10,
+        "strict": false
+      },
+      "split": {
+        "input_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+        "out_dir": "data_prepare/splits",
+        "train_ratio": 0.8,
+        "val_ratio": 0.1,
+        "test_ratio": 0.1,
+        "seed": 42,
+        "train_file": "train.json",
+        "val_file": "val.json",
+        "test_file": "test.json",
+        "metadata_file": "split_metadata.json",
+        "preserve_existing_splits": false
+      }
+    },
+    "finetune": {
+      "train": {
+        "llamafactory_dir": "LlamaFactory",
+        "train_file": "data_prepare/splits/train.json",
+        "val_file": "data_prepare/splits/val.json",
+        "leakage_check": {
+          "enabled": true,
+          "strict": true
+        },
+        "gpus": "0",
+        "dry_run": false,
+        "finetune_method": "qlora"
+      }
+    },
+    "test": {
+      "accuracy_eval": {
+        "test_file": "data_prepare/splits/test.json",
+        "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+        "leakage_check": {
+          "enabled": true,
+          "strict": true
+        },
+        "predictions_file": null,
+        "report_file": "experiments/03_eval_exp/reports/accuracy_report.json",
+        "num_samples": 200,
+        "seed": 42,
+        "mode": "api",
+        "api_base": "https://api.openai.com/v1",
+        "model": "gpt-5",
+        "api_key": "[REDACTED]",
+        "api_key_env": "OPENAI_API_KEY",
+        "temperature": 0.0,
+        "max_tokens": "[REDACTED]",
+        "timeout": 120,
+        "max_retries": 3,
+        "sleep_seconds": 0.0,
+        "model_path": "",
+        "backend": "transformers",
+        "quantization": null,
+        "max_new_tokens": "[REDACTED]",
+        "max_model_len": 4096,
+        "gpu_memory_utilization": 0.9,
+        "trust_remote_code": true,
+        "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。"
+      },
+      "regression": {
+        "target": "all"
+      }
+    },
+    "benchmark": {
+      "dataset_file": "data_prepare/genesis_franka_toolcall_alpaca.json",
+      "base_model_path": "model/Qwen_Qwen2.5-3B-Instruct",
+      "finetuned_model_path": "model/qwen2.5-3b-genesis-qlora",
+      "report_dir": "experiments/02_finetune_exp/reports",
+      "num_samples": 100,
+      "seed": 42,
+      "backend": "transformers",
+      "quantization": null,
+      "max_new_tokens": "[REDACTED]",
+      "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。只输出 JSON，不要输出解释。"
+    },
+    "app": {
+      "interactive": {
+        "enabled": true,
+        "show_viewer": true
+      },
+      "sim": {
+        "backend": "gpu",
+        "robot_type": "mjcf",
+        "robot_file": "xml/franka_emika_panda/panda.xml",
+        "genesis_repo": null,
+        "asset_root": null,
+        "gravity": [
+          0.0,
+          0.0,
+          -9.81
+        ]
+      },
+      "state_injection": {
+        "enable_instruction_to_action": true,
+        "enable_instruction_to_motion": true
+      },
+      "inference": {
+        "mode": "local",
+        "max_retries": 3,
+        "sleep_seconds": 0.0,
+        "system_prompt": "你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。如果输入中包含[STATE_CONTEXT]...[/STATE_CONTEXT]，你必须利用其中的物体名字、状态、坐标和姿态进行决策。只输出 JSON，不要输出解释。",
+        "api": {
+          "api_base": "https://api.openai.com/v1",
+          "model": "gpt-5",
+          "api_key": "[REDACTED]",
+          "api_key_env": "OPENAI_API_KEY",
+          "timeout": 120,
+          "generation": {
+            "temperature": 0.0,
+            "max_tokens": "[REDACTED]",
+            "top_p": 1.0,
+            "frequency_penalty": 0.0,
+            "presence_penalty": 0.0
+          }
+        },
+        "local": {
+          "model_path": "model/qwen2.5-3b-top18-rank8-merged-awq",
+          "backend": "vllm",
+          "quantization": "compressed-tensors",
+          "max_model_len": 2048,
+          "gpu_memory_utilization": 0.8,
+          "trust_remote_code": true,
+          "enable_prefix_caching": true,
+          "prefix_cache_max_entries": 8,
+          "generation": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "max_new_tokens": "[REDACTED]"
+          }
+        }
+      }
+    },
+    "exp16_genesis_show": {
+      "reports_dir": "experiments/20_exp16_genesis_show/reports",
+      "show_examples_on_start": true,
+      "skip_vllm_compat_check": true
+    }
+  },
+  "data_files": [],
+  "extra": {
+    "entry": "experiments/20_exp16_genesis_show/run_exp16_genesis_show.py",
+    "experiment": "exp16_genesis_show",
+    "default_strategy": "Top18Rank8_vLLM_AWQ",
+    "skip_vllm_compat_check": true
+  }
+}
