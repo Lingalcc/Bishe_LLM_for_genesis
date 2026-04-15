@@ -1,0 +1,228 @@
+{
+  "turn_index": 1,
+  "instruction": "打开夹爪",
+  "scene_state": {
+    "entities": [
+      {
+        "name": "cube",
+        "category": "object",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "franka",
+        "category": "robot",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.0,
+            -0.7850000262260437,
+            0.0,
+            -2.3559999465942383,
+            0.0,
+            1.5709999799728394,
+            0.7850000262260437,
+            0.03999999910593033,
+            0.03999999910593033
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "ground",
+        "category": "plane",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [],
+          "qvel": []
+        }
+      }
+    ]
+  },
+  "scene_state_after": {
+    "entities": [
+      {
+        "name": "cube",
+        "category": "object",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "franka",
+        "category": "robot",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.0,
+            -0.7850000262260437,
+            0.0,
+            -2.3559999465942383,
+            0.0,
+            1.5709999799728394,
+            0.7850000262260437,
+            0.03999999910593033,
+            0.03999999910593033
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "ground",
+        "category": "plane",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [],
+          "qvel": []
+        }
+      }
+    ]
+  },
+  "model_raw": "{\"commands\": [{\"action\": \"open_gripper\", \"position\": 0.04}]}",
+  "payload": {
+    "commands": [
+      {
+        "action": "open_gripper",
+        "position": 0.04
+      }
+    ]
+  },
+  "results": [
+    {
+      "index": 0,
+      "action": "open_gripper",
+      "status": "ok",
+      "result": {
+        "position": 0.04
+      }
+    }
+  ],
+  "elapsed_sec": 0.0,
+  "num_commands": 1,
+  "num_ok_commands": 1,
+  "execution_success": true,
+  "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_001.png",
+  "error": null,
+  "timestamp": "2026-04-14T16:08:24"
+}

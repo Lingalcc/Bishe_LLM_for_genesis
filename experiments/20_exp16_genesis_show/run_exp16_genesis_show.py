@@ -15,6 +15,18 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BASE_CONFIG = REPO_ROOT / "configs" / "base.yaml"
 DEFAULT_CONFIG = REPO_ROOT / "experiments" / "20_exp16_genesis_show" / "configs" / "genesis_show.yaml"
 DEFAULT_REPORTS_DIR = REPO_ROOT / "experiments" / "20_exp16_genesis_show" / "reports"
+DEFAULT_SNAP_CAMERA_NAME = "exp16_debug_camera"
+DEFAULT_SNAP_CAMERA_OPTIONS = {
+    "res": (1280, 720),
+    "pos": (2.5, -1.6, 1.4),
+    "lookat": (0.5, 0.0, 0.3),
+    "up": (0.0, 0.0, 1.0),
+    "fov": 35.0,
+    "near": 0.05,
+    "far": 100.0,
+    "debug": True,
+    "gui": False,
+}
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -158,6 +170,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--disable-sim-state", action="store_true", help="关闭场景状态注入。")
     parser.add_argument("--hide-viewer", action="store_true", help="关闭 Genesis viewer，仅打印终端结果。")
     parser.add_argument("--list-examples", action="store_true", help="打印推荐指令与动作示例后退出。")
+    parser.add_argument("--snap-dir", type=Path, default=None, help="保存调试截图的目录。")
     parser.add_argument(
         "--strict-vllm-compat-check",
         action="store_true",
@@ -251,9 +264,32 @@ def _print_banner(merged_config: dict[str, Any], *, session_dir: Path) -> None:
         else:
             print("vLLM 版本检查：严格模式")
     print(f"会话目录：{session_dir}")
-    print("内置命令：/help /state /scene /example /examples /actions /raw on|off /quit")
+    print("内置命令：/help /state /scene /example /examples /actions /raw on|off /snap /quit")
     if profile["show_examples_on_start"]:
         _print_instruction_examples()
+
+
+def _resolve_snap_dir(session_dir: Path, snap_dir: Path | None) -> Path | None:
+    if snap_dir is None:
+        return None
+    path = snap_dir if snap_dir.is_absolute() else (session_dir / snap_dir).resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _save_snap(
+    *,
+    manager: Any,
+    session_dir: Path,
+    turn_index: int,
+    snap_dir: Path | None,
+    tag: str = "after",
+) -> Path | None:
+    target_dir = _resolve_snap_dir(session_dir, snap_dir)
+    if target_dir is None:
+        return None
+    path = target_dir / f"turn_{turn_index:03d}_{tag}.png"
+    return manager.save_camera_rgb(DEFAULT_SNAP_CAMERA_NAME, path)
 
 
 def _build_turn_report(
@@ -261,10 +297,12 @@ def _build_turn_report(
     turn_index: int,
     instruction: str,
     scene_state: dict[str, Any] | None,
+    scene_state_after: dict[str, Any] | None,
     model_raw: str,
     payload: dict[str, Any],
     results: list[dict[str, Any]],
     elapsed_sec: float,
+    snap_path: str | None = None,
     error: str | None = None,
 ) -> dict[str, Any]:
     ok_count = sum(1 for item in results if item.get("status") == "ok")
@@ -272,6 +310,7 @@ def _build_turn_report(
         "turn_index": turn_index,
         "instruction": instruction,
         "scene_state": scene_state,
+        "scene_state_after": scene_state_after,
         "model_raw": model_raw,
         "payload": payload,
         "results": results,
@@ -279,6 +318,7 @@ def _build_turn_report(
         "num_commands": len(results),
         "num_ok_commands": ok_count,
         "execution_success": error is None and bool(results) and ok_count == len(results),
+        "snap_path": snap_path,
         "error": error,
         "timestamp": datetime.now().isoformat(timespec="seconds"),
     }
@@ -311,51 +351,76 @@ def run_single_demo(
     print_raw: bool,
     disable_sim_state: bool,
     session_dir: Path,
+    snap_dir: Path | None,
 ) -> Path:
-    from src.sim_core.runtime import SimRuntimeConfig, run_instruction_to_motion
+    from src.app.app_common import (
+        build_interactive_env,
+        collect_scene_state,
+        predict_actions_from_instruction,
+    )
 
-    started_at = time.perf_counter()
-    result = run_instruction_to_motion(
-        SimRuntimeConfig(
+    app_cfg = get_section(merged_config, "app", "interactive")
+    show_viewer = bool(app_cfg.get("show_viewer", True))
+    state_cfg = get_section(merged_config, "app", "state_injection")
+    use_sim_state = bool(state_cfg.get("enable_instruction_to_motion", True))
+    if disable_sim_state:
+        use_sim_state = False
+
+    manager = None
+    try:
+        manager, robot = build_interactive_env(
+            show_viewer=show_viewer,
+            cfg=copy.deepcopy(merged_config),
+            debug_camera_name=DEFAULT_SNAP_CAMERA_NAME,
+            debug_camera_options=DEFAULT_SNAP_CAMERA_OPTIONS,
+        )
+        started_at = time.perf_counter()
+        scene_state = collect_scene_state(robot.manager) if use_sim_state else None
+        model_raw, payload = predict_actions_from_instruction(
+            instruction,
+            merged_config,
+            scene_state=scene_state,
+        )
+        results = robot.execute_json(payload)
+        scene_state_after = collect_scene_state(robot.manager)
+        snap_path = _save_snap(
+            manager=manager,
+            session_dir=session_dir,
+            turn_index=1,
+            snap_dir=snap_dir,
+        )
+        elapsed_sec = time.perf_counter() - started_at
+
+        if print_raw:
+            print("[model_raw]")
+            print(model_raw)
+        if scene_state is not None:
+            print("[scene_state]")
+            print(json.dumps(scene_state, ensure_ascii=False, indent=2))
+        print("[action_json]")
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        _print_execution_results(results)
+        if snap_path is not None:
+            print(f"[exp16] 调试截图已保存：{snap_path}")
+
+        report = _build_turn_report(
+            turn_index=1,
             instruction=instruction,
-            print_raw=print_raw,
-            disable_sim_state=disable_sim_state,
-        ),
-        merged_config=copy.deepcopy(merged_config),
-    )
-    elapsed_sec = time.perf_counter() - started_at
-    model_raw = str(result.get("raw", ""))
-    payload = result.get("payload", {})
-    scene_state = result.get("scene_state")
-    results = result.get("results", [])
-    if not isinstance(payload, dict):
-        raise TypeError("payload 必须是对象。")
-    if not isinstance(results, list):
-        raise TypeError("results 必须是列表。")
-
-    if print_raw:
-        print("[model_raw]")
-        print(model_raw)
-    if scene_state is not None:
-        print("[scene_state]")
-        print(json.dumps(scene_state, ensure_ascii=False, indent=2))
-    print("[action_json]")
-    print(json.dumps(payload, ensure_ascii=False, indent=2))
-    _print_execution_results(results)
-
-    report = _build_turn_report(
-        turn_index=1,
-        instruction=instruction,
-        scene_state=scene_state if isinstance(scene_state, dict) else None,
-        model_raw=model_raw,
-        payload=payload,
-        results=results,
-        elapsed_sec=elapsed_sec,
-    )
-    report_path = _save_turn_report(session_dir, report)
-    print(f"[exp16] 单次执行耗时：{elapsed_sec:.3f}s")
-    print(f"[exp16] 结果已保存：{report_path}")
-    return report_path
+            scene_state=scene_state if isinstance(scene_state, dict) else None,
+            scene_state_after=scene_state_after if isinstance(scene_state_after, dict) else None,
+            model_raw=model_raw,
+            payload=payload,
+            results=results,
+            elapsed_sec=elapsed_sec,
+            snap_path=str(snap_path) if snap_path else None,
+        )
+        report_path = _save_turn_report(session_dir, report)
+        print(f"[exp16] 单次执行耗时：{elapsed_sec:.3f}s")
+        print(f"[exp16] 结果已保存：{report_path}")
+        return report_path
+    finally:
+        if manager is not None:
+            manager.release(destroy_runtime=True)
 
 
 def run_interactive_demo(
@@ -364,6 +429,7 @@ def run_interactive_demo(
     print_raw: bool,
     disable_sim_state: bool,
     session_dir: Path,
+    snap_dir: Path | None,
 ) -> None:
     from src.app.app_common import (
         DEFAULT_APP_EXAMPLE_JSON,
@@ -401,7 +467,12 @@ def run_interactive_demo(
             except Exception as exc:
                 print(f"[exp16] 预热失败，将在首轮推理时重试：{type(exc).__name__}: {exc}")
 
-        manager, robot = build_interactive_env(show_viewer=show_viewer, cfg=merged_config)
+        manager, robot = build_interactive_env(
+            show_viewer=show_viewer,
+            cfg=merged_config,
+            debug_camera_name=DEFAULT_SNAP_CAMERA_NAME,
+            debug_camera_options=DEFAULT_SNAP_CAMERA_OPTIONS,
+        )
         _print_banner(merged_config, session_dir=session_dir)
         print("输入自然语言后，模型会生成 action JSON 并立即在 Genesis 中执行。")
         print("[example_action_json]")
@@ -414,7 +485,7 @@ def run_interactive_demo(
             if raw == "/quit":
                 break
             if raw == "/help":
-                print("内置命令：/help /state /scene /example /examples /actions /raw on|off /quit")
+                print("内置命令：/help /state /scene /example /examples /actions /raw on|off /snap /quit")
                 continue
             if raw == "/state":
                 print_state(robot)
@@ -446,12 +517,28 @@ def run_interactive_demo(
                 else:
                     print("[exp16] 用法：/raw on|off")
                 continue
+            if raw == "/snap":
+                turn_index += 1
+                snap_path = _save_snap(
+                    manager=manager,
+                    session_dir=session_dir,
+                    turn_index=turn_index,
+                    snap_dir=snap_dir,
+                    tag="manual",
+                )
+                if snap_path is None:
+                    print("[exp16] 未设置 --snap-dir，无法保存截图。")
+                else:
+                    print(f"[exp16] 当前画面已保存：{snap_path}")
+                continue
 
             turn_index += 1
             scene_state: dict[str, Any] | None = None
+            scene_state_after: dict[str, Any] | None = None
             model_raw = ""
             payload: dict[str, Any] = {}
             results: list[dict[str, Any]] = []
+            snap_path: Path | None = None
             try:
                 started_at = time.perf_counter()
                 scene_state = collect_scene_state(robot.manager) if use_sim_state else None
@@ -461,6 +548,13 @@ def run_interactive_demo(
                     scene_state=scene_state,
                 )
                 results = robot.execute_json(payload)
+                scene_state_after = collect_scene_state(robot.manager)
+                snap_path = _save_snap(
+                    manager=manager,
+                    session_dir=session_dir,
+                    turn_index=turn_index,
+                    snap_dir=snap_dir,
+                )
                 elapsed_sec = time.perf_counter() - started_at
 
                 if raw_enabled:
@@ -474,10 +568,12 @@ def run_interactive_demo(
                     turn_index=turn_index,
                     instruction=raw,
                     scene_state=scene_state,
+                    scene_state_after=scene_state_after,
                     model_raw=model_raw,
                     payload=payload,
                     results=results,
                     elapsed_sec=elapsed_sec,
+                    snap_path=str(snap_path) if snap_path else None,
                 )
                 report_path = _save_turn_report(session_dir, report)
                 print(
@@ -485,6 +581,8 @@ def run_interactive_demo(
                     f"执行{'成功' if report['execution_success'] else '存在失败'}。"
                 )
                 print(f"[exp16] 已保存：{report_path}")
+                if snap_path is not None:
+                    print(f"[exp16] 调试截图：{snap_path}")
             except Exception as exc:
                 elapsed_sec = 0.0
                 error_text = f"{type(exc).__name__}: {exc}"
@@ -493,10 +591,12 @@ def run_interactive_demo(
                     turn_index=turn_index,
                     instruction=raw,
                     scene_state=scene_state,
+                    scene_state_after=scene_state_after,
                     model_raw=model_raw,
                     payload=payload,
                     results=results,
                     elapsed_sec=elapsed_sec,
+                    snap_path=str(snap_path) if snap_path else None,
                     error=error_text,
                 )
                 report_path = _save_turn_report(session_dir, report)
@@ -540,6 +640,7 @@ def main(argv: list[str] | None = None) -> None:
             print_raw=args.print_raw,
             disable_sim_state=args.disable_sim_state,
             session_dir=session_dir,
+            snap_dir=args.snap_dir,
         )
         return
 
@@ -548,6 +649,7 @@ def main(argv: list[str] | None = None) -> None:
         print_raw=args.print_raw,
         disable_sim_state=args.disable_sim_state,
         session_dir=session_dir,
+        snap_dir=args.snap_dir,
     )
 
 

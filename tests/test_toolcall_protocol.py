@@ -23,6 +23,18 @@ class ToolcallProtocolTests(unittest.TestCase):
         obj = extract_first_json(text)
         self.assertEqual(obj["commands"][0]["action"], "wait")
 
+    def test_extract_partial_commands_from_truncated_json(self) -> None:
+        text = (
+            '{"commands": ['
+            '{"action": "move_ee", "pos": [0.65, 0.0, 0.12], "quat": [0, 1, 0, 0]}, '
+            '{"action": "close_gripper", "position": 0.0}, '
+            '{"action": "move_ee", "pos": [0.65, 0.0, 0.18], "quat": [0, 1'
+        )
+        obj = extract_first_json(text)
+        self.assertEqual(len(obj["commands"]), 2)
+        self.assertEqual(obj["commands"][0]["action"], "move_ee")
+        self.assertEqual(obj["commands"][1]["action"], "close_gripper")
+
     def test_wait_valid_form(self) -> None:
         payload = {"commands": [{"action": "wait"}]}
         cmds = validate_payload(payload)

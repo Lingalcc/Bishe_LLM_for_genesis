@@ -7,6 +7,9 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+from src.eval_core.early_exit_policy import EarlyExitPolicy, parse_exit_layers
+from src.eval_core.generation_early_exit import EarlyExitGenerationConfig, Qwen2EarlyExitGenerator
+from src.eval_core.importance_loader import load_importance_profile
 from src.eval_core.performance_monitor import estimate_tokens_from_text
 from src.utils.vllm_compat import (
     apply_vllm_transformers_config_patch,
@@ -18,6 +21,18 @@ from src.utils.vllm_compat import (
 def _resolve_model_path(model_path: str | Path) -> str:
     """将模型路径规范化为绝对路径字符串。"""
     path = Path(model_path).expanduser()
+    if not path.is_absolute():
+        path = REPO_ROOT / path
+    return str(path.resolve())
+
+
+def _resolve_repo_path(path_like: str | Path | None) -> str | None:
+    if path_like is None:
+        return None
+    text = str(path_like).strip()
+    if not text:
+        return None
+    path = Path(text).expanduser()
     if not path.is_absolute():
         path = REPO_ROOT / path
     return str(path.resolve())
@@ -221,6 +236,15 @@ class HFInferenceEngine:
         tokenizer_path: str | None = None,
         use_flash_attention: bool = False,
         require_gpu: bool = False,
+        early_exit_enabled: bool = False,
+        exit_layers: str | list[int] | None = None,
+        tau_importance: float = 0.6,
+        tau_confidence: float = 0.9,
+        importance_file: str | None = None,
+        early_exit_warmup_tokens: int = 16,
+        early_exit_min_streak: int = 4,
+        early_exit_protect_open_string: bool = False,
+        early_exit_draft_only_layers: str | list[int] | None = None,
     ) -> None:
         self.model_path = _resolve_model_path(model_path)
         self.base_model_path, self.adapter_path, self.adapter_config = _resolve_model_and_adapter_paths(self.model_path)
@@ -231,6 +255,19 @@ class HFInferenceEngine:
         self.tokenizer_path = _resolve_tokenizer_path(self.model_path, tokenizer_path)
         self.use_flash_attention = bool(use_flash_attention)
         self.require_gpu = bool(require_gpu)
+        self.early_exit_enabled = bool(early_exit_enabled)
+        self.exit_layers = parse_exit_layers(exit_layers) or [10, 14, 18, 22, 28]
+        self.tau_importance = float(tau_importance)
+        self.tau_confidence = float(tau_confidence)
+        self.importance_file = _resolve_repo_path(importance_file)
+        self.early_exit_warmup_tokens = int(early_exit_warmup_tokens)
+        self.early_exit_min_streak = int(early_exit_min_streak)
+        self.early_exit_protect_open_string = bool(early_exit_protect_open_string)
+        self.early_exit_draft_only_layers = parse_exit_layers(early_exit_draft_only_layers) or []
+        self._last_generation_trace: dict[str, Any] | None = None
+        self._importance_profile: Any | None = None
+        self._early_exit_policy: EarlyExitPolicy | None = None
+        self._early_exit_generator: Qwen2EarlyExitGenerator | None = None
 
         if self.require_gpu:
             _ensure_cuda_available("transformers")
@@ -307,6 +344,7 @@ class HFInferenceEngine:
                 offload_dir=str(offload_dir),
             )
         self._model.eval()
+        self._init_early_exit_components()
 
     @property
     def token_count_method(self) -> str:
@@ -317,7 +355,130 @@ class HFInferenceEngine:
             return self._model.device
         return next(self._model.parameters()).device
 
-    def _generate_from_tensors(self, input_ids: Any, attention_mask: Any) -> list[str]:
+    def _init_early_exit_components(self) -> None:
+        if not self.early_exit_enabled:
+            return
+        if not self.importance_file:
+            raise ValueError("启用 early_exit_enabled 时必须提供 importance_file。")
+
+        total_layers = int(getattr(self._model.config, "num_hidden_layers", 0) or 0)
+        if total_layers <= 0:
+            total_layers = int(len(getattr(getattr(self._model, "model", None), "layers", [])))
+        if total_layers <= 0:
+            raise ValueError("无法从当前模型解析层数，不能启用早退推理。")
+
+        self._importance_profile = load_importance_profile(
+            self.importance_file,
+            expected_num_layers=total_layers,
+        )
+        self._early_exit_policy = EarlyExitPolicy(
+            exit_layers=self.exit_layers,
+            importance_profile=self._importance_profile,
+            tau_importance=self.tau_importance,
+            tau_confidence=self.tau_confidence,
+            total_layers=total_layers,
+        )
+        self._early_exit_generator = Qwen2EarlyExitGenerator(
+            model=self._model,
+            policy=self._early_exit_policy,
+            generation_config=EarlyExitGenerationConfig(
+                max_new_tokens=self.max_new_tokens,
+                temperature=self.temperature,
+                eos_token_id=self._tokenizer.eos_token_id,
+                pad_token_id=self._tokenizer.pad_token_id,
+                warmup_tokens=self.early_exit_warmup_tokens,
+                min_exit_streak=self.early_exit_min_streak,
+                protect_open_string=self.early_exit_protect_open_string,
+                draft_only_exit_layers=tuple(self.early_exit_draft_only_layers),
+            ),
+            torch_module=self._torch,
+            tokenizer=self._tokenizer,
+        )
+
+    def get_last_generation_trace(self) -> dict[str, Any] | None:
+        return self._last_generation_trace
+
+    def get_tokenizer(self) -> Any:
+        return self._tokenizer
+
+    def tokenize_with_offsets(self, text: str) -> list[dict[str, Any]]:
+        normalized = str(text)
+        if not normalized:
+            return []
+
+        try:
+            encoded = self._tokenizer(
+                normalized,
+                add_special_tokens=False,
+                return_offsets_mapping=True,
+                return_attention_mask=False,
+                return_token_type_ids=False,
+            )
+        except TypeError:
+            encoded = self._tokenizer(
+                normalized,
+                add_special_tokens=False,
+                return_offsets_mapping=True,
+            )
+
+        input_ids = encoded.get("input_ids")
+        offset_mapping = encoded.get("offset_mapping")
+        if hasattr(input_ids, "tolist"):
+            input_ids = input_ids.tolist()
+        if hasattr(offset_mapping, "tolist"):
+            offset_mapping = offset_mapping.tolist()
+        if input_ids and isinstance(input_ids[0], list):
+            input_ids = input_ids[0]
+        if (
+            offset_mapping
+            and isinstance(offset_mapping[0], list)
+            and offset_mapping[0]
+            and isinstance(offset_mapping[0][0], (list, tuple))
+        ):
+            offset_mapping = offset_mapping[0]
+        if not isinstance(input_ids, list) or not isinstance(offset_mapping, list):
+            return []
+
+        tokens: list[dict[str, Any]] = []
+        for index, (token_id, offset) in enumerate(zip(input_ids, offset_mapping)):
+            if not isinstance(offset, (list, tuple)) or len(offset) != 2:
+                continue
+            start = int(offset[0])
+            end = int(offset[1])
+            tokens.append(
+                {
+                    "token_index": index,
+                    "token_id": int(token_id),
+                    "start": start,
+                    "end": end,
+                    "text": normalized[start:end] if end > start else "",
+                }
+            )
+        return tokens
+
+    def _generate_with_early_exit(self, input_ids: Any, attention_mask: Any) -> list[str]:
+        if self._early_exit_generator is None:
+            raise RuntimeError("早退生成器尚未初始化。")
+        if int(getattr(input_ids, "shape", [0])[0]) != 1:
+            raise ValueError("当前动态早退实现仅支持单条生成，请使用 generate()/generate_chat()。")
+
+        target_device = self._input_device()
+        input_ids = input_ids.to(target_device)
+        attention_mask = attention_mask.to(target_device)
+
+        with self._torch.no_grad():
+            output_ids, trace = self._early_exit_generator.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+            )
+
+        self._last_generation_trace = trace
+        prompt_len = int(attention_mask.sum(dim=1)[0].item())
+        new_ids = output_ids[0][prompt_len:]
+        return [self._tokenizer.decode(new_ids, skip_special_tokens=True).strip()]
+
+    def _generate_from_tensors_full_depth(self, input_ids: Any, attention_mask: Any) -> list[str]:
+        self._last_generation_trace = None
         target_device = self._input_device()
         input_ids = input_ids.to(target_device)
         attention_mask = attention_mask.to(target_device)
@@ -345,11 +506,23 @@ class HFInferenceEngine:
             texts.append(self._tokenizer.decode(new_ids, skip_special_tokens=True).strip())
         return texts
 
+    def _generate_from_tensors(self, input_ids: Any, attention_mask: Any) -> list[str]:
+        if self.early_exit_enabled:
+            return self._generate_with_early_exit(input_ids, attention_mask)
+        return self._generate_from_tensors_full_depth(input_ids, attention_mask)
+
     def generate(self, prompt: str) -> str:
         if not isinstance(prompt, str) or not prompt.strip():
             raise ValueError("prompt 必须是非空字符串。")
         inputs = self._tokenizer(prompt, return_tensors="pt")
         outputs = self._generate_from_tensors(inputs["input_ids"], inputs["attention_mask"])
+        return outputs[0]
+
+    def generate_without_early_exit(self, prompt: str) -> str:
+        if not isinstance(prompt, str) or not prompt.strip():
+            raise ValueError("prompt 必须是非空字符串。")
+        inputs = self._tokenizer(prompt, return_tensors="pt")
+        outputs = self._generate_from_tensors_full_depth(inputs["input_ids"], inputs["attention_mask"])
         return outputs[0]
 
     @staticmethod
@@ -363,6 +536,8 @@ class HFInferenceEngine:
 
     def generate_batch(self, prompts: list[str]) -> list[str]:
         prompts = self._validate_prompts(prompts)
+        if self.early_exit_enabled:
+            return [self.generate(prompt) for prompt in prompts]
         inputs = self._tokenizer(prompts, return_tensors="pt", padding=True)
         return self._generate_from_tensors(inputs["input_ids"], inputs["attention_mask"])
 
@@ -375,6 +550,10 @@ class HFInferenceEngine:
     def generate_chat(self, messages: list[dict[str, str]]) -> str:
         text = _render_chat_prompt(self._tokenizer, messages)
         return self.generate(text)
+
+    def generate_chat_without_early_exit(self, messages: list[dict[str, str]]) -> str:
+        text = _render_chat_prompt(self._tokenizer, messages)
+        return self.generate_without_early_exit(text)
 
     def generate_chat_batch(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
         if not isinstance(messages_batch, list) or not messages_batch:
@@ -797,6 +976,8 @@ def build_inference_engine(config: dict[str, Any]) -> Any:
     model_path = config.get("model_path")
     if not isinstance(model_path, str) or not model_path.strip():
         raise ValueError("配置项 `model_path` 必填。")
+    if bool(config.get("early_exit_enabled", False)) and backend != "transformers":
+        raise ValueError("early_exit_enabled 当前仅支持 transformers backend。")
 
     common_kwargs: dict[str, Any] = {
         "model_path": model_path,
@@ -811,6 +992,15 @@ def build_inference_engine(config: dict[str, Any]) -> Any:
         return HFInferenceEngine(
             quantization=config.get("quantization"),
             use_flash_attention=bool(config.get("use_flash_attention", False)),
+            early_exit_enabled=bool(config.get("early_exit_enabled", False)),
+            exit_layers=config.get("exit_layers"),
+            tau_importance=float(config.get("tau_importance", 0.6)),
+            tau_confidence=float(config.get("tau_confidence", 0.9)),
+            importance_file=str(config.get("importance_file")) if config.get("importance_file") else None,
+            early_exit_warmup_tokens=int(config.get("early_exit_warmup_tokens", 16)),
+            early_exit_min_streak=int(config.get("early_exit_min_streak", 4)),
+            early_exit_protect_open_string=bool(config.get("early_exit_protect_open_string", False)),
+            early_exit_draft_only_layers=config.get("early_exit_draft_only_layers"),
             **common_kwargs,
         )
 

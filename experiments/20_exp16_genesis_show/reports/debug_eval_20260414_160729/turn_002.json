@@ -1,0 +1,228 @@
+{
+  "turn_index": 2,
+  "instruction": "关闭夹爪",
+  "scene_state": {
+    "entities": [
+      {
+        "name": "cube",
+        "category": "object",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "franka",
+        "category": "robot",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.0,
+            -0.7850000262260437,
+            0.0,
+            -2.3559999465942383,
+            0.0,
+            1.5709999799728394,
+            0.7850000262260437,
+            0.03999999910593033,
+            0.03999999910593033
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "ground",
+        "category": "plane",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [],
+          "qvel": []
+        }
+      }
+    ]
+  },
+  "scene_state_after": {
+    "entities": [
+      {
+        "name": "cube",
+        "category": "object",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            0.6499999761581421,
+            0.0,
+            0.019999999552965164,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qvel": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "name": "franka",
+        "category": "robot",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [
+            4.205313181016024e-12,
+            -0.7850000262260437,
+            -4.106478351806331e-11,
+            -2.3559999465942383,
+            -2.4160496520098107e-11,
+            1.5709999799728394,
+            0.7850000262260437,
+            9.7238931573429e-08,
+            9.7238931573429e-08
+          ],
+          "qvel": [
+            -7.121491764350285e-12,
+            1.0494389645482327e-12,
+            -1.5625941512942276e-11,
+            -4.750673053728616e-13,
+            -7.33226250982516e-13,
+            -9.958463361662423e-14,
+            1.21393346763643e-13,
+            -1.1210088359803194e-06,
+            -1.1210088359803194e-06
+          ]
+        }
+      },
+      {
+        "name": "ground",
+        "category": "plane",
+        "entity_class": "RigidEntity",
+        "state": {
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quat": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "qpos": [],
+          "qvel": []
+        }
+      }
+    ]
+  },
+  "model_raw": "{\"commands\": [{\"action\": \"close_gripper\", \"position\": 0.0}]}",
+  "payload": {
+    "commands": [
+      {
+        "action": "close_gripper",
+        "position": 0.0
+      }
+    ]
+  },
+  "results": [
+    {
+      "index": 0,
+      "action": "close_gripper",
+      "status": "ok",
+      "result": {
+        "position": 0.0
+      }
+    }
+  ],
+  "elapsed_sec": 0.0,
+  "num_commands": 1,
+  "num_ok_commands": 1,
+  "execution_success": true,
+  "snap_path": "experiments/20_exp16_genesis_show/reports/debug_eval_20260414_160729/snaps/turn_002.png",
+  "error": null,
+  "timestamp": "2026-04-14T16:08:29"
+}

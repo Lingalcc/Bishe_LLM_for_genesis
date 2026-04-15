@@ -32,6 +32,7 @@ DEFAULT_APP_EXAMPLE_JSON = """{
 }"""
 
 _LOCAL_ENGINE_CACHE: dict[str, LocalLLMEngine] = {}
+DEFAULT_DOWNWARD_GRASP_QUAT = [0.0, 1.0, 0.0, 0.0]
 
 
 def extract_first_json_from_text(text: str) -> Any:
@@ -42,6 +43,40 @@ def normalize_action_payload(payload: Any) -> dict[str, Any]:
     normalized = normalize_payload(payload)
     validate_payload(normalized, policy="execution")
     return normalized
+
+
+def _instruction_requires_downward_grasp_pose(instruction: str) -> bool:
+    text = instruction.strip()
+    if not text:
+        return False
+    if "朝下" in text or "夹爪朝下" in text:
+        return True
+    return "方块" in text and "上方" in text
+
+
+def _apply_demo_pose_overrides(instruction: str, payload: dict[str, Any]) -> dict[str, Any]:
+    if not _instruction_requires_downward_grasp_pose(instruction):
+        return payload
+
+    commands = payload.get("commands")
+    if not isinstance(commands, list):
+        return payload
+
+    adjusted = False
+    patched_commands: list[dict[str, Any]] = []
+    for cmd in commands:
+        if not isinstance(cmd, dict):
+            patched_commands.append(cmd)
+            continue
+        patched = dict(cmd)
+        if patched.get("action") == "move_ee":
+            patched["quat"] = list(DEFAULT_DOWNWARD_GRASP_QUAT)
+            adjusted = True
+        patched_commands.append(patched)
+
+    if not adjusted:
+        return payload
+    return {"commands": patched_commands}
 
 
 def collect_scene_state(manager: Any) -> dict[str, Any]:
@@ -328,6 +363,7 @@ def predict_actions_from_instruction(
                 raise ValueError("app.inference.mode must be 'api' or 'local'")
 
             payload = normalize_action_payload(extract_first_json_from_text(raw))
+            payload = _apply_demo_pose_overrides(instruction, payload)
             if sleep_seconds > 0:
                 time.sleep(sleep_seconds)
             return raw, payload
@@ -345,13 +381,23 @@ def _resolve_sim_config(cfg: dict[str, Any] | None) -> dict[str, Any]:
     return sim_cfg if isinstance(sim_cfg, dict) else {}
 
 
-def build_interactive_env(show_viewer: bool = True, *, cfg: dict[str, Any] | None = None):
+def build_interactive_env(
+    show_viewer: bool = True,
+    *,
+    cfg: dict[str, Any] | None = None,
+    debug_camera_name: str | None = None,
+    debug_camera_options: dict[str, Any] | None = None,
+):
     sim_cfg = _resolve_sim_config(cfg)
     backend = str(sim_cfg.get("backend", "gpu")).strip() or "gpu"
     robot_file = str(sim_cfg.get("robot_file", DEFAULT_FRANKA_MJCF)).strip() or DEFAULT_FRANKA_MJCF
     robot_type = str(sim_cfg.get("robot_type", "mjcf")).strip().lower() or "mjcf"
     genesis_repo = sim_cfg.get("genesis_repo")
     asset_root = sim_cfg.get("asset_root")
+    gravity_cfg = sim_cfg.get("gravity", (0.0, 0.0, -9.81))
+    gravity = (0.0, 0.0, -9.81)
+    if isinstance(gravity_cfg, (list, tuple)) and len(gravity_cfg) == 3:
+        gravity = (float(gravity_cfg[0]), float(gravity_cfg[1]), float(gravity_cfg[2]))
 
     preflight = preflight_sim_environment(
         robot_file=robot_file,
@@ -367,7 +413,7 @@ def build_interactive_env(show_viewer: bool = True, *, cfg: dict[str, Any] | Non
         init_kwargs={"precision": "32", "logging_level": "warning"},
         scene_kwargs={
             "show_viewer": show_viewer,
-            "sim_options": gs.options.SimOptions(dt=0.01, gravity=(0, 0, 0)),
+            "sim_options": gs.options.SimOptions(dt=0.01, gravity=gravity),
             "viewer_options": gs.options.ViewerOptions(
                 camera_pos=(2.5, -1.6, 1.4),
                 camera_lookat=(0.5, 0.0, 0.3),
@@ -391,6 +437,9 @@ def build_interactive_env(show_viewer: bool = True, *, cfg: dict[str, Any] | Non
         name="cube",
         morph=gs.morphs.Box(size=(0.04, 0.04, 0.04), pos=(0.65, 0.0, 0.02)),
     )
+    if debug_camera_name:
+        camera_options = dict(debug_camera_options or {})
+        manager.add_camera(debug_camera_name, **camera_options)
     manager.build_scene()
     manager.step(1)
 
@@ -404,6 +453,11 @@ def build_interactive_env(show_viewer: bool = True, *, cfg: dict[str, Any] | Non
         default_command_steps=120,
         default_init_qpos=[0.0, -0.785, 0.0, -2.356, 0.0, 1.571, 0.785, 0.04, 0.04],
         default_init_steps=150,
+        default_hold_kp=[4500.0, 4500.0, 3500.0, 3500.0, 2000.0, 2000.0, 2000.0, 100.0, 100.0],
+        default_hold_kv=[450.0, 450.0, 350.0, 350.0, 200.0, 200.0, 200.0, 10.0, 10.0],
+        default_hold_force_lower=[-87.0, -87.0, -87.0, -87.0, -12.0, -12.0, -12.0, -100.0, -100.0],
+        default_hold_force_upper=[87.0, 87.0, 87.0, 87.0, 12.0, 12.0, 12.0, 100.0, 100.0],
+        default_hold_steps=90,
     )
     robot.move_to_default_pose()
     return manager, robot
