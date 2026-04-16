@@ -1,0 +1,63 @@
+{
+  "experiment": "exp18_topk_scan",
+  "variant_name": "top4_rank8",
+  "selection_label": "按重要性打分选 Top-4 层",
+  "baseline_model_path": "model/qwen2.5-3b-genesis-lora-rank-4",
+  "train_subset": {
+    "path": "experiments/22_exp18_topk_scan/.cache/train_subset_600.json",
+    "size": 600
+  },
+  "selection_strategy": {
+    "selected_layer_count": 4,
+    "score_based": true,
+    "preview_only": false
+  },
+  "layer_score_report": "experiments/22_exp18_topk_scan/reports/layer_scores.json",
+  "target_layers": [
+    0,
+    16,
+    18,
+    21
+  ],
+  "num_target_layers": 4,
+  "module_types": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "lora_target_modules": [
+    "model.layers.0.self_attn.q_proj",
+    "model.layers.0.self_attn.k_proj",
+    "model.layers.0.self_attn.v_proj",
+    "model.layers.0.self_attn.o_proj",
+    "model.layers.0.mlp.gate_proj",
+    "model.layers.0.mlp.up_proj",
+    "model.layers.0.mlp.down_proj",
+    "model.layers.16.self_attn.q_proj",
+    "model.layers.16.self_attn.k_proj",
+    "model.layers.16.self_attn.v_proj",
+    "model.layers.16.self_attn.o_proj",
+    "model.layers.16.mlp.gate_proj",
+    "model.layers.16.mlp.up_proj",
+    "model.layers.16.mlp.down_proj",
+    "model.layers.18.self_attn.q_proj",
+    "model.layers.18.self_attn.k_proj",
+    "model.layers.18.self_attn.v_proj",
+    "model.layers.18.self_attn.o_proj",
+    "model.layers.18.mlp.gate_proj",
+    "model.layers.18.mlp.up_proj",
+    "model.layers.18.mlp.down_proj",
+    "model.layers.21.self_attn.q_proj",
+    "model.layers.21.self_attn.k_proj",
+    "model.layers.21.self_attn.v_proj",
+    "model.layers.21.self_attn.o_proj",
+    "model.layers.21.mlp.gate_proj",
+    "model.layers.21.mlp.up_proj",
+    "model.layers.21.mlp.down_proj"
+  ],
+  "output_dir": "output/exp18_topk_scan/top4_rank8"
+}
