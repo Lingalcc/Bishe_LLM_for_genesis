@@ -1,0 +1,17 @@
+
+===== 2026-04-16 04:09:16 | eval_top4_rank8 =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/03_eval_exp/run_accuracy.py --base-config /home/lin/Bishe_LLM_for_genesis/configs/base.yaml --config /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/.cache/eval_top4_rank8_override.yaml
+
+`torch_dtype` is deprecated! Use `dtype` instead!
+[ok] run meta          : experiments/22_exp18_topk_scan/reports/run_meta.json
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.56it/s]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.24it/s]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.11it/s]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[ok] evaluated samples : 200
+[ok] parse ok          : 6 (0.0300)
+[ok] exact match       : 1 (0.0050)
+[ok] action match      : 2 (0.0100)

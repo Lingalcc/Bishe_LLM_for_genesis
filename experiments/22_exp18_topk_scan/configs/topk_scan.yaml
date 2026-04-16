@@ -1,0 +1,7 @@
+exp18_topk_scan:
+  k_values: [4, 8, 12, 18, 24, 28]
+  layer_model_path: model/Qwen_Qwen2.5-3B-Instruct
+  baseline_model_path: model/qwen2.5-3b-genesis-lora-rank-4
+  rank8_module_types: q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj
+  layer_sample_size: 100
+  train_subset_size: 600

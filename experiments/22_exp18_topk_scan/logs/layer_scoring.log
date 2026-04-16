@@ -1,0 +1,46 @@
+
+===== 2026-04-15 21:22:42 | layer_scoring =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/13_exp11/run_layer_scoring.py --model-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --data-path /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/.cache/train_subset_600.json --output-path /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json --sample-size 100
+
+[layer_scoring] model   : /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct
+[layer_scoring] data    : /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/.cache/train_subset_600.json
+[layer_scoring] output  : /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json
+[layer_scoring] device  : cuda
+[layer_scoring] dtype   : torch.bfloat16
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  8.85it/s]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 11.22it/s]
+[layer_scoring] 已写入: /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json
+
+===== 2026-04-15 21:50:17 | layer_scoring =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/13_exp11/run_layer_scoring.py --model-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --data-path /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/.cache/train_subset_600.json --output-path /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json --sample-size 100
+
+[layer_scoring] model   : /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct
+[layer_scoring] data    : /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/.cache/train_subset_600.json
+[layer_scoring] output  : /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json
+[layer_scoring] device  : cuda
+[layer_scoring] dtype   : torch.bfloat16
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 50.86it/s]
+[layer_scoring] 已写入: /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json
+
+===== 2026-04-15 22:16:39 | layer_scoring =====
+cwd: /home/lin/Bishe_LLM_for_genesis
+command: /home/lin/miniconda3/envs/llm_genesis/bin/python /home/lin/Bishe_LLM_for_genesis/experiments/13_exp11/run_layer_scoring.py --model-path /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct --data-path /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/.cache/train_subset_600.json --output-path /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json --sample-size 100
+
+[layer_scoring] model   : /home/lin/Bishe_LLM_for_genesis/model/Qwen_Qwen2.5-3B-Instruct
+[layer_scoring] data    : /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/.cache/train_subset_600.json
+[layer_scoring] output  : /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json
+[layer_scoring] device  : cuda
+[layer_scoring] dtype   : torch.bfloat16
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 94.49it/s]
+[layer_scoring] 已写入: /home/lin/Bishe_LLM_for_genesis/experiments/22_exp18_topk_scan/reports/layer_scores.json

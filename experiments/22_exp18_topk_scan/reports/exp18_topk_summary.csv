@@ -1,0 +1,7 @@
+name,k,num_target_layers,parse_ok_rate,exact_match_rate,action_match_rate,avg_latency_sec,avg_throughput_tps,avg_peak_vram_mb,max_peak_vram_mb,report_path,output_dir
+top4_rank8,4,4,0.03,0.005,0.01,3.0313945609049733,29.671570799378873,6060.09,6062.0,experiments/22_exp18_topk_scan/reports/accuracy_report_top4_rank8.json,output/exp18_topk_scan/top4_rank8
+top8_rank8,8,8,0.065,0.0,0.025,2.8463746589848595,27.994760191651984,6062.02,6064.0,experiments/22_exp18_topk_scan/reports/accuracy_report_top8_rank8.json,output/exp18_topk_scan/top8_rank8
+top12_rank8,12,12,0.06,0.035,0.04,3.15674830662485,26.67339703782186,6064.0,6064.0,experiments/22_exp18_topk_scan/reports/accuracy_report_top12_rank8.json,output/exp18_topk_scan/top12_rank8
+top18_rank8,18,18,0.995,0.305,0.58,3.372531945420014,24.73244753414855,6082.0,6082.0,experiments/22_exp18_topk_scan/reports/accuracy_report_top18_rank8.json,output/exp18_topk_scan/top18_rank8
+top24_rank8,24,24,0.99,0.31,0.59,3.688183268189896,22.82032368101386,6102.0,6102.0,experiments/22_exp18_topk_scan/reports/accuracy_report_top24_rank8.json,output/exp18_topk_scan/top24_rank8
+top28_rank8,28,28,0.99,0.31,0.59,3.774254024370039,21.684792237812854,6114.0,6114.0,experiments/22_exp18_topk_scan/reports/accuracy_report_top28_rank8.json,output/exp18_topk_scan/top28_rank8
