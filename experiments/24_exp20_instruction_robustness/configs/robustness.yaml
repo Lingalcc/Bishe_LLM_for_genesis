@@ -1,0 +1,22 @@
+mode: build-only
+dataset_file: data_prepare/splits/test.json
+seed: 42
+per_category: 20
+
+system_prompt: 你是 Franka 机械臂控制指令生成器。请把用户自然语言转换为可执行的 JSON action。只输出 JSON，不要输出解释。
+
+long_context:
+  target_chars: 1400
+
+local:
+  model_path: model/qwen2.5-3b-top18-rank8-merged-awq
+  backend: vllm
+  quantization: compressed-tensors
+  skip_vllm_compat_check: true
+  max_model_len: 4096
+  gpu_memory_utilization: 0.8
+  trust_remote_code: true
+  generation:
+    temperature: 0.0
+    top_p: 1.0
+    max_new_tokens: 512

@@ -1,0 +1,144 @@
+{
+  "experiment": "exp20_instruction_robustness",
+  "mode": "local",
+  "stress_dataset": "/home/lin/Bishe_LLM_for_genesis/experiments/24_exp20_instruction_robustness/reports/exp20_stress_dataset.json",
+  "num_cases": 100,
+  "num_evaluated": 100,
+  "overall": {
+    "parse_ok_rate": 0.97,
+    "exact_match_rate": 0.24,
+    "action_match_rate": 0.49,
+    "avg_latency_sec": 1.6060137069801204,
+    "error_counts": {
+      "semantic_understanding": 48,
+      "none": 24,
+      "parameter_mapping": 25,
+      "json_parse": 3
+    }
+  },
+  "category_rows": [
+    {
+      "category": "standard",
+      "category_label": "标准指令",
+      "total": 20,
+      "parse_ok_rate": 1.0,
+      "exact_match_rate": 0.45,
+      "action_match_rate": 0.75,
+      "avg_latency_sec": 1.1218937906005522,
+      "avg_input_chars": 55.45,
+      "avg_input_tokens_est": 42.7,
+      "avg_command_count": 2.6,
+      "error_counts": {
+        "semantic_understanding": 5,
+        "none": 9,
+        "parameter_mapping": 6
+      },
+      "semantic_understanding_errors": 5,
+      "action_order_errors": 0,
+      "parameter_mapping_errors": 6,
+      "json_parse_errors": 0,
+      "parse_drop_vs_standard": 0.0,
+      "action_drop_vs_standard": 0.0
+    },
+    {
+      "category": "complex_multistep",
+      "category_label": "复杂多步指令",
+      "total": 20,
+      "parse_ok_rate": 0.95,
+      "exact_match_rate": 0.1,
+      "action_match_rate": 0.25,
+      "avg_latency_sec": 2.6048058062000563,
+      "avg_input_chars": 152.25,
+      "avg_input_tokens_est": 115.3,
+      "avg_command_count": 4.45,
+      "error_counts": {
+        "semantic_understanding": 14,
+        "parameter_mapping": 3,
+        "json_parse": 1,
+        "none": 2
+      },
+      "semantic_understanding_errors": 14,
+      "action_order_errors": 0,
+      "parameter_mapping_errors": 3,
+      "json_parse_errors": 1,
+      "parse_drop_vs_standard": 0.050000000000000044,
+      "action_drop_vs_standard": 0.5
+    },
+    {
+      "category": "noise_redundant",
+      "category_label": "含噪声/冗余描述指令",
+      "total": 20,
+      "parse_ok_rate": 0.95,
+      "exact_match_rate": 0.25,
+      "action_match_rate": 0.35,
+      "avg_latency_sec": 1.733547041199745,
+      "avg_input_chars": 221.85,
+      "avg_input_tokens_est": 194.55,
+      "avg_command_count": 2.5,
+      "error_counts": {
+        "semantic_understanding": 12,
+        "none": 5,
+        "json_parse": 1,
+        "parameter_mapping": 2
+      },
+      "semantic_understanding_errors": 12,
+      "action_order_errors": 0,
+      "parameter_mapping_errors": 2,
+      "json_parse_errors": 1,
+      "parse_drop_vs_standard": 0.050000000000000044,
+      "action_drop_vs_standard": 0.4
+    },
+    {
+      "category": "long_context",
+      "category_label": "长文本指令",
+      "total": 20,
+      "parse_ok_rate": 0.95,
+      "exact_match_rate": 0.2,
+      "action_match_rate": 0.45,
+      "avg_latency_sec": 1.238887585750308,
+      "avg_input_chars": 1630.1,
+      "avg_input_tokens_est": 1605.05,
+      "avg_command_count": 2.8,
+      "error_counts": {
+        "semantic_understanding": 10,
+        "parameter_mapping": 5,
+        "none": 4,
+        "json_parse": 1
+      },
+      "semantic_understanding_errors": 10,
+      "action_order_errors": 0,
+      "parameter_mapping_errors": 5,
+      "json_parse_errors": 1,
+      "parse_drop_vs_standard": 0.050000000000000044,
+      "action_drop_vs_standard": 0.3
+    },
+    {
+      "category": "boundary_ambiguous",
+      "category_label": "边界或含糊指令",
+      "total": 20,
+      "parse_ok_rate": 1.0,
+      "exact_match_rate": 0.2,
+      "action_match_rate": 0.65,
+      "avg_latency_sec": 1.33093431114994,
+      "avg_input_chars": 175.0,
+      "avg_input_tokens_est": 137.8,
+      "avg_command_count": 2.85,
+      "error_counts": {
+        "parameter_mapping": 9,
+        "none": 4,
+        "semantic_understanding": 7
+      },
+      "semantic_understanding_errors": 7,
+      "action_order_errors": 0,
+      "parameter_mapping_errors": 9,
+      "json_parse_errors": 0,
+      "parse_drop_vs_standard": 0.0,
+      "action_drop_vs_standard": 0.09999999999999998
+    }
+  ],
+  "length_latency": {
+    "num_latency_points": 100,
+    "input_chars_latency_pearson": -0.11519659289996204,
+    "estimated_tokens_latency_pearson": -0.12165252830982476
+  }
+}
