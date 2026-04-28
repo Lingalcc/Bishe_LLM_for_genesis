@@ -1,10 +1,10 @@
 # 实验实施与结果汇总
 
-更新时间：2026-03-31（已补充 Exp7 vLLM 显存预算实验脚本与索引）
+更新时间：2026-04-28（已补充 Exp20 复杂、噪声与长文本指令鲁棒性实验）
 
 ## 统计口径
 
-- 统计范围：`experiments/01_data_exp` 到当前已纳入索引的 `experiments/11_exp7_vllm`，以及与实验直接对应的 `data_prepare/` 数据产物。
+- 统计范围：`experiments/01_data_exp` 到当前已纳入索引的实验目录，以及与实验直接对应的 `data_prepare/` 数据产物。
 - 判定标准：
   - 已完成并有结构化结果：仓库内存在 `csv/json/md/png` 等可直接引用的结果文件。
   - 已执行但结果不完整：存在部分训练报告或原始日志，但缺少完整对比结果。
@@ -27,6 +27,34 @@
 | 10 | Exp6 Prompt 消融 | 已完成并有结构化结果 | `experiments/10_exp6_prompt/reports/*` | 在正式测试集抽样 100 条的口径下，当前 Baseline Prompt 明显优于已尝试的 Optimized Prompt。 |
 | 11 | Exp7 Prefix Caching 对照 | 已实现但未见结果 | 暂无 | 已新增开关对照脚本，可直接比较 Prefix Cache 开/关下的延迟、吞吐与显存指标。 |
 | 11-补充 | Exp7 vLLM 显存预算对照 | 已实现但未见结果 | 暂无 | 已新增 `8GB / 6GB / 4GB / 2GB` 四档预算脚本，可直接比较 vLLM 在不同显存分配下的速度、吞吐与 OOM 边界。 |
+| 24 / Exp20 | 复杂、噪声与长文本指令鲁棒性分析 | 已实现并生成 stress set | `experiments/24_exp20_instruction_robustness/reports/*` | 按标准、复杂多步、噪声冗余、长文本、边界含糊五类输入分别统计 JSON 可解析率、动作匹配率、错误来源和长度-时延关系。 |
+
+## 24 / Exp20 复杂、噪声与长文本指令鲁棒性分析
+
+实验目标：在最终微调推理方案上补充输入类型敏感性分析，回应复杂指令、噪声指令、长文本指令是否会带来结构化输出退化的问题。
+
+实验口径：
+
+- 标准指令：直接使用原测试集指令，作为 JSON 可解析率、动作匹配率和平均时延的对照组。
+- 复杂多步指令：优先选择多 commands 样本，并强调动作顺序，用于观察动作遗漏、动作顺序调换和步骤合并。
+- 含噪声/冗余描述指令：在核心指令外加入背景、备注、重复说明，用于观察语义理解是否被非动作信息干扰。
+- 长文本指令：加入长段实验记录并显式标出当前用户指令，用于同时观察结构化输出稳定性和推理时延增长。
+- 边界或含糊指令：加入默认值、边界、安全距离等表述，用于观察参数映射和默认值处理错误。
+
+当前状态：
+
+- 已新增脚本：`experiments/24_exp20_instruction_robustness/run_exp20_instruction_robustness.py`
+- 已新增配置：`experiments/24_exp20_instruction_robustness/configs/robustness.yaml`
+- 已生成 stress set：`experiments/24_exp20_instruction_robustness/reports/exp20_stress_dataset.json`
+- 默认只构建数据集；使用 `--mode local` 可直接调用 `Top18Rank8 + vLLM + compressed-tensors` 最终方案实测。
+
+论文解读建议：
+
+- 若 JSON 可解析率保持接近标准指令，而动作匹配率下降，说明主要问题不是格式生成，而是语义理解、动作顺序或参数映射。
+- 若复杂多步指令下降更明显，应重点讨论动作顺序与步骤遗漏。
+- 若噪声/冗余指令下降更明显，应重点讨论核心指令定位能力。
+- 若长文本指令准确率稳定但平均时延上升，可表述为最终方案结构化输出能力基本稳定，但推理时延随输入长度增加。
+- 若边界或含糊指令出现较多 exact mismatch 而 action match 仍较高，说明主要风险集中在默认值和参数映射。
 
 ## 01 数据生成实验
 

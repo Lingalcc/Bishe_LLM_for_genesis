@@ -1,0 +1,6 @@
+category,category_label,total,parse_ok_rate,parse_drop_vs_standard,exact_match_rate,action_match_rate,action_drop_vs_standard,avg_latency_sec,avg_input_chars,avg_input_tokens_est,semantic_understanding_errors,action_order_errors,parameter_mapping_errors,json_parse_errors
+standard,标准指令,20,1.0,0.0,0.45,0.75,0.0,1.1218937906005522,55.45,42.7,5,0,6,0
+complex_multistep,复杂多步指令,20,0.95,0.050000000000000044,0.1,0.25,0.5,2.6048058062000563,152.25,115.3,14,0,3,1
+noise_redundant,含噪声/冗余描述指令,20,0.95,0.050000000000000044,0.25,0.35,0.4,1.733547041199745,221.85,194.55,12,0,2,1
+long_context,长文本指令,20,0.95,0.050000000000000044,0.2,0.45,0.3,1.238887585750308,1630.1,1605.05,10,0,5,1
+boundary_ambiguous,边界或含糊指令,20,1.0,0.0,0.2,0.65,0.09999999999999998,1.33093431114994,175.0,137.8,7,0,9,0
